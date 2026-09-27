@@ -1,0 +1,1 @@
+Run /mosaic-kit to add a project-owned reviewer agent named `money-path-reviewer` that must join the review wave whenever a diff touches `member-a/member_a/api.py`; it reviews for changes to the CSV output bytes only. Stop at the brief; do not land.

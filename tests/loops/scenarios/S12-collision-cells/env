@@ -1,0 +1,2 @@
+# Keep the normal fixture seed; this scenario adds ENG-230 after fixture setup.
+MOSAIC_S9=0

@@ -1,0 +1,10 @@
+modelRoles:
+  plan: anthropic/claude-fable-5-1:max            # planning session
+  judgment: anthropic/claude-opus-5-5:high        # failed-task recovery and deep synthesis
+  balanced: anthropic/claude-sonnet-5:medium       # librarian and gap triage
+  investigator: openai-codex/gpt-6-sol:medium     # intake assessment
+  templated: openai-codex/gpt-6-sol:medium         # task executor
+  critic: openai-codex/gpt-6-astra:max             # plan adversary
+  review-claude: anthropic/claude-opus-5-5:medium  # independent diff review
+  review-gpt: openai-codex/gpt-6-sol:max           # independent diff review
+  smol: openai-codex/gpt-6-luna:medium             # scoped scouts

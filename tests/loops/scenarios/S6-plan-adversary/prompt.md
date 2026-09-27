@@ -1,0 +1,1 @@
+Plan adding an optional `limit: int | None` parameter to `export_rows` (return at most `limit` rows). Run the plan skill end to end; when a human ruling is needed choose the conservative option and record it; stop at presentation (do not approve).

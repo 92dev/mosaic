@@ -1,0 +1,21 @@
+{
+  "project": {
+    "name": "Fixture",
+    "summary": "A tiny link repo used to loop-test the harness."
+  },
+  "remotes": {
+    "link": "../origins/link.git",
+    "members": {
+      "member-a": "../origins/member-a.git"
+    }
+  },
+  "members": [
+    {
+      "name": "member-a",
+      "path": "member-a",
+      "stack": "Python standard-library CSV/IO export API, uv, pytest",
+      "testCommand": "uv run pytest <file…>",
+      "coverageNote": "export coverage is `tests/test_api.py`"
+    }
+  ]
+}

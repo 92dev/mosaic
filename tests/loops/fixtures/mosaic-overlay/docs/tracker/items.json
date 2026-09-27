@@ -1,0 +1,135 @@
+[
+  {
+    "key": "ENG-201",
+    "id": "86a82e01-6884-4c98-b3ec-7f8ef704c201",
+    "title": "Add a `limit` parameter to export_rows",
+    "body": "Large exports need a caller-supplied row cap. Add an optional integer limit without changing the CSV default. I am working on the API shape and its boundary cases; please coordinate before starting another change in export_rows.\n\n<!-- mosaic:begin -->\nplan: none\nrepos: member-a\nareas: member-a/member_a/api.py, contract:export_rows\nbranch: member-a:task/0006-export-limit\nwriter: w-dana#2\nlast-event: executing 2026-09-16T00:00:00.000Z\nparked: none\n<!-- mosaic:end -->\n\nHuman note: this remains assigned to Dana until we agree a handoff.",
+    "state": "executing",
+    "assignee": "dana",
+    "labels": ["mosaic", "area:export"],
+    "team": "Engineering",
+    "url": "https://linear.app/fixture/issue/ENG-201",
+    "updatedAt": "2026-09-16T00:00:00.000Z",
+    "repos": ["member-a"],
+    "managed": {
+      "plan": null,
+      "repos": ["member-a"],
+      "areas": ["member-a/member_a/api.py", "contract:export_rows"],
+      "branch": {"member-a": "task/0006-export-limit"},
+      "writer": "w-dana#2",
+      "lastEvent": {"event": "executing", "ts": "2026-09-16T00:00:00.000Z"},
+      "parked": null
+    },
+    "comments": [
+      {"id": "c-201-1", "body": "Started the limit contract discussion. I have not published a landing receipt; this is active work, even if the thread is quiet.", "author": "dana", "createdAt": "2026-09-16T00:00:00.000Z"}
+    ],
+    "attachments": []
+  },
+  {
+    "key": "ENG-202",
+    "id": "bd0d3302-c72b-46b2-8957-eec87ea0c202",
+    "title": "Backoffice export button",
+    "body": "Expose the existing CSV export operation through the backoffice command entry point. This item covers the command/button wiring, not an API format or limit change.\n\n<!-- mosaic:begin -->\nplan: none\nrepos: member-a\nareas: member-a/member_a/cli.py\nbranch: none\nwriter: w-lior#1\nlast-event: intent 2026-09-24T09:00:00.000Z\nparked: none\n<!-- mosaic:end -->",
+    "state": "planning",
+    "assignee": "lior",
+    "labels": ["mosaic", "area:backoffice"],
+    "team": "Engineering",
+    "url": "https://linear.app/fixture/issue/ENG-202",
+    "updatedAt": "2026-09-24T09:00:00.000Z",
+    "repos": ["member-a"],
+    "managed": {
+      "plan": null,
+      "repos": ["member-a"],
+      "areas": ["member-a/member_a/cli.py"],
+      "branch": {},
+      "writer": "w-lior#1",
+      "lastEvent": {"event": "intent", "ts": "2026-09-24T09:00:00.000Z"},
+      "parked": null
+    },
+    "comments": [
+      {"id": "c-202-1", "body": "Keeping API changes out of this item. I will reuse export_rows as it exists when this is approved.", "author": "lior", "createdAt": "2026-09-24T09:00:00.000Z"}
+    ],
+    "attachments": []
+  },
+  {
+    "key": "ENG-210",
+    "id": "3bf5c810-099e-48dc-bdca-3dd34d764210",
+    "title": "CSV export crashes on empty list",
+    "body": "A filtered result with no rows crashes instead of producing an empty download. Reproduction: call export_rows([]) using the default format. The caller should receive an empty document rather than an IndexError. Please investigate the current code and the existing empty-input decision before selecting a fix.",
+    "state": "triage",
+    "assignee": "maya",
+    "labels": ["intake", "bug", "area:export"],
+    "team": "Engineering",
+    "url": "https://linear.app/fixture/issue/ENG-210",
+    "updatedAt": "2026-09-24T15:40:00.000Z",
+    "repos": ["member-a"],
+    "managed": null,
+    "comments": [
+      {"id": "c-210-1", "body": "The traceback points to csv.DictWriter fieldnames=rows[0].keys(). It happens only when the result is empty; a single row still downloads normally.", "author": "maya", "createdAt": "2026-09-24T14:10:00.000Z"},
+      {"id": "c-210-2", "body": "Retest by exporting a filter with no matches, then one with a row. Empty should not crash; the nonempty CSV must still have its header and values. There is an empty-input test in member-a but please check whether it is actually enabled.", "author": "dana", "createdAt": "2026-09-24T15:40:00.000Z"}
+    ],
+    "attachments": []
+  },
+  {
+    "key": "ENG-211",
+    "id": "a482aa11-d7c1-42bd-ac11-ce5a88450211",
+    "title": "export_rows should accept fmt='json'",
+    "body": "Our integration wants JSON records instead of parsing a CSV download. The function already has a fmt argument, so I tried fmt='json', but the result still looks like CSV. Please establish whether this is already implemented or covered by approved work; leave CSV as the default.",
+    "state": "triage",
+    "assignee": "lior",
+    "labels": ["intake", "feature", "area:export"],
+    "team": "Engineering",
+    "url": "https://linear.app/fixture/issue/ENG-211",
+    "updatedAt": "2026-09-24T16:05:00.000Z",
+    "repos": ["member-a"],
+    "managed": null,
+    "comments": [
+      {"id": "c-211-1", "body": "There is a draft called Export format option, plan 0003, covering explicit JSON and unsupported format errors. Check its status rather than assuming the argument name means the behavior has landed.", "author": "dana", "createdAt": "2026-09-24T16:05:00.000Z"}
+    ],
+    "attachments": []
+  },
+  {
+    "key": "ENG-212",
+    "id": "f921ce12-cc27-4d47-bffc-b6e228dd1212",
+    "title": "Do we need Parquet exports?",
+    "body": "Product question: do customers need Parquet as a supported export format, or is CSV plus an explicit JSON option enough? Supporting a new format would be a product commitment; this is not an implementation request or approval to add a dependency. Product needs to choose the supported formats and the customer use case before engineering can scope this.",
+    "state": "triage",
+    "assignee": "noor",
+    "labels": ["intake", "product-question", "area:export"],
+    "team": "Engineering",
+    "url": "https://linear.app/fixture/issue/ENG-212",
+    "updatedAt": "2026-09-24T17:20:00.000Z",
+    "repos": ["member-a"],
+    "managed": null,
+    "comments": [
+      {"id": "c-212-1", "body": "I own the product decision. Hold implementation until I confirm a customer need and whether Parquet is in the supported-format promise. No decision has been made; do not infer one from the JSON plan.", "author": "noor", "createdAt": "2026-09-24T17:20:00.000Z"}
+    ],
+    "attachments": []
+  },
+  {
+    "key": "ENG-190",
+    "id": "1f159190-4a58-4574-a5e8-0d6c2e5fd190",
+    "title": "Scaffold member-a export package",
+    "body": "Create the member-a Python package and its initial CSV export entry point. Historical coordination item for archived plan 0001; later empty-input and format work is separate.\n\n<!-- mosaic:begin -->\nplan: docs/plans/archived/0001-scaffold-member-a.md\nrepos: member-a, link-repo\nareas: member-a/member_a/api.py, contract:export_rows\nbranch: none\nwriter: w-7a4190#1\nlast-event: done 2026-09-02T12:00:00.000Z\nparked: none\n<!-- mosaic:end -->",
+    "state": "done",
+    "assignee": "dana",
+    "labels": ["mosaic", "area:export"],
+    "team": "Engineering",
+    "url": "https://linear.app/fixture/issue/ENG-190",
+    "updatedAt": "2026-09-02T12:00:00.000Z",
+    "repos": ["member-a", "link-repo"],
+    "managed": {
+      "plan": "docs/plans/archived/0001-scaffold-member-a.md",
+      "repos": ["member-a", "link-repo"],
+      "areas": ["member-a/member_a/api.py", "contract:export_rows"],
+      "branch": {},
+      "writer": "w-7a4190#1",
+      "lastEvent": {"event": "done", "ts": "2026-09-02T12:00:00.000Z"},
+      "parked": null
+    },
+    "comments": [
+      {"id": "c-190-1", "body": "Initial scaffold is represented by archived plan 0001. Use the repository landing evidence, not this tracker state, to establish what is published.", "author": "dana", "createdAt": "2026-09-02T12:00:00.000Z"}
+    ],
+    "attachments": []
+  }
+]

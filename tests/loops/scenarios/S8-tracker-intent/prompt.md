@@ -1,0 +1,1 @@
+Start planning the `limit` parameter change: determine targets, check the tracker for collisions, write the intent item, reserve the number, and stop before drafting tasks. Report the collision check result.

@@ -1,0 +1,11 @@
+# Building-side reference material and loop outputs are local only.
+/harness-2026-09-02/
+/claude-code-harness/
+/tests/loops/runs/
+/tests/migration/runs/
+/tests/loops/FLAKINESS.md
+*.swp
+.DS_Store
+node_modules/
+__pycache__/
+.venv/

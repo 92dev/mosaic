@@ -1,0 +1,107 @@
+---
+name: mosaic-install
+description: "Migrate an existing project onto mosaic from the mosaic checkout. Argument: target path, then optional answers."
+---
+# /mosaic-install — Migrate an existing project
+
+Run from the mosaic checkout, not from a target that already has the kit. Input: a target path such as `../mb-platform` and optional answers about topology, conflicts, tracker provider, or `cutoff: yes|no`; never ask the human to author a manifest.
+Resolve the checkout and target to absolute paths; quote paths in commands. All `kit/...` reads and installer commands below are relative to the checkout; installed checks run with cwd = target root.
+Read `kit/docs/install/migration-map.md`, `kit/docs/install/concept-alignment.md`, `kit/docs/install/placeholders.md`, and `kit/README.md`. Apply the alignment, conflict policies, nothing-lost ledger, and review checklist; do not substitute a fresh install.
+Planning and the adversary run at maximum effort. Use a max-effort session; disclose and stop for a decision if that setting is unavailable.
+A migration spans sessions. Keep `docs/mosaic-migration/STATUS.md` on the branch: one line per phase (`0 survey`, `1 dry install`, `2 plan`, `2a adversary`, `3 execute`, `3a kit-adaptations gate`, `4 review`, `5 self-check`, `6 brief`) with `done`/`in progress <detail>`/`pending` and the last commit. When the target already has `mosaic/install` with that file, resume at the first phase that is not `done`, re-reading its inputs instead of redoing finished phases; update the file after every phase and before ending a session for any reason.
+On an older migration, backfill alignment/adaptation records from its evidence without repeating completed work; add the pending gate. Relocate only an installation-owned root `mosaic.manifest.json` to `docs/mosaic-migration/manifest.json` and repair active references; preserve historical reports and unrelated user files.
+
+## Safety boundary
+
+Read `kit/docs/process/git-flow.md` and `kit/docs/process/human-gates.md`.
+Every target write, including survey reports and the manifest, belongs on `mosaic/install`; do not edit, commit on, or advance its main/default branch before sign-off. Landing is the only approved exception, in step 6.
+Never stash, reset, clean, stage, overwrite, or commit the target's pre-existing uncommitted changes. A dirty target/member or an unrelated existing `mosaic/install` branch blocks mutation: finish read-only discovery, report the blocker, and stop without target writes.
+Keep the pre-install commit and external snapshots of collision files (bytes, modes, symlink targets). Recheck ownership/status before each write; unexpected concurrent edits are the user's and require stopping, not recovery by force.
+This bootstrap uses the fixed report path and branch below, not `/mosaic-plan`'s numbered-plan reservation or a push to main. Scope is installing and mapping only, never product work, a repo split, deployment, or unsolicited tracker writes.
+
+## 0 — Survey (read-only)
+
+Read `kit/docs/process/plan-home.md`, `kit/docs/process/stack.md`, `kit/docs/process/verification.md`, and `kit/docs/process/targeted-tests.md`.
+Inventory git status (including untracked files), HEAD/base/default branch, remotes, worktrees, tracked layout, mono/multi-repo boundaries, deployables, packages, stacks, and the actual test commands from manifests/CI.
+Inventory `AGENTS.md`, `CLAUDE.md`, `.omp/AGENTS.md`, `.omp/RULES.md`, both ports' agents/skills/rules/settings, hooks, CI, `docs/**` (PRDs, architecture, ADRs, gaps, runbooks, plans, tickets, diagrams), member/component docs and local harness files, and trackers in use.
+Record `cutoff: yes|no` from explicit owner input or ruling H0, naming process/runbook exceptions; ask if needed. With the human unavailable, default to `no`, never infer cutoff permission. Inventory root/component docs and all old ledgers by family/count for the map's cutoff boundary.
+Derive the default branch with `git symbolic-ref refs/remotes/origin/HEAD` (fallback: the sole `main`/`master` on origin per `placeholders.md`) and landing policy from CI/guidance/branch protection; follow the observed branch and PR-with-CI flow unless the human overrides (H3). Record unavailable or contradictory evidence.
+Confirm real test commands by running safe read-only checks and retaining cwd/command/exit/output. If a runner writes caches/artifacts, run an isolated disposable snapshot outside the target instead; never run format-fix, migrations, production calls, or mutating setup in the surveyed tree. Record unavailable proof and prerequisites, not a fabricated pass.
+Apply every relevant mapping row, classify mixed gaps defect-first, inventory each source for the nothing-lost ledger, and enumerate candidate kit-path collisions with a merge decision per file. Do not modify source records during discovery.
+For every concept, compare adapting installed kit text with restructuring target docs/registries/ledgers. Prefer text adaptation for vocabulary/paths; restructure only for a named mechanical requirement or a recorded human choice, never merely to resemble the kit.
+Read `kit/docs/process/human-gates.md`. Stop before any target write if a blocker needs a human answer (for example two plausible link repos, incompatible landing/deploy policy, or dirty files); present the survey and the exact choice in the brief.
+Read `kit/docs/process/git-flow.md`; read `kit/docs/process/records.md`.
+Only after the read-only survey is clear, create `mosaic/install` from the observed clean base (or verify an explicitly resumed installation branch); do not update main. Write `docs/mosaic-migration/00-survey.md` on that branch with the inventory, applicable mapping rows, command evidence/limits, baseline commit, and per-file conflict decisions.
+
+## 1 — Derived manifest and dry install
+
+Read `kit/docs/process/records.md`, `kit/docs/process/plan-home.md`, and `kit/docs/process/stack.md`.
+Derive every value from the survey: project name/full-sentence summary, topology, default branch, remotes, members or components, stacks, test commands/cwd, and coverage notes; cite evidence in the survey. Ask only for missing facts or rulings, not JSON; do not silently accept helper defaults or invent independent repos for monorepo packages.
+Generate `docs/mosaic-migration/manifest.json` using `kit/README.md`'s exact schema. It is an installation record the skill supplies to the mechanical helper, not human input or runtime configuration; only `.omp/mosaic.json` holds install metadata for hooks at runtime. Use `placeholders.md` for hand-rendered/adapted placements and reconcile rendered prose/cwd with reality.
+Create a fresh scratch directory outside the target and checkout. From the checkout run `bun kit/install.ts --manifest <target>/docs/mosaic-migration/manifest.json --target <scratch>` — never install into the real target in this step.
+Run `diff -r <scratch> <target>` and retain its full output (exit 1 means differences; exit 2 is an error to resolve). Compare entry types, modes, and symlink targets too, because content diff alone misses installer conflicts.
+Write `docs/mosaic-migration/01-dry-install.md`: exact new/identical/overwrite/blocker paths, each overwrite's merge decision, and snapshot location. Target-only files are preserved, not removal candidates. Resolve every unexplained collision before execution; keep the rendered scratch baseline for the adaptation gate.
+For cutoff, record exact `git mv` source/destination paths and family counts, owner-named exceptions, frozen-link handling, and fresh-registry replacements; never include this migration's reports or sweep an existing archive without an H0 disposition.
+
+## 2 — Migration plan and adversary
+
+Read `kit/docs/process/plan-home.md`, `kit/docs/process/dispatch.md`, `kit/docs/process/records.md`, and `kit/docs/process/review-loop.md`.
+Create `docs/mosaic-migration/03-concept-alignment.md` from the alignment template: one stable row ID per existing concept/doc family/agent/skill/hook/registry (path or name) ↔ kit concept, plus genuinely new kit concepts. Record alignment, both options/direction, resolution, owner, status, and evidence; cutoff doc families use `archive` / `restructure-target` / `rebuild plan` with H0 and their per-file inventory.
+Every non-`done` row must name a real `plan task Tn` or appear in the report's Human rulings list with owner `human`; `mechanical` is only for verified done rows. No unknown mapping or default-looking choice counts as resolved; keep the report as the durable alignment record.
+Write `docs/mosaic-migration/02-plan.md` in `kit/docs/plans/TEMPLATE.md`'s section shape: Context; Scope with explicit non-goals; Task breakdown; Review checklist; Verification with Unverified; Planning log; Execution log.
+Use one task per mapping group, with T1/T2 IDs, alignment row IDs, exact `files:`/`reads:`, instructions, dependencies, and observable acceptance. Order groups so the harness and registries are valid after each task; install/merge is not permission to lose pending source content.
+For cutoff, the first task archives inventoried docs/ledgers before installing fresh kit skeletons; the last writes/indexes `docs/docs-migration-instructions.md` from `kit/docs/install/docs-migration-instructions.template.md` (≤ 120 lines). The rebuild is the first real numbered plan (`0001`), not bootstrap execution; no old gaps/defects are re-minted.
+Acceptance requires doctor, every registry lint, and checkup exit 0; complete the nothing-lost ledger so every pre-existing doc is moved, linked from `docs/index.md`, or retired with a reason. Include tracker seed validation, preserved custom agents/skills, resolved alignment rows, the kit-adaptations gate, and the migration checklist. Record unavailable evidence under Unverified.
+Read `kit/docs/process/registries.md` and `kit/docs/process/review-loop.md`.
+Read `kit/.omp/agents/plan-adversary.md`; dispatch its body as instructions via `task` at maximum effort, since target agent discovery is not installed yet. Supply plan, alignment, survey/dry report, source checkout, target paths, and checklist; let it inspect independently.
+For that pre-install dispatch, resolve the body's rule pointers to checkout `kit/docs/process/<name>.md`, skill pointers to checkout kit skills, and nested kit-agent requests by supplying the corresponding body; do not assume `rule://` resolves in the target.
+Read `kit/docs/process/review-loop.md` and `kit/docs/process/map.md`. Rule on every challenge: ACCEPT and amend, REJECT with grounded reasons, or INVESTIGATE and then rule; record the full challenge/ruling in the Planning log. Never accept expansion beyond installing + mapping merely to satisfy the adversary.
+Read `kit/docs/process/human-gates.md`. Surface human-owned blockers and unresolved safety/merge choices before proceeding; record supplied answers against alignment IDs. Continue after grounded rulings resolve the install scope; do not turn this bootstrap into a separate product-planning exercise.
+
+## 3 — Execute on `mosaic/install`
+
+Read `kit/docs/process/records.md`, `kit/docs/process/git-flow.md`, and `kit/docs/process/plan-home.md`.
+Verify the target branch and clean baseline again; distinguish this installation's own report changes from user changes. Preserve original collision files outside the target before force; commit the bootstrap reports/manifest/plan on `mosaic/install` with its bootstrap task ID.
+With cutoff, first execute the map's per-file `git mv` into `docs/archived/<original path>` (within each owning repo), verify bytes/modes/symlink targets, commit the moves, then write the archive README with that SHA and family counts; freeze it thereafter. Repair active inbound links, not historical sources.
+From the checkout run `bun kit/install.ts --manifest <target>/docs/mosaic-migration/manifest.json --target <target> --force` only for the inventoried, planned paths; alternatively place/merge selected rendered scratch files by hand per `placeholders.md`. If the kit or manifest changed since dry install, repeat the scratch comparison before any placement or force.
+Read `kit/docs/process/records.md`. Per task, merge rather than replace entrypoints: kit core first, project safety/invariant text kept verbatim; move overflow intact behind a mandatory read gate or to a project doc, retaining valid links and ≤ 30-line entry files. Merge settings/hooks, map docs, and update the nothing-lost ledger; seed registries only without cutoff, otherwise keep the fresh skeletons.
+Read `kit/docs/process/stack.md` and `kit/docs/process/git-flow.md`. Write target stack/git flow from observed commands/remotes and landing policy (PR into the derived branch with CI when observed), preserving project safety/deployment constraints; reconcile every contrary kit instruction/diagnostic and `plan-home.md` repo boundary. Record adaptations; do not silently change landing policy.
+Adapt installed kit Markdown — rules, skills, agents, and AGENTS/CLAUDE core — to repo vocabulary, paths, commands, conventions, and project roles within doctor contracts. For example, route decisions to an agreed `docs/adr` home or add a money-path reviewer to the review wave without removing required reviewers; leave the source checkout unchanged.
+Record every edited kit file in `docs/mosaic-migration/kit-adaptations.md` with file, hunk summary, reason, alignment IDs, and verification; compare against the rendered baseline, not unrendered templates. Follow the map's upgrade/reapply policy and keep this log current through review and self-check repairs.
+Read `kit/docs/process/records.md`. Keep target-only agents/skills/hooks unchanged alongside kit roles, indexed in `docs/index.md` (H7); no new twins/splits or extra non-kit work. Resolve kit same-name collisions/duplicates using the map; preserve long merged kit instructions losslessly behind read gates, keep kit port parity, and update affected callers.
+Execute each approved target restructure as a lossless, per-file move/rename/schema conversion with active inbound-link and caller repairs; preserve IDs, provenance, frozen history, and corpus navigation. Never invent plan status or approval; cutoff's index gets `History (archived at cutoff <sha>)`, one linked row/count per family including PR docs (H5).
+Link `03-concept-alignment.md` and `kit-adaptations.md` from target `docs/index.md` using its file-relative frame; preserve these migration records after landing. Reconcile each alignment row against the task evidence, not just a claimed disposition.
+Read `kit/docs/process/tracker.md`. Choose `replay` by default; use the local `mcp` mock only if requested, seeded with `bun tools/mcp/linear-mock.ts --seed-from docs/tracker/items.json`. Live Linear needs explicit instruction and a supported adapter; this kit does not provide one, so report that limit rather than fake a connection. Preserve existing external IDs and human text.
+For cutoff, do not seed old tracker/gap/defect entries (H4/H8). As the last task, fill/index the rebuild brief with archive counts, the active-doc network/frontmatter, source-evidence extraction and minting rules, `0001` ledgers, acceptance, and sized family tasks; verify its ≤ 120 lines and archive immutability.
+Read `kit/docs/process/verification.md` and `kit/docs/process/records.md`.
+After every task, from the target run `bun tools/doctor.ts`, `bun .omp/hooks/post/lint-ledgers.ts <registry-path>` for each governed registry/active plan (including member ledgers), and `bun tools/checkup.ts`; validate tracker seeds with `bun tools/tracker.ts --provider replay list --all`.
+Retain command outputs and their actual exit statuses in the Execution log (not a piping/truncation command's status), fix until all required checks exit 0 with zero failures/cannot-evaluate, and reconcile that task's ledger/alignment rows. Human-only blockers stop the task; never weaken checks or relabel defects to obtain green.
+Read `kit/docs/process/git-flow.md`. Commit each completed task on `mosaic/install` with its plan task ID in the subject (for example `mosaic-install-T2: map product documents`). Never stage unrelated paths.
+
+## 3a — Kit-adaptations gate (before review)
+
+Compare all installed kit-owned paths to the phase-1 rendered baseline: every edited kit file, including each changed port twin and any settings/hook/tool deviation, must be listed in `kit-adaptations.md` with a hunk summary and reason; record `none` if there are no adaptations. No unexplained diff may pass.
+Run target `bun tools/doctor.ts` after the final adaptations and log edits: require PASS (exit 0, no fail/cannot-evaluate), preserving budgets, port parity, rule symlinks/read gates, no unrendered placeholders, and `.omp/mosaic.json` hook configuration. Retain command/exit/output and record gate status in `STATUS.md`; blockers are not a pass.
+
+## 4 — Review and correction loop
+
+Read `kit/docs/process/review-loop.md`, `kit/docs/process/registries.md`, and `kit/docs/process/verification.md`.
+Read the installed `.omp/agents/claude-reviewer.md` and `.omp/agents/gpt-reviewer.md` bodies; dispatch both via `task` independently with identical inputs: committed base-to-`mosaic/install` branch diff, target paths, plan/tasks, alignment/adaptations records, complete migration checklist, and evidence. Use the recorded base when the target's default branch differs from main; do not create a fake main ref.
+Resolve those bodies' rule/skill read gates against absolute installed target paths, and supply nested installed agent bodies explicitly; the orchestrator's checkout cwd must not redirect their reads to this checkout's harness.
+Require checks for nothing lost, no unrendered placeholders, all budgets (especially `AGENTS.md` ≤ 30), real rule paths, executed stack commands, valid tracker seeds, intact project agents/skills/hooks, reviewed conflict merges, alignment coverage, and the kit-adaptations gate.
+Read `kit/docs/process/dispatch.md`, `kit/docs/process/records.md`, `kit/docs/process/review-loop.md`, and `kit/docs/process/human-gates.md`. REVISE means deduplicate findings, fix the scoped task, rerun its checks and adaptation gate, commit, and re-review the changed snapshot; record each ruling/verdict. Allow at most two correction rounds, then stop for the human.
+Converge only with both reviewers' APPROVE on the final snapshot and doctor/lint/checkup exit 0. A ruling or a general pre-approval is not a substitute for those verdicts.
+
+## 5 — Self-check inside the target
+
+Read `kit/docs/process/verification.md` and `kit/docs/process/human-gates.md`.
+Using bash with cwd = target root, run `omp -p --cwd <target> --no-session --mode text "Run /mosaic-checkup and stop at the digest"` and read the complete result; save its command, output, and exit status in the Execution log.
+The installed skill must load and produce its digest with zero mechanical findings (human-only choices may remain for sign-off). If discovery fails or it errors, repair the installation and repeat; missing omp/runtime credentials are an explicit blocker, never an assumed pass.
+Read `kit/docs/process/review-loop.md`, `kit/docs/process/records.md`, and `kit/docs/process/git-flow.md`. Any repair returns to task checks, adaptation gate, commit, and review before convergence; retain self-check evidence on the installation branch.
+
+## 6 — Sign-off and authorized landing
+
+Read `kit/docs/process/human-gates.md`. Present what was installed, what moved where, what was retired and why, nothing-lost/evidence links, any conflict needing a ruling, and Unverified limits; ask the human to inspect the branch and decide whether to land.
+Include a **Concept alignment** section: rows resolved / rows needing a ruling by ID linked to `03-concept-alignment.md`, exact questions/actions, and unfinished tasks. Cutoff adds SHA, archive counts by family (including PR docs), exceptions, and `docs/docs-migration-instructions.md`; current-state rebuild remains pending. Link `kit-adaptations.md` and doctor PASS; preserve human answers.
+Explain first use: cutoff → `/mosaic-plan docs-rebuild` with `docs/docs-migration-instructions.md`; otherwise `/mosaic-intake <request or ticket>`, then `/mosaic-plan <approved change>`. `/mosaic-execute` follows plan approval; `/mosaic-gap-audit` handles obligations and `/mosaic-checkup` drift.
+Read `kit/docs/process/git-flow.md`. Wait for an explicit human answer; resolve requested rulings before landing. Only then refresh the real default branch, rebase `mosaic/install` first, rerun checks/review if content changed, and land per the agreed git flow (ff-only default; observed PR/CI policy overrides). No direct main edits or commits, no unapproved push/deploy, and no claim of landing without receipts.

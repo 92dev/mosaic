@@ -1,0 +1,27 @@
+# Member repos — separate git repos today, become submodules via a future plan
+# (ignored to prevent accidental gitlink/embedded-repo staging until then)
+/member-a/
+
+# Linked git worktrees (link repo or members) — used when a parallel session
+# occupies a primary working tree; never tracked content
+/.worktrees/
+
+# Dependencies & build output
+node_modules/
+dist/
+build/
+coverage/
+
+# Logs & env
+*.log
+.env
+.env.*
+
+# OS
+.DS_Store
+
+# Claude Code local (per-machine) settings
+.claude/settings.local.json
+
+__pycache__/
+.pytest_cache/

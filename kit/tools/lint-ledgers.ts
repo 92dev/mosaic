@@ -1,0 +1,304 @@
+#!/usr/bin/env bun
+// Port-neutral governed-record validation. CLI: 0 valid, 1 schema errors, 2 usage/unreadable.
+import * as fs from "node:fs";
+import * as path from "node:path";
+
+const STATUS_ENUM = ["draft", "approved", "executing", "review", "done", "abandoned"] as const;
+const STATUS_HINT = `expected one of: ${STATUS_ENUM.join("|")}`;
+const REQUIRED_SECTIONS = [
+	"## Context",
+	"## Scope",
+	"## Task breakdown",
+	"## Review checklist",
+	"## Verification",
+	"## Planning log",
+	"## Execution log",
+] as const;
+
+const GAP_ENTRY = /^- \*\*(G-\d+) ·/;
+const TRIGGER_LINE = /^[ \t]*(?:[-*][ \t]+)?(?:\*\*)?(?:Trigger[^*:\r\n]*|when):(?:\*\*)?[ \t]*(.*)$/gim;
+const TRIGGER_TARGET = /[/*]|\.(?:py|md)\b|\b\d{4}\b|\b(?:lands|added|merges|migrates|moves\s+to|gains|changes)\b/i;
+const ANY_ENTRY = /^- \*\*/;
+const LEDGER_ROW = /^\| *\[?(\d{4})\]?/;
+const STATUS_CELL = new RegExp(`\\| *(${STATUS_ENUM.join("|")}) *\\|`);
+
+type Kind = "plan" | "ledger" | "gaps" | "gapBody" | "gapsArchive" | "pitfalls" | "decisions";
+
+/** Classify governed paths by suffix. */
+function classify(file: string): Kind | undefined {
+	const norm = file.replace(/\\/g, "/");
+	if (!norm.endsWith(".md")) return undefined;
+	// Archived plans are frozen, terminal records — not schema-gated (they may predate the schema).
+	if (norm.includes("/docs/plans/archived/") || norm.startsWith("docs/plans/archived/")) return undefined;
+
+	const at = (suffix: string): boolean => norm === suffix || norm.endsWith(`/${suffix}`);
+	if (at("docs/gaps.md")) return "gaps";
+	if (at("docs/gaps-archive.md")) return "gapsArchive";
+	if (norm.includes("/docs/gaps/") || norm.startsWith("docs/gaps/")) return "gapBody";
+	if (at("docs/architecture/pitfalls.md")) return "pitfalls";
+	if (at("docs/architecture/README.md")) return "decisions";
+	if (at("docs/plans/README.md")) return "ledger";
+
+	if (!norm.includes("/docs/plans/") && !norm.startsWith("docs/plans/")) return undefined;
+	const base = norm.slice(norm.lastIndexOf("/") + 1);
+	if (base === "TEMPLATE.md") return undefined;
+	if (base.endsWith("-wire.md")) return undefined; // wire annexes are frozen contracts, not lifecycle docs
+	return /^\d{4}-.+\.md$/.test(base) ? "plan" : undefined;
+}
+
+/** Read the first whitespace-separated frontmatter status value. */
+function frontmatterStatus(content: string): string | undefined {
+	let seen = 0;
+	for (const raw of content.split("\n")) {
+		const line = raw.replace(/\r$/, "");
+		if (line === "---") {
+			seen++;
+			if (seen >= 2) break;
+			continue;
+		}
+		if (seen === 1 && /^status:/.test(line)) {
+			return line.split(/\s+/)[1] ?? "";
+		}
+	}
+	return undefined;
+}
+
+/** Ids repeated across entry lines. Dynamic membership over runtime-discovered keys -> Set/Map. */
+function duplicates(ids: readonly string[]): string[] {
+	const seen = new Set<string>();
+	const dup = new Set<string>();
+	for (const id of ids) {
+		if (seen.has(id)) dup.add(id);
+		else seen.add(id);
+	}
+	return [...dup];
+}
+
+function idsMatching(content: string, re: RegExp): string[] {
+	const out: string[] = [];
+	for (const line of content.split("\n")) {
+		const m = re.exec(line.replace(/\r$/, ""));
+		if (m?.[1] !== undefined) out.push(m[1]);
+	}
+	return out;
+}
+
+function dupErrors(ids: readonly string[], label: string): string[] {
+	return duplicates(ids).map(
+		d => `duplicate ${label} id '${d}' — ids are never reused; two entries under one id silently hide one of them`,
+	);
+}
+
+/** Split a registry into `- **G-n ·` blocks. */
+function gapEntries(content: string): { id: string; body: string }[] {
+	const out: { id: string; body: string }[] = [];
+	let id = "";
+	let buf: string[] = [];
+	const flush = (): void => {
+		if (id !== "") out.push({ id, body: buf.join("\n") });
+		id = "";
+		buf = [];
+	};
+	for (const raw of content.split("\n")) {
+		const line = raw.replace(/\r$/, "");
+		const m = GAP_ENTRY.exec(line);
+		if (m?.[1] !== undefined) {
+			flush();
+			id = m[1];
+			buf = [line];
+			continue;
+		}
+		if (ANY_ENTRY.test(line)) {
+			flush();
+			continue;
+		}
+		if (id !== "") buf.push(line);
+	}
+	flush();
+	return out;
+}
+
+function triggerErrors(id: string, body: string): string[] {
+	for (const match of body.matchAll(TRIGGER_LINE)) {
+		if (TRIGGER_TARGET.test(match[1]!.trim())) return [];
+	}
+	return [`${id} has no checkable Trigger:/when: — name a path/glob, plan NNNN, or event (lands, added, merges, migrates, moves to, gains, changes)`];
+}
+
+function validateGapBody(content: string, abs: string): string[] {
+	const entries = gapEntries(content);
+	if (entries.length > 0) return entries.flatMap(({ id, body }) => triggerErrors(id, body));
+	const id = /^#+\s+(?:\*\*)?(G-\d+)\b/m.exec(content)?.[1] ?? /\b(G-\d+)\b/.exec(path.basename(abs))?.[1];
+	return id ? triggerErrors(id, content) : [];
+}
+
+function validatePlan(content: string): string[] {
+	const errors: string[] = [];
+	const status = frontmatterStatus(content);
+	if (status === undefined || status === "") {
+		errors.push(`missing frontmatter 'status:' (${STATUS_HINT})`);
+	} else if (!STATUS_ENUM.some(s => s === status)) {
+		errors.push(`invalid status '${status}' (${STATUS_HINT})`);
+	}
+	// Required headings may appear anywhere in the document.
+	for (const h of REQUIRED_SECTIONS) {
+		if (!content.includes(h)) errors.push(`missing required section: '${h}'`);
+	}
+	// Existing plans retain the old section; new plans use Unverified.
+	if (!content.includes("### Unverified") && !content.includes("### Verification gaps")) {
+		errors.push("missing required section: '### Unverified' (or legacy '### Verification gaps')");
+	}
+	return errors;
+}
+
+function validateLedger(content: string): string[] {
+	const errors = duplicates(idsMatching(content, LEDGER_ROW)).map(
+		d =>
+			`duplicate plan number '${d}' — one row per plan; a second row makes the ledger ambiguous about status and landed commit`,
+	);
+	for (const raw of content.split("\n")) {
+		const line = raw.replace(/\r$/, "");
+		const m = LEDGER_ROW.exec(line);
+		if (m?.[1] === undefined) continue;
+		if (!STATUS_CELL.test(line)) {
+			errors.push(`ledger row '${m[1]}' has no recognizable status cell (${STATUS_HINT})`);
+		}
+	}
+	return errors;
+}
+
+function validateGaps(content: string, archive: boolean): string[] {
+	const errors = dupErrors(idsMatching(content, GAP_ENTRY), "gap");
+	for (const { id, body } of gapEntries(content)) {
+		if (archive) {
+			// Closure is written several ways and all are legitimate: `closed by NNNN (<hash>)`,
+			// `**CLOSED by 0054 T6**`, `**Overtaken by ...**`, `**Status:** archived as overtaken`.
+			// Case-fold and accept the family; the fence is that SOMETHING says what discharged it.
+			const up = body.toUpperCase();
+			if (!/CLOSED BY/.test(up) && !/OVERTAKEN BY/.test(up) && !/\*\*STATUS:\*\* *(CLOSED|ARCHIVED)/.test(up)) {
+				errors.push(
+					`${id} records no evidence of what closed it — an archived gap documents that the check happened and what discharged it (closed by NNNN (<hash>))`,
+				);
+			}
+			continue;
+		}
+		// A closed entry must not remain in the active registry, which sessions read as open work.
+		if (/\*\*Status:\*\* *closed/.test(body)) {
+			errors.push(
+				`${id} is **Status:** closed but still in the ACTIVE registry — move it to gaps-archive.md (never renumber, never delete)`,
+			);
+			continue;
+		}
+		const missing: string[] = [];
+		// Qualified Trigger fields and plain/bold when fields share the same trigger check.
+		errors.push(...triggerErrors(id, body));
+		if (!/\*\*Status:\*\*/.test(body)) missing.push("**Status:**");
+		// SPLIT rows (`/mosaic-gap-audit` step 3) hold only id + summary + trigger + link here; the full
+		// body — including provenance — lives in docs/gaps/G-<n>-<slug>.md. Requiring provenance on
+		// the row would punish entries for being correctly split.
+		if (!/\*\*Detail:\*\*/.test(body) && !/\*\*(From|Provenance)[^*]*:\*\*/.test(body)) {
+			missing.push("**From:** (or **Provenance:**, or a **Detail:** pointer to a split dossier)");
+		}
+		if (missing.length > 0) {
+			errors.push(
+				`${id} is missing: ${missing.join(" ")} — every gap is a conditional obligation, so it needs a trigger, a provenance and a status`,
+			);
+		}
+	}
+	return errors;
+}
+
+/** An id must live in exactly one of gaps.md / gaps-archive.md. */
+function crossFileErrors(abs: string, content: string, archive: boolean): string[] {
+	const counterpart = path.join(path.dirname(abs), archive ? "gaps.md" : "gaps-archive.md");
+	let other: string;
+	try {
+		other = fs.readFileSync(counterpart, "utf8");
+	} catch {
+		return []; // fail-open: counterpart absent
+	}
+	const theirs = new Set(idsMatching(other, GAP_ENTRY));
+	const where = archive ? "the active registry" : "the archive";
+	const out: string[] = [];
+	for (const id of new Set(idsMatching(content, GAP_ENTRY))) {
+		if (theirs.has(id)) {
+			out.push(`gap '${id}' is present here AND in ${where} — a gap is either open or closed, never both`);
+		}
+	}
+	return out;
+}
+
+function subjectFor(kind: Kind, base: string): string {
+	switch (kind) {
+		case "plan":
+			return `Plan doc '${base}'`;
+		case "ledger":
+			return `Plans ledger '${base}'`;
+		case "gaps":
+			return `Gaps registry '${base}'`;
+		case "gapBody":
+			return `Split gap '${base}'`;
+		case "gapsArchive":
+			return `Gaps archive '${base}'`;
+		case "pitfalls":
+			return `Pitfalls catalog '${base}'`;
+		case "decisions":
+			return `Decision map '${base}'`;
+	}
+}
+
+function validate(kind: Kind, abs: string, content: string): string[] {
+	switch (kind) {
+		case "plan":
+			return validatePlan(content);
+		case "ledger":
+			return validateLedger(content);
+		case "gaps":
+			return [...validateGaps(content, false), ...crossFileErrors(abs, content, false)];
+		case "gapBody":
+			return validateGapBody(content, abs);
+		case "gapsArchive":
+			return [...validateGaps(content, true), ...crossFileErrors(abs, content, true)];
+		case "pitfalls":
+			return dupErrors(idsMatching(content, /^- \*\*(P-\d+) ·/), "pitfall");
+		case "decisions":
+			return dupErrors(idsMatching(content, /^\| *(D\d+) *\|/), "decision");
+	}
+}
+
+export interface LedgerLint {
+	subject: string;
+	errors: string[];
+}
+
+export function lintLedger(file: string): LedgerLint | undefined {
+	const abs = path.resolve(file);
+	const kind = classify(abs);
+	if (!kind) return;
+	return { subject: subjectFor(kind, path.basename(abs)), errors: validate(kind, abs, fs.readFileSync(abs, "utf8")) };
+}
+
+export function runLedgerCli(): void {
+	const [file, ...extra] = process.argv.slice(2);
+	if (!file || extra.length > 0) {
+		console.error(`Usage: bun ${process.argv[1]} <registry-path>`);
+		process.exit(2);
+	}
+	let result: LedgerLint | undefined;
+	try { result = lintLedger(file); }
+	catch (error) {
+		console.error(`Cannot read ${file}: ${error}`);
+		process.exit(2);
+	}
+	if (!result) {
+		console.error(`Not a supported active registry: ${file}`);
+		process.exit(2);
+	}
+	if (result.errors.length > 0) {
+		console.error(`${result.subject} violates the ledger schema:\n${result.errors.join("\n")}`);
+		process.exit(1);
+	}
+	console.log(`PASS ${file}`);
+}
+
+if (import.meta.main) runLedgerCli();

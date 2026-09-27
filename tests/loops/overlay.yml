@@ -1,0 +1,26 @@
+# omp config overlay for loop runs: keep only the fixture's own harness in context.
+# Provider ids are discovery providers (context files/skills/rules/MCP), not model providers.
+disabledProviders:
+  - claude          # ~/.claude/* (user skills/CLAUDE.md) and the fixture's .claude/ port
+  - claude-plugins
+  - agent-plugins
+  - codex
+  - agents
+  - gemini
+  - opencode
+  - github
+  - cursor
+  - windsurf
+  - cline
+  - vscode
+  - mcp-json        # no MCP servers (linear) in loop runs
+disabledExtensions:
+  - context-file:user:AGENTS.md
+  - context-file:user:CLAUDE.md
+  - mcp:linear     # the user-level Linear MCP is loaded by the native provider; disabledProviders cannot drop it (verified: an intake run called live get_issue)
+advisor:
+  enabled: false
+memory:
+  backend: off
+autolearn:
+  enabled: false

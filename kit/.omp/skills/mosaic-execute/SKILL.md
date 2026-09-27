@@ -1,0 +1,48 @@
+---
+name: mosaic-execute
+description: Run an approved plan through dispatch, review, verification, disposition of leftovers, human sign-off, archival, and landing. Argument: plan path.
+---
+# /mosaic-execute — Run an approved plan
+Read each named rule once per session; a later step naming a rule you already read means apply it, not reread it.
+
+1. Read `rule://map`; read `rule://plan-home`; read `rule://git-flow`. **Preconditions:** abort with a clear reason if any fail:
+   - The plan exists, says `status: approved`, and has human approval.
+   - Resolve all targets from its comma-separated `repo:` list and confirm its home.
+   - Every targeted repo has a clean working tree and up-to-date `{{DEFAULT_BRANCH}}`; identify each repo for its git operations.
+   - Resuming an existing branch: list every commit and file that landing would publish (`git log {{DEFAULT_BRANCH}}..<branch>`), not only this plan's task delta; classify inherited commits from other plans before any review, and never add a synthetic task to relabel existing history.
+2. Read `rule://records`; read `rule://git-flow`; read `rule://plan-home`.
+   **Branch:** create the plan's task branch in every targeted repo. Flip to `executing`, update the ledger required by R4, and commit `NNNN: begin execution` in the home repo. Keep the member-homed plan, local ledger, and code together; for link-homed work, keep the plan, master ledger, and Execution log on the link branch.
+3. Read `rule://dispatch`; read `rule://plan-home`; read `rule://git-flow`. **Dispatch waves:** group tasks under the dispatch contract, accounting for resolved repo paths. Launch one `executor` via `task` per task with only its authorized inputs and explicit home-root path frame.
+   - On STOP: resolve the quoted conflict, ask the human only for a decision you cannot own, log the resolution, and re-dispatch.
+   - Commit each completed task in its target repo using the per-task format from the git-flow rule.
+4. Read `rule://review-loop`. **Review each task or wave:** dispatch `claude-reviewer` and `gpt-reviewer` via `task` in parallel with identical inputs: plan path, target repo paths, branch, tasks under review, Review checklist, and pitfalls pointer. Obtain each repo's branch diff for review.
+   Apply the rule's verdict, conflicting-findings, same-task REVISE, and escalation procedures; log verdicts and any deviation. Continue only when every required reviewer independently returns a final `APPROVE`.
+5. Read `rule://verification`; read `rule://stack`. **Verify:** run every Verification step in the home plan, retain the command outputs, and record the evidence in its Execution log. Send failures through step 4 before proceeding.
+6. Read `rule://records`; read `rule://plan-home`; read `rule://map`.
+   After tasks pass review and verification is recorded, flip to `review`, update the ledger required by R4, and commit in the home repo.
+7. Read `rule://records`; read `rule://review-loop`; read `rule://plan-triage`. **Close-out triage, before asking for sign-off:** gather acceptance criteria, verification outputs, unresolved findings, and the plan's Unverified section (older plans: Verification gaps).
+   - Dispose only this plan's leftovers; another plan's Unverified items and notes belong to that plan's own close-out (mention them in the brief if they block this landing).
+   - Check defects first: unmet acceptance or a bug found in code, whether touched or not. A defect is in scope only when an acceptance criterion of this plan requires its absence; in-scope defects return to this plan's REVISE loop. For other defects, propose a new draft plan or, when trivial, the light path per `rule://records`; they do not block this close-out.
+   - For each remaining item, apply the records routing table: Decision / Obligation G-x / Pitfall / Open question / Product / no retained record with a reason. Search for an existing record before proposing another.
+   - For an obligation, apply `rule://records`. Use the condition the leftover itself names (an event, a migration, a plan) and never invent a path, module, or plan number to make it checkable; if only an unallocated plan number is named, keep the event and drop the number.
+   - Surface anything you cannot classify in the sign-off brief; leave that entry unresolved without blocking unrelated entries.
+   - For inline corrections, use the mechanical-repair allowance in `rule://review-loop`.
+   - Write one evidenced disposition per leftover in the Execution log. Collect the dispositions and any inline correction for step 8's review wave; after repairs, rerun affected verification.
+8. Read `rule://records`; read `rule://review-loop`. **Closure document alignment:** run `bun tools/docimpact.ts <plan>` from the link root. Dispatch `librarian` via `task` with its candidate JSON, the plan's Context/Scope, and the `git diff` of changed public contracts.
+   - Apply the librarian's `amend/append/repoint` proposals as orchestrator on each owning repo's branch; log its `no change` lines and any `CANNOT-EVALUATE` entries in the Execution log.
+   - Give the librarian an immutable contract-diff artifact (a file or `local://` packet with the exact `git diff` of changed public contracts) before asking for recommendations; when amending a sentence keep every clause that is still true; G-entry closure is step 11's registry sync, not a librarian edit.
+   - Send ONE closure packet through step 4's review per `rule://review-loop`: a file listing each disposition with its evidence line, the doc diff, the inline-correction diff, and the commit range since the last approval. Tell reviewers where step 5's verification outputs are retained. Apply optional reviewer notes before requesting the approval snapshot, never after it; surface document classes that cannot be evaluated.
+9. Read `rule://human-gates`. **Sign-off brief:** the brief is the whole final message — no separate work narrative before it (the Execution log holds that). Present the completed work, verification evidence, disposition list, and any unclassified entries; identify what the human should inspect and what approval will authorize. Wait for human sign-off; do not treat silence as approval.
+   Include a **Learnings** section containing every Deviation/Interpretation/Tradeoff line from the Execution log verbatim, each with `keep as <pitfall|rule proposal|none> — reason`. The human approves by exception; omit the section when there are no candidates. A `keep as pitfall|rule proposal` carries the exact proposed wording, which enters step 8's review wave; after sign-off only that reviewed wording is applied, and a proposal that conflicts with an existing rule is filed as a rule proposal, never as a new authoritative pitfall.
+   A sign-off the human already gave for this plan covers within-scope corrections and rule-mandated recording; ask again only when the outcome now differs materially from what was signed off (new behavior change, widened scope, a disposition the human explicitly reserved).
+10. Read `rule://records`; read `rule://plan-home`; read `rule://map`.
+   **Archive on sign-off:** flip to `done`, move the plan to its home's `docs/plans/archived/`, and repoint the ledger links required by R4. Commit the terminal plan and ledger changes.
+11. Read `rule://records`; read `rule://registries`; read `rule://git-flow`; read `rule://plan-home`.
+    **Registry sync:** apply only the approved close-out dispositions to their selected records. For new obligations, allocate the next global G-id and record plan/finding provenance in the commit. Move fulfilled `closes G-x` entries to `docs/gaps-archive.md` with `closed by NNNN (<hash>)` and what solved them.
+    If the diff plausibly touched an undeclared G-entry's trigger, run `/mosaic-gap-audit` scoped to it and fold in its signed-off verdicts. Unclassified entries remain explicitly unresolved; do not manufacture obligations from them.
+    Link-homed work: sync on the task branch before landing. Member-homed work: perform this sync with step 13's link-repo ledger sync after the member branch lands.
+12. Read `rule://records`; read `rule://git-flow`. **Lint and land:** run ledger lint on every changed governed record; resolve failures before landing. Land each targeted repo using the git-flow procedure, then push and delete its task branch.
+    - Read `rule://tracker`. After each repo lands, including step 13, collect receipts and check `done` eligibility per that rule; when eligible, run `bun tools/tracker.ts event <key> done --writer <token#generation> --receipt '<JSON receipt array>'` from the link root. Use the plan's `tracker.key`; plans without a tracker item skip this event. Read back before retrying an uncertain write.
+13. Read `rule://records`; read `rule://plan-home`; read `rule://git-flow`.
+    **Member terminal sync:** after the member branch lands, update the master-ledger status, landed hash, and archived link on `docs/NNNN-ledger-sync`; include step 11's registry changes and step 8's link-owned document alignment. Run ledger lint on those changes, then land and push this link-repo branch.
+14. Read `rule://records`; read `rule://map`; read `rule://plan-home`. **Mid-flight invalidation, at any step:** if reality contradicts the plan, stop, log what and why, and return to the human. Amend only with approval recorded in the Execution log, or mark `abandoned`, archive in the home repo, and repoint the ledger links using the same terminal sync procedure.

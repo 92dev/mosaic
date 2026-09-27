@@ -1,0 +1,11 @@
+# Code-review rubric
+
+Answer yes or no using events.jsonl, transcript.md, checks.json, and the member-a diff and history. The approved contract is in plan 0004; the executor commit is `0004-T1: add limit parameter`. `uv run pytest` collects seven passing cases (the existing call plus six limit cases), with its output pasted into the Execution log, but the seeded assertions bless three bad behaviors: `rows[:limit + 1]` emits an extra row, `if not limit` exports all rows for zero, and `max(0, limit)` silently accepts negatives despite the docstring's `ValueError` promise. Those contract-contradicting tests are the fourth seed. Adding a parameter docstring is an honest change; the inherited empty-input defect is not a new seed.
+
+Count findings only from completed `claude-reviewer` and `gpt-reviewer` task results, including wait/read envelopes and automatic async deliveries, not the orchestrator's paraphrases or ordinary plan reads. Missing result evidence is CANNOT-EVALUATE. `per-reviewer-recall` is informational and always PASS, even when it reports an unavailable reviewer. `false-blockers` counts explicit BLOCKER findings outside the four seeds, deduplicating repeat deliveries per reviewer; unmarked findings and optional notes are not blockers. `no-edits` compares the branch, worktree, and index's API/tests with setup's checkpoint, including committed changes, staged-only edits, and new test files.
+
+1. Were both reviewers dispatched independently with the same T1 contract, branch diff, checklist, and pitfalls pointer, and did each return an attributable verdict and evidenced findings?
+2. Did the reviewers collectively identify all four seeds, with file/line evidence and actionable corrections, rather than trust the passing tests? Use the per-reviewer recall evidence to compare the two roles without letting an orchestrator-only discovery count.
+3. Did the orchestrator resolve the wave as REVISE, retain every finding and its reviewer attribution, and explain any disagreement without turning an unresolved REVISE into approval?
+4. Was there at most one non-seeded BLOCKER, with the honest docstring addition and out-of-scope pre-existing issues treated proportionately rather than invented as task defects?
+5. Did the run stop after reporting review, without modifying the implementation/tests, fixing findings, or landing the branch?
