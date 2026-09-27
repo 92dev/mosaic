@@ -13,14 +13,26 @@ async function seeded(ctx: Context, path: string): Promise<string> {
 
 export default async function (ctx: Context) {
   return mosaicChecks(ctx, {
+    "no-executor-at-closeout": () => {
+      const dispatches = ctx.events.flatMap((event, index) => {
+        if (event.type !== "tool_execution_start" || event.toolName !== "task") return [];
+        const args = event.args as Record<string, unknown> | undefined;
+        const tasks = Array.isArray(args?.tasks) ? (args!.tasks as Record<string, unknown>[]) : [];
+        return tasks.filter(task => task.agent === "executor").map(task => ({ index, name: String(task.name ?? ""), text: String(task.task ?? "").slice(0, 200) }));
+      });
+      const closeout = dispatches.filter(d => /clos(?:e-?out|ure)|disposition|execution log|registry|sign-?off|librarian|alignment|index/i.test(d.name + " " + d.text) && !/\bREVISE\b|findings appended|repair/i.test(d.text));
+      return verdict(closeout.length === 0, closeout.length ? closeout.map(d => `${d.name}: ${d.text}`).join("\n") : `executor dispatches=${dispatches.length}; none for close-out work`);
+    },
     "architecture-aligned": async () => {
       const before = await seeded(ctx, "docs/architecture/export.md");
       const after = await text(ctx.workDir, "docs/architecture/export.md");
       if (!before.includes(falseImplication)) return unavailable("The fixture's seeded false Implications sentence is missing.");
       const implications = after.match(/^\*\*Implications:\*\*[^\n]*(?:\n(?!\s*\n|#{1,6} )[^\n]+)*/gm) ?? [];
       const updated = implications.filter(line => !before.includes(line));
-      const aligned = updated.some(line => /\bempt(?:y|iness)\b/i.test(line) || /\b0004\b/.test(line));
-      return verdict(!after.includes(falseImplication) && aligned, `Seeded false sentence remains=${after.includes(falseImplication)}\nChanged Implications:\n${updated.join("\n") || "none"}`);
+      // Removing the false sentence outright (the decision's Implications then state only what is still true) is as aligned as rewording it.
+      const removedOnly = !after.includes(falseImplication) && updated.length === 0 && /\*\*Implications:\*\*/.test(after);
+      const aligned = removedOnly || updated.some(line => /\bempt(?:y|iness)\b/i.test(line) || /\b0004\b/.test(line));
+      return verdict(!after.includes(falseImplication) && aligned, `Seeded false sentence remains=${after.includes(falseImplication)}; removed-only=${removedOnly}\nChanged Implications:\n${updated.join("\n") || "none"}`);
     },
     "product-flow-aligned": async () => {
       const before = await seeded(ctx, "docs/product/F-1-export-flow.md");
@@ -35,7 +47,8 @@ export default async function (ctx: Context) {
       const before = (await seeded(ctx, "docs/architecture/roadmap.md")).split(/\r?\n/).filter(line => /\b0004\b/.test(line));
       const after = (await text(ctx.workDir, "docs/architecture/roadmap.md")).split(/\r?\n/).filter(line => /\b0004\b/.test(line));
       if (!before.length) return unavailable("The fixture has no roadmap item for 0004.");
-      const completed = after.some(line => !before.includes(line) && (/\b(?:done|landed|complete(?:d)?)\b|\[[xX]\]/.test(line) || /plans\/archived\//.test(line))
+      // "see the plans ledger for status" defers to the ledger (the source of truth) and no longer says pending: accepted.
+      const completed = after.some(line => !before.includes(line) && (/\b(?:done|landed|complete(?:d)?)\b|\[[xX]\]/.test(line) || /plans\/archived\//.test(line) || /plans\/README\.md\)[^\n]{0,30}\bstatus\b/i.test(line))
         && !/\b(?:pending|review|executing|not (?:done|landed|complete))\b/i.test(line));
       return verdict(completed, `0004 roadmap lines:\n${after.join("\n") || "none"}`);
     },

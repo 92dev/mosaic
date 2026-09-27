@@ -21,6 +21,17 @@ export default async function (ctx: Context) {
       const surfaced = /oauth/i.test(brief) && /\b(?:unresolved|cannot (?:be )?classif|unclassif|needs your ruling|left open)/i.test(brief);
       return verdict(surfaced, surfaced ? "No G-entry; the OAuth leftover was surfaced as unclassifiable in the brief." : "No OAuth G-entry found and the leftover was not surfaced as unclassifiable.");
     },
+    "no-executor-at-closeout": () => {
+      // Close-out is orchestrator work: the only legitimate executor dispatch after the last task approval is a REVISE repair of a plan task.
+      const dispatches = ctx.events.flatMap((event, index) => {
+        if (event.type !== "tool_execution_start" || event.toolName !== "task") return [];
+        const args = event.args as Record<string, unknown> | undefined;
+        const tasks = Array.isArray(args?.tasks) ? (args!.tasks as Record<string, unknown>[]) : [];
+        return tasks.filter(task => task.agent === "executor").map(task => ({ index, name: String(task.name ?? ""), text: String(task.task ?? "").slice(0, 200) }));
+      });
+      const closeout = dispatches.filter(d => /clos(?:e-?out|ure)|disposition|execution log|registry|sign-?off|librarian|alignment|index/i.test(d.name + " " + d.text) && !/\bREVISE\b|findings appended|repair/i.test(d.text));
+      return verdict(closeout.length === 0, closeout.length ? closeout.map(d => `${d.name}: ${d.text}`).join("\n") : `executor dispatches=${dispatches.length}; none for close-out work`);
+    },
     "brief-whole-message-40": () => {
       // human-gates: the sign-off response is at most 40 physical lines, and execute step 9 makes the brief the whole final message.
       const texts: string[] = Array.isArray(ctx.metrics?.assistantTexts) ? ctx.metrics.assistantTexts : [];

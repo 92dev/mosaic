@@ -31,7 +31,7 @@ Closure document alignment is `skill://mosaic-execute` step 8.
 4. Every canonical section states its governing repos or components; commands work from every referring file's frame.
 5. Search for the canonical statement before writing; when it exists, add a pointer and a "read when" gate. Accurate copies still drift.
 6. Kit-owned files (`docs/process/*`, kit skills, agents, hooks, tools) are not edited from an ordinary project session. Propose a kit change, or use `/mosaic-kit` for explicitly authorized kit maintenance or project adaptations; record adaptations in `docs/mosaic-migration/kit-adaptations.md`. For project-owned additions, follow neighboring project conventions and run the checks applicable to the changed project files.
-7. A new project pitfall states the trap and prevention; cite project evidence when available and keep extended evidence in the owning plan or gap.
+7. A new project pitfall states the trap and prevention in at most four physical lines (checked before approval is sought); its measured cite names the observed attempt and result, not a dated code snapshot, with extended evidence in the owning plan or gap.
 8. Review governed diffs against the checklist below.
 9. Put dates, who-decided, observations, and measurements in the commit or owning run/plan log; docs carry the current rule. Exception: a terse evidence citation needed to prevent reversal of a counterintuitive rule, such as a pitfall.
 10. A ruling with reach beyond the diff is recorded only when the same change routes it through the table; a commit is provenance. Choices limited to the change may stay on its branch.

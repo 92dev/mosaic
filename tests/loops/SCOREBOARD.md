@@ -7,53 +7,55 @@ Tokens include input, output, and cache tokens; prompt tokens are the first requ
 | S0-smoke | baseline | claude-haiku-4-5-low | 2026-09-24T14:47:10.115Z | 14847 | 14796 | 0.0298 | 1 | 0 | 1/0/0 |  |  |
 | S1-closeout-triage | baseline | anthropic/claude-opus-5-xhigh | 2026-09-24T14:56:15.547Z | 3763440 | 19702 | 3.6551 | 51 | 49 | 9/1/0 | claude-orchestrator:same, gpt-critic:same | baseline-v0 |
 | S1-closeout-triage | baseline | openai-codex/gpt-6-astra-xhigh | 2026-09-24T15:04:47.949Z | 1213414 | 11700 | 2.3354 | 27 | 57 | 9/1/0 | claude-orchestrator:same, gpt-critic:same | baseline-v0 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-xhigh | 2026-09-24T15:15:28.795Z | 5079105 | 19409 | 4.8346 | 54 | 79 | 6/4/0 | claude-orchestrator:worse, gpt-critic:worse | mosaic-v0 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-24T15:15:28.821Z | 536068 | 11481 | 1.3842 | 15 | 53 | 5/4/1 | claude-orchestrator:worse, gpt-critic:worse | mosaic-v0 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-xhigh | 2026-09-24T15:35:38.484Z | 7965896 | 19504 | 6.9687 | 74 | 86 | 10/0/0 | claude-orchestrator:better, gpt-critic:better | mosaic-v1-promptv2 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-24T15:35:38.496Z | 2410068 | 11538 | 3.9872 | 48 | 92 | 10/0/0 | claude-orchestrator:better, gpt-critic:better | mosaic-v1-promptv2 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-24T16:13:13.221Z | 1606866 | 11536 | 3.1074 | 36 | 83 | 10/0/0 | claude-orchestrator:better | mosaic-v2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T10:57:06.144Z | 9644745 | 13325 | 4.6968 | 75 | 123 | 10/0/0 | claude-orchestrator:better, gpt-critic:better | r3-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T10:57:06.184Z | 7860006 | 13321 | 4.3487 | 64 | 104 | 10/0/0 | claude-orchestrator:better, gpt-critic:better | r3-2 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T10:57:06.195Z | 2332055 | 7585 | 4.0079 | 46 | 106 | 10/0/0 | claude-orchestrator:same, gpt-critic:better | r3-2 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T10:57:06.245Z | 2428114 | 7587 | 4.4263 | 46 | 112 | 10/0/0 | claude-orchestrator:same, gpt-critic:better | r3-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-xhigh | 2026-09-24T15:15:28.795Z | 5079105 | 19409 | 4.8346 | 54 | 79 | 7/5/0 | claude-orchestrator:worse, gpt-critic:worse | mosaic-v0 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-24T15:15:28.821Z | 536068 | 11481 | 1.3842 | 15 | 53 | 7/4/1 | claude-orchestrator:worse, gpt-critic:worse | mosaic-v0 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-xhigh | 2026-09-24T15:35:38.484Z | 7965896 | 19504 | 6.9687 | 74 | 86 | 10/2/0 | claude-orchestrator:better, gpt-critic:better | mosaic-v1-promptv2 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-24T15:35:38.496Z | 2410068 | 11538 | 3.9872 | 48 | 92 | 12/0/0 | claude-orchestrator:better, gpt-critic:better | mosaic-v1-promptv2 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-24T16:13:13.221Z | 1606866 | 11536 | 3.1074 | 36 | 83 | 12/0/0 | claude-orchestrator:better | mosaic-v2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T10:57:06.144Z | 9644745 | 13325 | 4.6968 | 75 | 123 | 11/1/0 | claude-orchestrator:better, gpt-critic:better | r3-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T10:57:06.184Z | 7860006 | 13321 | 4.3487 | 64 | 104 | 11/1/0 | claude-orchestrator:better, gpt-critic:better | r3-2 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T10:57:06.195Z | 2332055 | 7585 | 4.0079 | 46 | 106 | 11/1/0 | claude-orchestrator:same, gpt-critic:better | r3-2 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T10:57:06.245Z | 2428114 | 7587 | 4.4263 | 46 | 112 | 12/0/0 | claude-orchestrator:same, gpt-critic:better | r3-1 |
 | S1-closeout-triage | baseline | anthropic/claude-opus-5-5-xhigh | 2026-09-25T11:24:55.642Z | 3573539 | 13355 | 2.4569 | 44 | 64 | 9/1/0 | claude-orchestrator:same, gpt-critic:same | r3-1 |
 | S1-closeout-triage | baseline | anthropic/claude-opus-5-5-xhigh | 2026-09-25T11:52:54.580Z | 3422248 | 13351 | 2.6049 | 36 | 63 | 9/1/0 | claude-orchestrator:same, gpt-critic:same | r3-2 |
 | S1-closeout-triage | baseline | openai-codex/gpt-6-astra-xhigh | 2026-09-25T12:12:37.562Z | 1361176 | 7648 | 2.6317 | 32 | 69 | 10/0/0 | claude-orchestrator:same, gpt-critic:same | r3-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T13:24:56.019Z | 8336628 | 13327 | 4.3181 | 68 | 117 | 10/1/0 | claude-orchestrator:better, gpt-critic:better | r4-1 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T13:24:56.136Z | 2659200 | 7587 | 4.5931 | 53 | 103 | 11/0/0 | claude-orchestrator:better, gpt-critic:better | r4-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T13:43:19.850Z | 9815275 | 13363 | 4.8435 | 77 | 115 | 11/0/0 | claude-orchestrator:better, gpt-critic:better | r4-2 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T13:43:36.875Z | 1929588 | 7603 | 3.5593 | 42 | 103 | 11/0/0 | claude-orchestrator:better, gpt-critic:better | r4-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T14:50:55.219Z | 8029359 | 13348 | 4.0773 | 76 | 109 | 10/1/0 | claude-orchestrator:better, gpt-critic:better | r6-1 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T15:09:11.234Z | 2656473 | 7601 | 4.3651 | 55 | 107 | 11/0/0 | claude-orchestrator:better, gpt-critic:better | r6-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T15:25:10.805Z | 7529410 | 13352 | 4.0655 | 71 | 111 | 10/1/0 | claude-orchestrator:better, gpt-critic:better | r6-2 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T15:44:56.396Z | 2150564 | 7601 | 3.6873 | 46 | 95 | 11/0/0 | claude-orchestrator:better, gpt-critic:better | r6-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T19:21:04.956Z | 5885168 | 13380 | 3.4752 | 60 | 108 | 11/0/0 | claude-orchestrator:better | r9-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T19:35:36.054Z | 7789236 | 13380 | 4.0374 | 71 | 121 | 11/0/0 | claude-orchestrator:better | r9-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-medium | 2026-09-25T21:56:10.171Z | 3998394 | 13382 | 2.2930 | 51 | 86 | 10/1/0 | claude-orchestrator:worse, gpt-critic:worse | m1-1 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-medium | 2026-09-25T21:56:10.354Z | 1742041 | 7622 | 2.8234 | 45 | 87 | 11/0/0 | claude-orchestrator:better, gpt-critic:better | m1-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T21:56:16.367Z | 8280747 | 13384 | 4.2664 | 70 | 103 | 11/0/1 | claude-orchestrator:better, gpt-critic:worse | m1-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-high | 2026-09-25T22:06:42.735Z | 2867029 | 13382 | 1.8032 | 44 | 59 | 10/0/1 | claude-orchestrator:better, gpt-critic:worse | m1-1 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-high | 2026-09-25T22:07:18.018Z | 2289395 | 7622 | 3.5611 | 51 | 103 | 11/0/0 | claude-orchestrator:better, gpt-critic:better | m1-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-medium | 2026-09-25T22:16:48.802Z | 3181804 | 13382 | 1.8443 | 45 | 64 | 11/0/0 | claude-orchestrator:better, gpt-critic:worse | m1-2 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-medium | 2026-09-25T22:19:19.439Z | 2633242 | 7624 | 3.8087 | 63 | 99 | 11/0/0 | claude-orchestrator:better, gpt-critic:better | m1-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-high | 2026-09-25T22:25:17.726Z | 5377218 | 13382 | 2.8867 | 55 | 79 | 11/0/0 | claude-orchestrator:better, gpt-critic:worse | m1-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T22:26:17.432Z | 5655626 | 13382 | 3.4785 | 58 | 91 | 7/4/1 | claude-orchestrator:worse, taint:same | m1-2 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-high | 2026-09-25T22:32:54.975Z | 1990155 | 7624 | 4.4270 | 43 | 93 | 9/1/2 | claude-orchestrator:worse, taint:same | m1-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T00:09:42.583Z | 7991091 | 13380 | 4.2704 | 69 | 103 | 11/0/0 | gpt-critic:worse, claude-orchestrator:better | m3-1 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-high | 2026-09-26T00:20:37.382Z | 2440327 | 7624 | 3.7301 | 57 | 94 | 11/0/0 | gpt-critic:better, claude-orchestrator:better | m3-1 |
-| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-high | 2026-09-26T00:31:57.711Z | 1815774 | 7626 | 2.9312 | 45 | 82 | 11/0/0 | gpt-critic:worse, claude-orchestrator:better | m3-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T00:36:42.675Z | 9217548 | 13382 | 4.4861 | 77 | 121 | 11/0/0 | gpt-critic:worse, claude-orchestrator:better | m3-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T09:38:34.502Z | 6947800 | 13384 | 3.9764 | 62 | 120 | 11/0/0 | claude-orchestrator:better | m4-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T09:38:41.097Z | 5217448 | 13382 | 3.2626 | 53 | 108 | 11/0/0 | claude-orchestrator:better | m4-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T09:57:22.392Z | 8028612 | 13380 | 4.1874 | 73 | 111 | 11/0/0 | claude-orchestrator:better | m4-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T09:59:47.113Z | 5155160 | 13382 | 3.0340 | 57 | 90 | 11/0/0 | claude-orchestrator:better | m4-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T11:14:20.796Z | 6411452 | 13380 | 3.2806 | 68 | 102 | 11/0/0 | claude-orchestrator:better | m5-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T11:14:20.824Z | 7620518 | 13382 | 4.6031 | 66 | 112 | 7/4/0 | claude-orchestrator:worse | m5-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T11:14:20.844Z | 9884816 | 13382 | 4.7481 | 77 | 131 | 11/0/0 | claude-orchestrator:better | m5-1 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T11:27:58.809Z | 9514383 | 13384 | 4.8016 | 76 | 121 | 11/0/0 | claude-orchestrator:better | m5-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T11:54:57.204Z | 7738420 | 13384 | 4.4362 | 64 | 111 | 11/0/0 | claude-orchestrator:better | m5-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T12:05:39.377Z | 8708449 | 13384 | 4.5278 | 73 | 128 | 10/1/0 | claude-orchestrator:worse | m5-2 |
-| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-27T13:22:27.641Z | 7127109 | 13481 | 3.7833 | 63 | 94 | 11/0/0 |  | clean-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T13:24:56.019Z | 8336628 | 13327 | 4.3181 | 68 | 117 | 11/1/0 | claude-orchestrator:better, gpt-critic:better | r4-1 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T13:24:56.136Z | 2659200 | 7587 | 4.5931 | 53 | 103 | 12/0/0 | claude-orchestrator:better, gpt-critic:better | r4-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T13:43:19.850Z | 9815275 | 13363 | 4.8435 | 77 | 115 | 11/1/0 | claude-orchestrator:better, gpt-critic:better | r4-2 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T13:43:36.875Z | 1929588 | 7603 | 3.5593 | 42 | 103 | 12/0/0 | claude-orchestrator:better, gpt-critic:better | r4-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T14:50:55.219Z | 8029359 | 13348 | 4.0773 | 76 | 109 | 11/1/0 | claude-orchestrator:better, gpt-critic:better | r6-1 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T15:09:11.234Z | 2656473 | 7601 | 4.3651 | 55 | 107 | 12/0/0 | claude-orchestrator:better, gpt-critic:better | r6-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T15:25:10.805Z | 7529410 | 13352 | 4.0655 | 71 | 111 | 11/1/0 | claude-orchestrator:better, gpt-critic:better | r6-2 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T15:44:56.396Z | 2150564 | 7601 | 3.6873 | 46 | 95 | 12/0/0 | claude-orchestrator:better, gpt-critic:better | r6-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T19:21:04.956Z | 5885168 | 13380 | 3.4752 | 60 | 108 | 12/0/0 | claude-orchestrator:better | r9-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T19:35:36.054Z | 7789236 | 13380 | 4.0374 | 71 | 121 | 12/0/0 | claude-orchestrator:better | r9-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-medium | 2026-09-25T21:56:10.171Z | 3998394 | 13382 | 2.2930 | 51 | 86 | 11/1/0 | claude-orchestrator:worse, gpt-critic:worse | m1-1 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-medium | 2026-09-25T21:56:10.354Z | 1742041 | 7622 | 2.8234 | 45 | 87 | 12/0/0 | claude-orchestrator:better, gpt-critic:better | m1-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T21:56:16.367Z | 8280747 | 13384 | 4.2664 | 70 | 103 | 12/0/0 | claude-orchestrator:better, gpt-critic:worse | m1-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-high | 2026-09-25T22:06:42.735Z | 2867029 | 13382 | 1.8032 | 44 | 59 | 11/0/1 | claude-orchestrator:better, gpt-critic:worse | m1-1 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-high | 2026-09-25T22:07:18.018Z | 2289395 | 7622 | 3.5611 | 51 | 103 | 12/0/0 | claude-orchestrator:better, gpt-critic:better | m1-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-medium | 2026-09-25T22:16:48.802Z | 3181804 | 13382 | 1.8443 | 45 | 64 | 12/0/0 | claude-orchestrator:better, gpt-critic:worse | m1-2 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-medium | 2026-09-25T22:19:19.439Z | 2633242 | 7624 | 3.8087 | 63 | 99 | 12/0/0 | claude-orchestrator:better, gpt-critic:better | m1-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-high | 2026-09-25T22:25:17.726Z | 5377218 | 13382 | 2.8867 | 55 | 79 | 12/0/0 | claude-orchestrator:better, gpt-critic:worse | m1-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T22:26:17.432Z | 5655626 | 13382 | 3.4785 | 58 | 91 | 8/4/0 | claude-orchestrator:worse, taint:same | m1-2 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-high | 2026-09-25T22:32:54.975Z | 1990155 | 7624 | 4.4270 | 43 | 93 | 10/1/1 | claude-orchestrator:worse, taint:same | m1-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T00:09:42.583Z | 7991091 | 13380 | 4.2704 | 69 | 103 | 12/0/0 | gpt-critic:worse, claude-orchestrator:better | m3-1 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-high | 2026-09-26T00:20:37.382Z | 2440327 | 7624 | 3.7301 | 57 | 94 | 12/0/0 | gpt-critic:better, claude-orchestrator:better | m3-1 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-astra-high | 2026-09-26T00:31:57.711Z | 1815774 | 7626 | 2.9312 | 45 | 82 | 12/0/0 | gpt-critic:worse, claude-orchestrator:better | m3-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T00:36:42.675Z | 9217548 | 13382 | 4.4861 | 77 | 121 | 12/0/0 | gpt-critic:worse, claude-orchestrator:better | m3-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T09:38:34.502Z | 6947800 | 13384 | 3.9764 | 62 | 120 | 12/0/0 | claude-orchestrator:better | m4-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T09:38:41.097Z | 5217448 | 13382 | 3.2626 | 53 | 108 | 12/0/0 | claude-orchestrator:better | m4-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T09:57:22.392Z | 8028612 | 13380 | 4.1874 | 73 | 111 | 12/0/0 | claude-orchestrator:better | m4-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T09:59:47.113Z | 5155160 | 13382 | 3.0340 | 57 | 90 | 12/0/0 | claude-orchestrator:better | m4-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T11:14:20.796Z | 6411452 | 13380 | 3.2806 | 68 | 102 | 12/0/0 | claude-orchestrator:better | m5-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T11:14:20.824Z | 7620518 | 13382 | 4.6031 | 66 | 112 | 8/4/0 | claude-orchestrator:worse | m5-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T11:14:20.844Z | 9884816 | 13382 | 4.7481 | 77 | 131 | 12/0/0 | claude-orchestrator:better | m5-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T11:27:58.809Z | 9514383 | 13384 | 4.8016 | 76 | 121 | 12/0/0 | claude-orchestrator:better | m5-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T11:54:57.204Z | 7738420 | 13384 | 4.4362 | 64 | 111 | 12/0/0 | claude-orchestrator:better | m5-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T12:05:39.377Z | 8708449 | 13384 | 4.5278 | 73 | 128 | 11/1/0 | claude-orchestrator:worse | m5-2 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-27T13:22:27.641Z | 7127109 | 13481 | 3.7833 | 63 | 94 | 12/0/0 |  | clean-1 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T13:50:04.716Z | 2548812 | 7654 | 0.8495 | 53 | 92 | 8/4/0 |  | dedup-1 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T14:20:36.698Z | 3755195 | 7656 | 1.2344 | 66 | 110 | 12/0/0 |  | dedup-2 |
 | S10-writer-conflict | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T13:24:56.002Z | 219561 | 13217 | 0.2717 | 10 | 16 | 5/1/0 | claude-orchestrator:better, gpt-critic:same | r4-1 |
 | S10-writer-conflict | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T13:26:04.681Z | 141673 | 7519 | 0.4730 | 9 | 28 | 5/1/0 | claude-orchestrator:better, gpt-critic:same | r4-1 |
 | S10-writer-conflict | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T13:28:01.446Z | 260651 | 13215 | 0.3165 | 11 | 18 | 4/2/0 | claude-orchestrator:better, gpt-critic:worse | r4-2 |
@@ -256,6 +258,7 @@ Tokens include input, output, and cache tokens; prompt tokens are the first requ
 | S6-plan-adversary | mosaic | anthropic/claude-fable-5-1-max | 2026-09-25T22:31:02.742Z | 6596290 | 13188 | 8.8388 | 61 | 95 | 7/0/0 | claude-orchestrator:better, taint:same | m1-2 |
 | S6-plan-adversary | mosaic | anthropic/claude-fable-5-1-max | 2026-09-26T00:09:42.529Z | 7017330 | 13190 | 9.5119 | 58 | 112 | 7/0/0 | gpt-critic:worse, claude-orchestrator:better | m3-2 |
 | S6-plan-adversary | mosaic | anthropic/claude-fable-5-1-max | 2026-09-26T00:41:44.864Z | 5233918 | 13190 | 7.8463 | 50 | 96 | 7/0/0 | gpt-critic:worse, claude-orchestrator:better | m3-3 |
+| S6-plan-adversary | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T14:08:27.668Z | 1651557 | 7532 | 0.5693 | 49 | 75 | 7/0/0 |  | dedup-1 |
 | S7-intake-digest | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T00:21:32.254Z | 1351403 | 11558 | 2.7183 | 30 | 78 | 9/0/0 | claude-orchestrator:better, gpt-critic:better | r2-v0 |
 | S7-intake-digest | mosaic | anthropic/claude-opus-5-xhigh | 2026-09-25T00:21:32.318Z | 3809505 | 19564 | 3.7574 | 62 | 60 | 9/0/0 | claude-orchestrator:better, gpt-critic:same | r2-v0 |
 | S7-intake-digest | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T00:48:53.789Z | 2552613 | 11549 | 4.4496 | 45 | 105 | 9/0/0 | claude-orchestrator:better, gpt-critic:same | r2-v1-fixture-fixed |
@@ -286,9 +289,12 @@ Tokens include input, output, and cache tokens; prompt tokens are the first requ
 | S8-tracker-intent | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-26T20:23:38.657Z | 728787 | 7538 | 0.3296 | 28 | 45 | 3/0/1 |  | rename-1 |
 | S8-tracker-intent | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T03:21:44.516Z | 769022 | 7536 | 0.2733 | 29 | 49 | 3/0/1 |  | kitfix-1 |
 | S8m-tracker-intent-mcp | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-26T18:06:22.661Z | 949370 | 7525 | 0.3506 | 32 | 56 | 3/0/1 | claude-orchestrator:better | mcp-1 |
-| S9-closure-librarian | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T00:21:32.272Z | 3952804 | 11704 | 6.0732 | 61 | 109 | 8/0/0 | claude-orchestrator:better, gpt-critic:same | r2-v0 |
-| S9-closure-librarian | mosaic | anthropic/claude-opus-5-xhigh | 2026-09-25T00:21:32.290Z | 12352103 | 19791 | 9.9896 | 94 | 117 | 8/0/0 | claude-orchestrator:better, gpt-critic:worse | r2-v0 |
-| S9-closure-librarian | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T11:22:43.003Z | 2245289 | 7592 | 3.9353 | 44 | 98 | 8/0/0 | claude-orchestrator:better, gpt-critic:better | r3-1 |
-| S9-closure-librarian | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T11:30:00.103Z | 4967460 | 13332 | 3.0629 | 51 | 100 | 8/0/0 | claude-orchestrator:better, gpt-critic:better | r3-1 |
-| S9-closure-librarian | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T11:52:16.802Z | 2826421 | 7590 | 4.5683 | 55 | 108 | 7/1/0 | claude-orchestrator:worse, gpt-critic:worse | r3-2 |
-| S9-closure-librarian | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T12:09:59.300Z | 9018245 | 13330 | 4.6113 | 70 | 109 | 8/0/0 | claude-orchestrator:better, gpt-critic:better | r3-2 |
+| S9-closure-librarian | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T00:21:32.272Z | 3952804 | 11704 | 6.0732 | 61 | 109 | 9/0/0 | claude-orchestrator:better, gpt-critic:same | r2-v0 |
+| S9-closure-librarian | mosaic | anthropic/claude-opus-5-xhigh | 2026-09-25T00:21:32.290Z | 12352103 | 19791 | 9.9896 | 94 | 117 | 9/0/0 | claude-orchestrator:better, gpt-critic:worse | r2-v0 |
+| S9-closure-librarian | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T11:22:43.003Z | 2245289 | 7592 | 3.9353 | 44 | 98 | 9/0/0 | claude-orchestrator:better, gpt-critic:better | r3-1 |
+| S9-closure-librarian | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T11:30:00.103Z | 4967460 | 13332 | 3.0629 | 51 | 100 | 9/0/0 | claude-orchestrator:better, gpt-critic:better | r3-1 |
+| S9-closure-librarian | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T11:52:16.802Z | 2826421 | 7590 | 4.5683 | 55 | 108 | 8/1/0 | claude-orchestrator:worse, gpt-critic:worse | r3-2 |
+| S9-closure-librarian | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T12:09:59.300Z | 9018245 | 13330 | 4.6113 | 70 | 109 | 9/0/0 | claude-orchestrator:better, gpt-critic:better | r3-2 |
+| S9-closure-librarian | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T14:59:55.669Z | 4526261 | 7638 | 1.3493 | 75 | 117 | 9/0/0 |  | closeout-1 |
+| S9-closure-librarian | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-27T15:23:15.053Z | 2183771 | 13462 | 1.9082 | 31 | 54 | 6/2/1 |  | closeout-1 |
+| S9-closure-librarian | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-27T16:09:31.859Z | 6674845 | 13462 | 3.9778 | 63 | 86 | 9/0/0 |  | closeout-2 |
