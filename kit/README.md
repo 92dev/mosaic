@@ -4,7 +4,7 @@
 
 Mosaic installs an orchestration harness into a project root: a multi-repo link repo or a monorepo.
 It supplies shared process rules, omp and Claude Code ports, bounded agents and skills, hooks,
-local tools, a starting pitfalls catalog, and empty architecture/product/gap/plan/tracker registries.
+local tools, a starting pitfalls catalog, and empty architecture/product/gap/plan registries; tracker data is installed only for explicitly selected `local` tracking.
 The installation roots are `AGENTS.md`, `CLAUDE.md`, `.omp/`, `.claude/`, `docs/`, and `tools/`.
 The source installer, this README, checkout-only `../install/` migration references, loop rig, and fake export project are not installed.
 Without cutoff, existing project records are reconciled, not replaced with empty registries.
@@ -21,8 +21,8 @@ In an omp or Claude Code session at maximum effort **in the mosaic checkout**, i
 Supply the target path and any known factual answers; the skill asks only for missing facts or
 human rulings, never for a handwritten manifest. It derives the project name and full-sentence
 summary, `multi-repo` or `monorepo` topology, default branch from `origin/HEAD`, members or
-components, remotes, stacks, test commands and cwd, coverage notes, and the observed landing/CI
-policy. Ambiguous evidence is a question, not permission to assume the helper's defaults.
+components, remotes, stacks, test commands and cwd, coverage notes, tracking mode/server/scope,
+and observed landing/CI policy. Ambiguous evidence is a question, not permission to assume defaults.
 
 The [migration guide](../install/README.md) and [mapping policy](../install/migration-map.md)
 define the full procedure:
@@ -33,8 +33,9 @@ define the full procedure:
 2. Create or explicitly resume `mosaic/install`. Generate the manifest as an installation record,
    dry-install to fresh scratch outside the target, and compare every collision before placement.
 3. Build a concept-alignment table with stable row IDs, both adapt-kit and restructure-target
-   options, a chosen resolution, owner, status, and human rulings. Prefer adapting kit wording and
-   paths; restructure target records only for a named mechanical requirement or a human choice.
+   options, a chosen resolution, owner, status, and human rulings; the tracker row and H-tracking
+   are mandatory even for `none`. Prefer adapting wording/paths; restructure only for a named
+   mechanical requirement or human choice.
 4. Write the migration plan and nothing-lost ledger, run the planning adversary at maximum effort,
    and record a ruling on every challenge. Resolve human-owned blockers before affected work.
 5. Execute task by task on `mosaic/install`, preserving project safety rules and custom entries.
@@ -90,15 +91,17 @@ After landing, work from the target: read `AGENTS.md` or `CLAUDE.md`, `docs/proc
 ## Customizing after install
 
 Run `/mosaic-kit <intended change>` **in the installed project** for requested kit adaptations,
-project agents/skills, model-role changes, or upgrades—not for ordinary project implementation.
+project agents/skills, model-role changes, tracking-mode switches, or upgrades—not ordinary project implementation.
 The [maintenance guide](docs/kit/maintenance.md) owns the procedures for paired ports, shared-rule
 homes, budgets, checks, and upgrades. The skill works on `kit/<slug>` and stops for a human brief
 before landing.
 
 Keep `docs/mosaic-migration/kit-adaptations.md` indexed and current: record each changed kit file,
 hunk summary, reason, and verification, plus project additions and model-role/upgrade decisions.
-Create the record if absent. Upgrades compare a new rendered scratch baseline with those records,
+Create the record if absent. Upgrades and tracking-mode changes render into a new scratch baseline,
 then re-apply or explicitly retire adaptations rather than forcing fresh skeletons over live data.
+Before leaving `local`, archive and verify local data, preserve plan/ticket IDs and history, then
+remove obsolete kit-owned tool/data/scout paths with caller repairs; see the maintenance procedure.
 
 Add project-specific agents and skills alongside kit roles, following neighboring files and their
 runtime conventions; preserve existing project-only entries. Configure available models and effort
@@ -121,8 +124,8 @@ Monorepo plans live in root `docs/plans/` with `repo: link-repo`; `files:` and `
 repo-root-relative. Components do not get separate branches or plan homes. The skill derives the
 default branch from `origin/HEAD`, falling back only to the sole `main`/`master` branch on origin;
 missing or conflicting evidence needs a ruling. Existing PR/CI and deployment policy is preserved
-unless the human overrides it. `.omp/mosaic.json` holds runtime `defaultBranch` and `topology` for
-the hooks; the generated manifest is not runtime configuration.
+unless the human overrides it. `.omp/mosaic.json` holds runtime `defaultBranch`, `topology`, and
+`tracking`; the generated manifest is an installation record, not runtime configuration.
 
 ### Placeholders and generated manifest schema
 
@@ -137,7 +140,10 @@ The skill supplies every value from survey evidence; source Markdown uses these 
 | `DEFAULT_BRANCH` | `git.defaultBranch`, used in branch, review, and landing instructions |
 | `MEMBERS` | File-specific member/component rows, topology text, remote clauses, or plan/tracker examples |
 | `MEMBER_REMOTE:<name>` | Named `remotes.members[name]` lookup |
-| `MULTI_REPO` / `MONOREPO` | Non-nested blocks with slash-prefixed closing tokens; only the selected topology remains |
+| `TRACKING` | `tracking.mode`: `none`, `local`, or `mcp`; omitted helper input defaults to `none` |
+| `MCP_SERVER` / `MCP_TEAM` / `MCP_QUEUE` | Runtime server and optional scope; absent team/queue render readable instructions, not invented scope |
+| `TRACKING_NONE` / `TRACKING_LOCAL` / `TRACKING_MCP` | Mode blocks with slash-prefixed closing tokens; keep only the selected mode; may contain topology blocks |
+| `MULTI_REPO` / `MONOREPO` | Non-nested topology blocks selected after tracking blocks; then expand value tokens |
 
 The following examples document the schema consumed by the mechanical helper, not human setup
 steps. A multi-repo record has at least one member:
@@ -150,6 +156,7 @@ steps. A multi-repo record has at least one member:
   },
   "topology": "multi-repo",
   "git": { "defaultBranch": "main" },
+  "tracking": { "mode": "none" },
   "remotes": {
     "link": "https://example.invalid/atlas.git",
     "members": { "api": "https://example.invalid/api.git" }
@@ -174,6 +181,7 @@ A monorepo record uses components instead; `components` may be omitted or empty:
   },
   "topology": "monorepo",
   "git": { "defaultBranch": "master" },
+  "tracking": { "mode": "none" },
   "remotes": { "link": "https://example.invalid/atlas.git" },
   "members": [],
   "components": [{
@@ -191,9 +199,10 @@ Each member/component requires `name`, root-relative `path`, `stack`, `testComma
 be absolute or contain backslashes, `.` or `..` segments. Names use letters/digits first, then
 letters/digits/dot/underscore/hyphen. Manifest strings are single-line and contain no placeholders.
 Multi-repo member remotes are keyed by member name; monorepo `remotes.members` may be omitted.
-The helper defaults omitted `topology` to `multi-repo` and `git.defaultBranch` to `main`, but the
-skill records both explicitly from evidence. Commands are rendered as running from each entry's
-path; the skill adapts the stack document when the proven cwd differs.
+The helper defaults omitted `topology` to `multi-repo`, `git.defaultBranch` to `main`, and
+`tracking` to `{ "mode": "none" }`, but the skill records all three explicitly from survey evidence.
+Commands render from each entry's path; adapt the stack document when proven cwd differs.
+Tracking accepts `{ "mode": "local" }` or `{ "mode": "mcp", "mcp": { "server": "linear", "team": "ENG", "queue": "Triage" } }` instead of `none`. These names are illustrative: MCP `server` is the exact runtime name and required; `team` and `queue` are optional strings supported by H-tracking. Omit `mcp` for other modes.
 
 ### Mechanical helper: greenfield/manual path
 
@@ -223,7 +232,7 @@ Run these from the installed project root:
 | `bun tools/doctor.ts` | Harness structural checks; exit 0 / 1 / 2 means pass / fail / cannot evaluate |
 | `bun tools/checkup.ts --json` | Lint, doctor, and document/plan/trigger drift sweep |
 | `bun tools/docimpact.ts <plan-path>` | Document-impact candidates to inspect, not automatic edit instructions |
-| `bun tools/tracker.ts --provider replay list --all` | Complete local replay tracker inventory, including terminal items |
+| `tools/tracker.ts` (`local` only) | Offline inventory/intent operations; commands and safety gates live in the [tracker rule](docs/process/tracker.md) |
 | `bun .omp/hooks/post/lint-ledgers.ts <path>` | Governed registry/plan lint when using omp |
 | `bash .claude/hooks/lint-ledgers.sh <path>` | Governed registry/plan lint when using Claude Code |
 
@@ -242,16 +251,28 @@ For diagnostic details and kit-owned findings, use `/mosaic-kit` and the mainten
 | `/mosaic-checkup` | Sweep drift and present findings |
 | `/mosaic-kit <intended change>` | Maintain the installed kit, project harness additions, model roles, and upgrades |
 
-### Local MCP mock
+### Tracking modes
 
-Replay is the default tracker provider. The optional `mcp` provider also stays local; this kit has
-no live Linear adapter. When explicitly requested, seed the mock from installed tracker items:
+H-tracking records evidence from runtime MCP mounts/configuration, tracker docs, and commit/branch
+ticket keys. The survey checks `~/.omp/agent/mcp.json` (`mcpServers`), target `.omp/mcp.json`,
+and user/project Claude `.claude/settings.json` and `.mcp.json`; it distinguishes configured
+servers from tools actually mounted in the session. Every install records a tracker alignment row.
 
-```sh
-bun tools/mcp/linear-mock.ts --seed-from docs/tracker/items.json
-bun tools/tracker.ts --provider mcp list --all
-```
+| Mode | Selection | Runtime behavior |
+|---|---|---|
+| `none` | Default without tracker evidence, or an explicit owner ruling | No local tracker tool/data/scout or tracker frontmatter in the plan template; no fabricated ticket IDs. |
+| `local` | Explicit owner request only | Existing offline replay CLI and local items/outbox; no live connection or synchronization. |
+| `mcp` | A mounted MCP tracker or one named by the owner | Sessions call the runtime server's MCP tools directly, with no installed client or local tracker data. |
 
-To persist selection, set `provider` in `docs/tracker/config.json` to `mcp`; a CLI `--provider` wins
-over `MOSAIC_TRACKER_PROVIDER`, which wins over that config. The mock is adapter exercise data,
-not a connection to a live workspace. Tracker writes still follow `docs/process/tracker.md`.
+MCP needs the exact runtime server name, team when known, and a queue state/label inferred from
+evidence or resolved by a human ruling. Ticket keys alone do not identify a server or queue;
+missing mounted tools/credentials are a verification blocker, not an automatic local fallback.
+Installation performs no MCP writes and supplies no MCP client/server implementation.
+Only `local` installs `tools/tracker.ts`, `docs/tracker/**`, and both ports' `tracker-scout.md`.
+Existing records and external IDs survive migration regardless of the new mode; mode switching
+archives local data safely before obsolete kit-owned paths are removed. It never imports local
+items into a live workspace as an installation step.
+The rendered `docs/process/tracker.md` is the one home for mode-specific commands and safety gates;
+skills and agents read it and follow the installed mode. Runtime metadata changes alone do not
+re-render rules or callers: use `/mosaic-kit` and the [maintenance guide](docs/kit/maintenance.md).
+

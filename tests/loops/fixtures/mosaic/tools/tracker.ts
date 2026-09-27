@@ -1,10 +1,18 @@
 #!/usr/bin/env bun
-// Run from the link root. Replay is the default; MCP uses a configured stdio server.
-import { randomUUID } from "node:crypto";
+// Run from the link root. This CLI reads and writes local replay data only.
+import { createHash, randomUUID } from "node:crypto";
 import { appendFileSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { collection, commentFromResult, itemFromIssue, McpClient, object } from "./mcp/client.ts";
-import { commentBody, commentHash, csv, description, managedBody, Refused, refuse, type Item, type Managed } from "./mcp/model.ts";
+type Managed = {
+	plan: string | null; repos: string[]; areas: string[]; branch: Record<string, string>; writer: string;
+	lastEvent: { event: string; ts: string }; parked: string | null; resumeState?: string;
+};
+type Comment = { id: string; body: string; author: string; createdAt: string; writer?: string };
+type Item = {
+	key: string; id: string; title: string; body: string; state: string; assignee: string | null;
+	labels: string[]; team: string; url: string; updatedAt: string; repos: string[];
+	managed: Managed | null; comments: Comment[]; attachments: unknown[];
+};
 
 type Receipt = { repo: string; ref: string; commit: string; reachable: true };
 type Payloads = {
@@ -12,7 +20,7 @@ type Payloads = {
 	event: { event: string; note?: string; receipt?: Receipt[] };
 	comment: { id: string; body: string };
 };
-type Entry = { [K in keyof Payloads]: { ts: string; op: K; key: string; writer: string; payload: Payloads[K]; mcpId?: string } }[keyof Payloads];
+type Entry = { [K in keyof Payloads]: { ts: string; op: K; key: string; writer: string; payload: Payloads[K] } }[keyof Payloads];
 const terminal: Record<string, true> = { done: true, abandoned: true, canceled: true, cancelled: true, duplicate: true };
 const events: Record<string, true> = { approved: true, executing: true, review: true, done: true, abandoned: true, parked: true, resumed: true };
 // Pretty output: the agent runtime truncates long tool-output lines, and a compact item array exceeds that limit.
@@ -20,6 +28,42 @@ const json = (value: unknown) => console.log(JSON.stringify(value, null, 2));
 const nonempty = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
 const strings = (value: unknown): value is string[] => Array.isArray(value) && value.every(nonempty);
 const timestamp = (value: unknown): value is string => nonempty(value) && Number.isFinite(Date.parse(value));
+class Refused extends Error {}
+const refuse = (reason: string): never => { throw new Refused(reason); };
+const begin = "<!-- mosaic:begin -->", end = "<!-- mosaic:end -->";
+const commentHash = (key: string, body: string): string => createHash("sha256").update(key + body).digest("hex");
+
+function csv(value: string): string[] {
+	// Commas inside brace/class globs are not area separators.
+	const result: string[] = [];
+	let start = 0, depth = 0;
+	for (let i = 0; i <= value.length; i++) {
+		if (value[i] === "{" || value[i] === "[") depth++;
+		if (value[i] === "}" || value[i] === "]") depth--;
+		if (i === value.length || (value[i] === "," && depth === 0)) {
+			const part = value.slice(start, i).trim();
+			if (!part) throw new Error("empty list member");
+			result.push(part);
+			start = i + 1;
+		}
+	}
+	return [...new Set(result)];
+}
+function anchors(body: string): [number, number] {
+	const left = body.indexOf(begin), right = body.indexOf(end);
+	if ((left < 0) !== (right < 0) || right < left || body.indexOf(begin, left + begin.length) > left
+		|| body.indexOf(end, right + end.length) > right) refuse("MANAGED-BLOCK-CONFLICT");
+	return [left, right];
+}
+function managedBody(body: string, managed: Managed): string {
+	const block = [begin, `plan: ${managed.plan ?? "none"}`, `repos: ${managed.repos.join(", ")}`,
+		`areas: ${managed.areas.join(", ") || "none"}`,
+		`branch: ${Object.entries(managed.branch).map(([repo, branch]) => `${repo}:${branch}`).join(", ") || "none"}`,
+		`writer: ${managed.writer}`, `last-event: ${managed.lastEvent.event} ${managed.lastEvent.ts}`,
+		`parked: ${managed.parked ?? "none"}`, end].join("\n");
+	const [left, right] = anchors(body);
+	return left < 0 ? `${body}${body ? "\n\n" : ""}${block}` : body.slice(0, left) + block + body.slice(right + end.length);
+}
 
 function writerToken(value: string): string {
 	if (!/^[A-Za-z0-9_-]+(?:#[1-9][0-9]*)?$/.test(value)) refuse("invalid opaque writer token; use token#generation without paths or hostnames");
@@ -138,7 +182,7 @@ function overlaps(left: string, right: string): boolean {
 	return true;
 }
 
-async function main(): Promise<void> {
+function main(): void {
 	const flags = new Map<string, string>();
 	const positionals: string[] = [];
 	const raw = process.argv.slice(2);
@@ -155,32 +199,23 @@ async function main(): Promise<void> {
 	const options: Record<string, string[]> = { list: ["--state", "--label", "--team", "--all"], get: [],
 		intersect: ["--areas", "--repos"], intent: ["--title", "--repos", "--areas", "--plan", "--writer"],
 		event: ["--writer", "--note", "--receipt"], comment: ["--file", "--writer"], receipt: [] };
-	if (!Object.hasOwn(options, command)) throw new Error("usage: bun tools/tracker.ts [--provider replay|mcp] [--replay <dir>] list|get|intersect|intent|event|comment|receipt");
+	if (!Object.hasOwn(options, command)) throw new Error("usage: bun tools/tracker.ts [--provider replay] [--replay <dir>] list|get|intersect|intent|event|comment|receipt");
 	for (const flag of flags.keys()) if (!["--replay", "--provider"].includes(flag) && !options[command].includes(flag)) throw new Error(`unsupported ${flag} for ${command}`);
 	const arity = command === "event" ? 3 : ["get", "comment", "receipt"].includes(command) ? 2 : 1;
 	if (positionals.length !== arity) throw new Error(`wrong arguments for ${command}`);
 	const required = (flag: string): string => flags.get(flag) ?? refuse(`missing ${flag}`);
 	const dir = resolve(flags.get("--replay") ?? "docs/tracker");
-	let config: Record<string, unknown> = {};
-	try { config = object(JSON.parse(readFileSync(resolve(dir, "config.json"), "utf8"))); }
-	catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
-	const provider = flags.get("--provider") ?? process.env.MOSAIC_TRACKER_PROVIDER ?? config.provider ?? "replay";
-	if (provider !== "replay" && provider !== "mcp") throw new Error(provider === "linear" ? "unsupported in v1" : "unsupported provider");
+	if (flags.has("--provider") && flags.get("--provider") !== "replay") throw new Error("unsupported provider");
 	const items = new Map<string, Item>();
 	const outbox: Entry[] = [];
 	let separator = "";
-	let client: McpClient | undefined;
-	let remoteComments: Record<string, unknown>[] = [];
 	try {
-	try {
-		if (provider === "replay") {
-			const seed = JSON.parse(readFileSync(resolve(dir, "items.json"), "utf8"));
-			if (!Array.isArray(seed)) throw new Error("items.json must be an array");
-			for (const item of seed) {
-				validateItem(item);
-				if (items.has(item.key)) throw new Error(`duplicate key ${item.key}`);
-				items.set(item.key, item);
-			}
+		const seed = JSON.parse(readFileSync(resolve(dir, "items.json"), "utf8"));
+		if (!Array.isArray(seed)) throw new Error("items.json must be an array");
+		for (const item of seed) {
+			validateItem(item);
+			if (items.has(item.key)) throw new Error(`duplicate key ${item.key}`);
+			items.set(item.key, item);
 		}
 		let log = "";
 		try { log = readFileSync(resolve(dir, "outbox.jsonl"), "utf8"); }
@@ -189,58 +224,18 @@ async function main(): Promise<void> {
 		for (const line of log.split("\n")) {
 			if (!line.trim()) continue;
 			const entry = JSON.parse(line) as Entry;
-			if (provider === "replay") apply(items, entry);
+			apply(items, entry);
 			outbox.push(entry);
 		}
-		if (provider === "mcp" && !(command === "receipt" && outbox.some(entry => entry.key === key))) {
-			client = await McpClient.connect(config.mcp ?? {});
-			const inventory = ["list", "intersect"].includes(command)
-				? collection(await client.call("list_issues"), "issues")
-				: command === "intent" ? [] : [await client.call("get_issue", { id: key })];
-			for (const value of inventory) {
-				const item = itemFromIssue(value);
-				validateItem(item);
-				if (items.has(item.key)) throw new Error(`duplicate key ${item.key}`);
-				items.set(item.key, item);
-			}
-			if (["get", "event", "comment"].includes(command)) {
-				const item = items.get(key) ?? refuse(`unknown item ${key}`);
-				remoteComments = collection(await client.call("list_comments", { issueId: item.id }), "comments").map(object);
-				item.comments = remoteComments.map(commentFromResult);
-			}
-		}
 	} catch (error) {
-		if (provider === "mcp" && error instanceof Refused) throw error;
 		throw new Error(`INCOMPLETE/UNAVAILABLE: ${error instanceof Error ? error.message : String(error)}`);
 	}
 	const itemFor = (key: string): Item => items.get(key) ?? refuse(`unknown item ${key}`);
-	const append = async (entry: Entry): Promise<Entry> => {
-		const previousLabels = items.get(entry.key)?.labels;
+	const append = (entry: Entry): Entry => {
 		apply(items, entry);
-		const item = itemFor(entry.key);
-		if (client) {
-			const response = object(await client.call(entry.op === "comment" ? "save_comment" : "save_issue",
-				entry.op === "comment" ? { issueId: item.id, body: commentBody(entry.key, entry.payload.body, entry.writer) }
-					: entry.op === "intent" ? { team: item.team, title: item.title, description: description(item), state: item.state, labels: item.labels }
-					: { id: item.id, description: description(item), state: item.state }));
-			if (!nonempty(response.id)) throw new Error("INCOMPLETE/UNAVAILABLE: missing MCP response id");
-			entry.mcpId = response.id;
-			if (entry.op === "intent") {
-				const created = itemFromIssue(response);
-				validateItem(created);
-				items.delete(entry.key);
-				entry.key = created.key;
-				entry.payload.id = created.id;
-				entry.payload.url = created.url;
-				items.set(created.key, created);
-			} else if (entry.op === "event" && nonempty(response.updatedAt)) item.updatedAt = response.updatedAt;
-		}
 		appendFileSync(resolve(dir, "outbox.jsonl"), `${separator}${JSON.stringify(entry)}\n`);
 		separator = "";
 		outbox.push(entry);
-		if (client && entry.op === "comment" && JSON.stringify(previousLabels) !== JSON.stringify(item.labels)) {
-			await client.call("save_issue", { id: item.id, labels: item.labels });
-		}
 		return entry;
 	};
 	if (command === "list") {
@@ -250,7 +245,7 @@ async function main(): Promise<void> {
 			&& (!flags.has("--team") || item.team === required("--team"))).map(summary));
 		json({ complete: true });
 	} else if (command === "get") json(itemFor(key));
-	else if (command === "receipt") { if (provider === "replay" || !outbox.some(entry => entry.key === key)) itemFor(key); json(outbox.filter(entry => entry.key === key)); }
+	else if (command === "receipt") { itemFor(key); json(outbox.filter(entry => entry.key === key)); }
 	else if (command === "intersect") {
 		const areas = csv(required("--areas")), repos = flags.has("--repos") ? csv(required("--repos")) : null;
 		const now = Date.now();
@@ -265,7 +260,7 @@ async function main(): Promise<void> {
 		if (!writer.endsWith("#1")) refuse("intent requires writer generation 1");
 		const number = Math.max(0, ...[...items.keys()].map(key => Number(/^ENG-(\d+)$/.exec(key)?.[1] ?? 0))) + 1;
 		const newKey = `ENG-${number}`;
-		const entry = await append({ ts: new Date().toISOString(), op: "intent", key: newKey, writer,
+		const entry = append({ ts: new Date().toISOString(), op: "intent", key: newKey, writer,
 			payload: { id: randomUUID(), title: required("--title"), repos: csv(required("--repos")), areas: csv(required("--areas")),
 				plan: flags.get("--plan") ?? null, url: `replay://${newKey}` } });
 		console.log(entry.key);
@@ -273,13 +268,12 @@ async function main(): Promise<void> {
 		const item = itemFor(key), writer = writerToken(required("--writer"));
 		const body = readFileSync(resolve(required("--file")), "utf8");
 		const id = commentHash(key, body);
-		const existing = client ? remoteComments.find(comment => typeof comment.body === "string" && comment.body.includes(`<!-- mosaic:sha256:${id} -->`))
-			: item.comments.find(comment => comment.id === id);
+		const existing = item.comments.find(comment => comment.id === id);
 		if (existing) console.log(existing.id);
 		else {
 			checkWriter(item, writer);
-			const entry = await append({ ts: new Date().toISOString(), op: "comment", key, writer, payload: { id, body } });
-			console.log(entry.mcpId ?? id);
+			append({ ts: new Date().toISOString(), op: "comment", key, writer, payload: { id, body } });
+			console.log(id);
 		}
 	} else if (command === "event") {
 		const item = itemFor(key), writer = writerToken(required("--writer"));
@@ -292,12 +286,11 @@ async function main(): Promise<void> {
 			try { supplied = JSON.parse(required("--receipt")); } catch { refuse("invalid receipt JSON"); }
 			payload.receipt = receipts(supplied, item.repos);
 		} else if (event === "done") refuse("done requires a reachable landing receipt for every repo");
-		await append({ ts: new Date().toISOString(), op: "event", key, writer, payload });
+		append({ ts: new Date().toISOString(), op: "event", key, writer, payload });
 		json(summary(item));
 	}
-	} finally { client?.close(); }
 }
-try { await main(); }
+try { main(); }
 catch (error) {
 	console.error(error instanceof Error ? error.message : String(error));
 	process.exitCode = error instanceof Refused ? 1 : 2;

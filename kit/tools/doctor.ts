@@ -79,6 +79,36 @@ function body(content: string): string {
 function lines(content: string): string[] {
 	return content === "" ? [] : content.replace(/\n$/, "").split("\n");
 }
+const configPath = ".omp/mosaic.json";
+let defaultBranch = "main";
+let trackingMode = "none";
+if (fs.existsSync(path.join(root, configPath))) {
+	const content = text("mosaic-config", configPath);
+	if (content !== undefined) {
+		try {
+			const config = JSON.parse(content);
+			if (typeof config.defaultBranch !== "string" || !config.defaultBranch.trim() || /[\r\n\0]/.test(config.defaultBranch)) {
+				throw new Error("defaultBranch must be a nonempty single-line string");
+			}
+			if (config.topology !== "multi-repo" && config.topology !== "monorepo") throw new Error("topology must be multi-repo or monorepo");
+			const tracking = config.tracking === undefined ? { mode: "none" } : config.tracking;
+			if (!tracking || (tracking.mode !== "none" && tracking.mode !== "local" && tracking.mode !== "mcp")) throw new Error("tracking.mode must be none, local, or mcp");
+			if (tracking.mode === "mcp") {
+				for (const field of ["server", "team", "queue"]) {
+					const value = tracking.mcp?.[field];
+					if (field !== "server" && value === undefined) continue;
+					if (typeof value !== "string" || !value.trim() || /[\r\n\0]/.test(value)) {
+						throw new Error(`tracking.mcp.${field} must be a nonempty single-line string`);
+					}
+				}
+			} else if (tracking.mcp !== undefined) throw new Error("tracking.mcp is only valid in mcp mode");
+			defaultBranch = config.defaultBranch;
+			trackingMode = tracking.mode;
+		} catch (error) {
+			finding("FAIL", "mosaic-config", configPath, String(error));
+		}
+	}
+}
 const processNames = [
 	"mosaic-core", "map", "plan-triage", "git-flow", "dispatch", "review-loop", "verification",
 	"records", "registries", "plan-home", "stack", "human-gates", "writing-for-the-reader",
@@ -90,6 +120,7 @@ const agentPairs = [
 	["context-scout", "context-scout"], ["claude-reviewer", "reviewer"], ["gpt-reviewer", "reviewer"],
 	["tracker-scout", "tracker-scout"], ["librarian", "librarian"], ["ticket-investigator", "ticket-investigator"],
 ] as const;
+const installedAgentPairs = agentPairs.filter(([name]) => name !== "tracker-scout" || trackingMode === "local");
 // Structural contracts belong to the kit, not unrelated project harness entries.
 const processFiles = processNames.map(name => `docs/process/${name}.md`).sort();
 const ompRules = processNames.map(name => `.omp/rules/${name}.md`);
@@ -97,7 +128,7 @@ function skillFiles(port: ".omp" | ".claude"): string[] {
 	return skillNames.map(name => `${port}/skills/${name}/SKILL.md`);
 }
 function agentFiles(port: ".omp" | ".claude"): string[] {
-	return [...new Set(agentPairs.map(pair => `${port}/agents/${pair[port === ".omp" ? 0 : 1]}.md`))];
+	return [...new Set(installedAgentPairs.map(pair => `${port}/agents/${pair[port === ".omp" ? 0 : 1]}.md`))];
 }
 const harnessFiles = [
 	...ompRules, ...([".omp", ".claude"] as const).flatMap(port => [...skillFiles(port), ...agentFiles(port)]),
@@ -111,7 +142,7 @@ if (fs.existsSync(path.join(root, ".omp/mosaic.json"))) harnessFiles.push(".omp/
 const budgets = new Map<string, number>([["AGENTS.md", 30], ["CLAUDE.md", 30], [".claude/rules/mosaic-core.md", 30]]);
 for (const file of processFiles) {
 	budgets.set(file, file.endsWith("/mosaic-core.md") ? 30 : file.endsWith("/intake.md") ? 40
-		: file.endsWith("/map.md") || file.endsWith("/tracker.md") ? 60 : 80);
+		: file.endsWith("/map.md") ? 60 : 80);
 }
 for (const port of [".omp", ".claude"] as const) {
 	for (const file of skillFiles(port)) budgets.set(file, /\/mosaic-(?:intake|checkup)\/SKILL\.md$/.test(file) ? 80 : 120);
@@ -181,23 +212,6 @@ for (const port of [".omp", ".claude"] as const) {
 	}
 }
 
-const configPath = ".omp/mosaic.json";
-let defaultBranch = "main";
-if (fs.existsSync(path.join(root, configPath))) {
-	const content = text("mosaic-config", configPath);
-	if (content !== undefined) {
-		try {
-			const config = JSON.parse(content);
-			if (typeof config.defaultBranch !== "string" || !config.defaultBranch.trim() || /[\r\n\0]/.test(config.defaultBranch)) {
-				throw new Error("defaultBranch must be a nonempty single-line string");
-			}
-			if (config.topology !== "multi-repo" && config.topology !== "monorepo") throw new Error("topology must be multi-repo or monorepo");
-			defaultBranch = config.defaultBranch;
-		} catch (error) {
-			finding("FAIL", "mosaic-config", configPath, String(error));
-		}
-	}
-}
 const ompGuard = text("guard-config", ".omp/hooks/pre/guard-main.ts");
 const claudeGuard = text("guard-config", ".claude/hooks/guard-main.sh");
 if (ompGuard !== undefined && claudeGuard !== undefined) {
@@ -248,7 +262,7 @@ function comparePair(omp: string, claude: string): void {
 	}
 	if (differences.length) finding("FAIL", "port-parity", omp, `differs from ${claude} at normalized body lines ${differences.join(", ")}`);
 }
-for (const [omp, claude] of agentPairs) comparePair(`.omp/agents/${omp}.md`, `.claude/agents/${claude}.md`);
+for (const [omp, claude] of installedAgentPairs) comparePair(`.omp/agents/${omp}.md`, `.claude/agents/${claude}.md`);
 for (const name of skillNames) comparePair(`.omp/skills/${name}/SKILL.md`, `.claude/skills/${name}/SKILL.md`);
 const core = text("port-parity", "docs/process/mosaic-core.md");
 const coreTwin = text("port-parity", ".claude/rules/mosaic-core.md");
@@ -316,7 +330,7 @@ const placeholderFiles = new Set([
 	"docs/architecture/README.md", "docs/architecture/pitfalls.md", "docs/architecture/open-questions.md", "docs/kit/maintenance.md",
 	"docs/plans/README.md", "docs/plans/TEMPLATE.md", "docs/product/README.md",
 	...harnessFiles, ...processFiles,
-	...files("placeholders", "docs/tracker", false).filter(file => file.endsWith(".json")),
+	...(trackingMode === "local" ? files("placeholders", "docs/tracker", false).filter(file => file.endsWith(".json")) : []),
 	...files("placeholders", "tools").filter(file => file.endsWith(".ts")),
 ]);
 for (const file of placeholderFiles) {

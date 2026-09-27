@@ -36,7 +36,7 @@ Add every surveyed family, including component documentation; reconcile totals w
 - Every active statement cites `archived: <path>#<heading>` (or line range) and is verified against current code/config/tests or an explicit current ruling. An archived assertion alone is not current truth.
 - Superseded material stays archived; preserve rejected alternatives as evidence. Unknown or contradictory status becomes an open question, never a fact or invented approval.
 - Mint gaps/pitfalls only when current evidence supports them; search for duplicates first. A gap requires a checkable `when:`, provenance, and why it is not actionable now; a pitfall needs a trap, prevention rule, and measured cite.
-- Defects go to the existing tracker with reproducer/evidence, not gaps; do not invent a tracker identity or perform live writes without authorization. No old gap/defect table is copied into an active index.
+- Defects retain reproducer/evidence and follow the installed tracker rule: with `none`, surface an evidenced finding without inventing an ID; otherwise use the selected tracker only within its authorization gates. Never turn defects into gaps or copy an old gap/defect table into an active index.
 - New ledgers start with rebuild plan `0001`; retain old IDs/approvals only in the archive. Use normal plan reservation, approval, execution, and review gates.
 
 ## Proposed task split

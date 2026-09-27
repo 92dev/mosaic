@@ -10,18 +10,20 @@
 | [gaps-archive.md](gaps-archive.md) | Closed obligation evidence | Auditing a closed entry |
 | [plans/README.md](plans/README.md) | Master ledger for every repo | Reserving a number or locating a plan |
 | [plans/TEMPLATE.md](plans/TEMPLATE.md) | Plan schema | Authoring a plan |
-| `/mosaic-intake` | Read-only request investigation and human digest | Investigating an external request |
-| `/mosaic-checkup`, [sweep tool](../tools/checkup.ts) | Deterministic drift sweep and human digest (`bun tools/checkup.ts [--root dir] [--json]`; exits 0 PASS / 1 findings / 2 CANNOT-EVALUATE) | Checking project records |
-| `tracker-scout` | Complete active-intent collision report | Planning shared paths or contracts |
-| [tracker replay inventory](tracker/items.json) | Recorded items, discussion, and managed intent | Exercising the replay-only adapter |
-| [Maintaining the kit](kit/maintenance.md) | `/mosaic-kit`: recorded adaptations, project harness additions, model roles, upgrades | Explicitly requested kit maintenance only |
+{{TRACKING_LOCAL}}| `/mosaic-intake` | Read-only request investigation and human digest | Investigating an external request |
+{{/TRACKING_LOCAL}}{{TRACKING_MCP}}| `/mosaic-intake` | Read-only request investigation and human digest | Investigating an external request |
+{{/TRACKING_MCP}}| `/mosaic-checkup`, [sweep tool](../tools/checkup.ts) | Deterministic drift sweep and human digest (`bun tools/checkup.ts [--root dir] [--json]`; exits 0 PASS / 1 findings / 2 CANNOT-EVALUATE) | Checking project records |
+{{TRACKING_LOCAL}}| `tracker-scout` | Complete active-intent collision report | Planning shared paths or contracts |
+| [local tracker inventory](tracker/items.json) | Recorded items, discussion, and managed intent | Following local tracking mode |
+{{/TRACKING_LOCAL}}{{TRACKING_MCP}}| Runtime MCP server `{{MCP_SERVER}}` | Live intent, discussion, and intake through runtime tools | Following MCP tracking mode in the [tracker rule](process/tracker.md) |
+{{/TRACKING_MCP}}| [Maintaining the kit](kit/maintenance.md) | `/mosaic-kit`: recorded adaptations, project harness additions, model roles, upgrades | Explicitly requested kit maintenance only |
 ## Process rules
 | Rule | Purpose | Read when |
 |---|---|---|
 | [map](process/map.md) | Roles and lifecycle | Before any change |
 | [plan-triage](process/plan-triage.md) | Inline, light, or planned work | Selecting the procedure |
 | [intake](process/intake.md) | Request evidence, risk, and proposed dispositions | Investigating an external request |
-| [tracker](process/tracker.md) | Coordination authority, writer discipline, and replay commands | Intent, collision checks, intake writeback, lifecycle events |
+| [tracker](process/tracker.md) | Installed tracking mode, coordination authority, writer discipline, and operations | Intent, collision checks, intake writeback, lifecycle events |
 | [git-flow](process/git-flow.md) | Target-repo branch and landing commands | Branching, committing, landing |
 | [dispatch](process/dispatch.md) | Bounded task and parallel ownership | Authoring tasks or dispatching executors |
 | [review-loop](process/review-loop.md) | Verdicts and correction cycle | Reviewing tasks or findings |
@@ -48,9 +50,9 @@
 {{MEMBERS}}
 ## Local checks
 Run from the link-repo root; read `rule://verification` for evidence handling and gate coverage.
-| Command | Result |
-|---|---|
-| `bun tools/tracker.ts list --all` | Complete replay inventory and trailer; writes use the [tracker rule](process/tracker.md) |
+{{TRACKING_LOCAL}}Local inventory and write operations have one command home: the [tracker rule](process/tracker.md).
+{{/TRACKING_LOCAL}}{{TRACKING_MCP}}Runtime MCP inventory and writes follow the [tracker rule](process/tracker.md); no local tracker checks are installed.
+{{/TRACKING_MCP}}
 ## Conventions
 - Write self-sufficient docs for a reader with zero session context; read `rule://human-gates` at human decisions.
 - Source precedence is in the entrypoint.

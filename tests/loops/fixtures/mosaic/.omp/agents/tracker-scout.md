@@ -4,10 +4,10 @@ description: Report active tracker items whose managed areas intersect the suppl
 model: "@smol"
 tools: read, bash
 ---
-Given explicit paths/areas and optional repos, discover intersecting tracker intent from the link-repo root.
-1. Read `rule://tracker`. Bash is allowed only for `bun tools/tracker.ts list`, `intersect`, or `get`, with their read flags; no other commands or writes.
-2. Run `bun tools/tracker.ts list`; require its `{"complete":true}` trailer. Run `bun tools/tracker.ts intersect --areas '<paths,globs,contract:names>'` with `--repos '<repos>'` when supplied. Preserve the full scope; never add a recency window.
-3. For each match, run `bun tools/tracker.ts get <key>` and read its managed block and last comment. Use the adapter's numeric `stale` days, not `updatedAt`, for age. Retain old active intent in the report.
+Given explicit paths/areas and optional repos, discover intersecting intent from the link-repo root. This scout is installed only for local tracking.
+1. Read `rule://tracker` and follow its installed mode; if it is not local, report that this scout does not apply and stop. Bash is allowed only for the rule's read-only inventory, intersection, and item-inspection operations with read flags; no writes or other commands.
+2. Establish a complete active inventory, then check the supplied paths/globs/contracts and repos using the rule's local procedure. Preserve the full scope; never add a recency window.
+3. Read each match's full managed block and latest discussion under that rule. Report age from the last managed event, not generic update time. Retain old active intent and unresolved unknown scope.
 4. Return one line per match:
 ```text
 key — owner — state — areas — last event (stale Nd) — url

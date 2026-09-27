@@ -23,6 +23,7 @@ try {
 	writeFileSync(manifest, JSON.stringify({
 		project: { name: "Monorepo", summary: "Monorepo contains an API and worker." },
 		topology: "monorepo", git: { defaultBranch: "master" },
+		tracking: { mode: "local" },
 		remotes: { link: "https://example.invalid/monorepo.git" }, members: [],
 		components: ["apps/api", "packages/worker"].map(component => ({
 			name: component.split("/")[1], path: component, stack: "TypeScript", testCommand: "bun test", coverageNote: "",
@@ -40,7 +41,7 @@ try {
 	put(".claude/worktrees/other/AGENTS.md", "{{OTHER_PROJECT}}\n");
 	put("docs/evidence.log", "[not a Markdown link](missing-file)\n");
 	run([bun, "tools/doctor.ts"], 0);
-	for (const file of ["AGENTS.md", ".omp/config.yml", ".claude/hooks/guard-main.sh", "docs/process/map.md", "docs/index.md", "docs/plans/TEMPLATE.md", "docs/architecture/README.md", "docs/tracker/config.json", "tools/checkup.ts"]) {
+	for (const file of ["AGENTS.md", ".omp/config.yml", ".claude/hooks/guard-main.sh", "docs/process/map.md", "docs/index.md", "docs/plans/TEMPLATE.md", "docs/architecture/README.md", "docs/tracker/items.json", "tools/checkup.ts"]) {
 		const original = readFileSync(join(target, file), "utf8");
 		put(file, `${original}\n{{UNRENDERED}}\n`);
 		const result = run([bun, "tools/doctor.ts"], 1);

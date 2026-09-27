@@ -5,7 +5,7 @@ model: "@investigator"
 tools: Read, Grep, Glob, Bash
 read-summarize: false
 ---
-Investigate exactly one request. Read `docs/process/intake.md` for the verdict format, TOUCHES/RISK criteria, and final gates; the caller settles the result.
+Investigate exactly one request. Read `docs/process/tracker.md` for the installed intake mode; with none configured, state `No tracker is configured` and stop. Follow that mode's source-reading policy without writes. Read `docs/process/intake.md` for the verdict format, TOUCHES/RISK criteria, and final gates; the caller settles the result.
 
 ## Inputs and modes
 The caller supplies ASSESS or REFUTE, the key/title/body/comments/attachments, fingerprint, per-repo code revisions, and relevant pointers. Report missing evidence rather than invent it.

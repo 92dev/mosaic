@@ -66,7 +66,7 @@ function collect(dir: string): void {
 	for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
 		const file = `${dir}/${entry.name}`;
 		// Cutoff history is never an input to active registries or drift findings.
-		if (cutoffArchive(file)) continue;
+		if (cutoffArchive(file) || (file === "docs/tracker" && trackingMode !== "local")) continue;
 		if (entry.isDirectory()) collect(file);
 		else if (entry.isFile() || entry.isSymbolicLink()) read(file, ["lint", ...documentClasses]);
 	}
@@ -79,10 +79,15 @@ catch (error) {
 }
 // Components in a monorepo share the root's docs and ledger; they are not member repositories.
 let monorepo = false;
+let trackingMode = "none";
 const configPath = ".omp/mosaic.json";
 if (fs.existsSync(path.join(root, configPath))) {
-	try { monorepo = JSON.parse(read(configPath, ["doctor"]) ?? "{}").topology === "monorepo"; }
-	catch (error) { unavailable("doctor", configPath, `cannot read topology: ${String(error)}`); }
+	try {
+		const config = JSON.parse(read(configPath, ["doctor"]) ?? "{}");
+		monorepo = config.topology === "monorepo";
+		trackingMode = config.tracking?.mode ?? "none";
+	}
+	catch (error) { unavailable("doctor", configPath, `cannot read installation metadata: ${String(error)}`); }
 }
 const members = monorepo ? [] : children.filter(entry => !entry.name.startsWith(".") && (entry.isDirectory() || entry.isSymbolicLink())
 	&& (fs.existsSync(path.join(root, entry.name, ".git")) || fs.existsSync(path.join(root, entry.name, "docs"))))

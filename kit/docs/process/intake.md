@@ -3,6 +3,7 @@ description: "Investigate external requests, settle evidenced risk, and stop eve
 ---
 Read when: investigating an external request in the project root or a member repo.
 # Intake
+- Read `rule://tracker` first and follow its installed mode for queue selection, complete source reads, prior verdicts, and writeback. With no configured tracker, state `No tracker is configured` and stop; do not invent a queue.
 - Investigate every external request read-only before selecting a work procedure. There is one profile; additive checks cannot lower settled risk, remove implementation reviewers, or widen Inline eligibility.
 ## Risk
 | Risk | Observable criteria |
@@ -19,7 +20,7 @@ Read when: investigating an external request in the project root or a member rep
 - Bind each verdict to the request fingerprint (title, body, comment ids and hashes, attachments) and code revisions for every touched repo. A human change or in-scope code movement requires investigation again; unchanged harness comment receipts are excluded. Unknown scope always requires investigation again.
 - V1: every disposition stops at the human digest. No disposition executes before the human answers; no unattended landing. Verdict comments and disposition labels record proposals, not approval.
 ## Verdict record
-Write one tracker comment per item and echo the same block in the digest; fields and order are fixed. For multiple repos, list every `repo:rev` after `@`, comma-separated.
+Write one comment per item through the mode's procedure in `rule://tracker` and echo the same block in the digest; fields and order are fixed. For multiple repos, list every `repo:rev` after `@`, comma-separated.
 ```text
 INTAKE VERDICT <key>
 reading: <one sentence>

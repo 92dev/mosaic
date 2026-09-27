@@ -37,7 +37,7 @@ tests/loops/
   fixtures/baseline.manifest.json baseline identity, members, and remotes
   fixtures/baseline-overlay/      baseline fake project, populated registries, and local setup
   fixtures/mosaic/     checked-in generated mosaic fixture; never hand-edit
-  fixtures/mosaic.manifest.json   mosaic identity, members, and remotes
+  fixtures/mosaic.manifest.json   mosaic identity, members, remotes, and local tracking mode
   fixtures/mosaic-overlay/        mosaic fake project and whole-file registry/example replacements
   build-fixture.ts     install each harness + manifest + overlay; check; replace generated fixture
   kit-parity.ts        independent rebuild + byte and symlink-target drift guard for both harnesses
@@ -76,7 +76,9 @@ directory. It copies the install roots present in that source (`AGENTS.md`, `CLA
 `.claude/`, `docs/`, `tools/`); installer code and kit-maintainer documentation are not installed.
 Migration references live in the checkout's [`../../install/`](../../install/README.md), beside `kit/`; the checkout-only `/mosaic-install` skill reads them there. They are not installed or exported into fixtures.
 
-`bun tests/kit/tracker-mcp-smoke.ts` exercises the local Linear MCP mock and compares tracker CLI behavior with replay; seed an installed mock with `bun tools/mcp/linear-mock.ts --seed-from docs/tracker/items.json`, then set `docs/tracker/config.json`'s `provider` to `mcp` (or `MOSAIC_TRACKER_PROVIDER=mcp`).
+The mosaic fixture explicitly selects `tracking: { "mode": "local" }`, retaining the replay CLI,
+seed inventory, and writer-conflict behavior used by S8, S10, S12, and S15b. The installer's default
+is `none`; S21 exercises it through a fresh installation rather than a mode-flipped fixture copy.
 
 The builder installs with `--force` into staging and validates before replacing a fixture
 (including removing obsolete generated files). Mosaic runs `kit/tools/doctor.ts`; the baseline
@@ -210,6 +212,7 @@ After approval, I will implement the tasks, obtain independent review, run the l
 | `S8-tracker-intent` | Check collision, write intent, reserve number; stop before tasks | API areas in intent; ENG-201 owner/state/staleness; tracker-scout dispatch; paired foreign-writer refusal if attempted | complete discovery, visible stale collision, writer discipline, bounded planning |
 | `S9-closure-librarian` | Close out and land pre-approved plan 0004 | architecture/product/roadmap aligned; no new gaps; verbatim learnings with dispositions; member landing and published master-ledger sync; librarian dispatch | read-only alignment advice, reviewed doc diff, honest coverage, human brief |
 | `S20-docs-plan` | Execute approved link-homed documentation plan 0004 through sign-off, without landing | one cross-family reviewer per docs task wave; paired closure review; attributed REVISE findings via ledger lint; valid API source ranges; shared gates after parallel join (sequential is CANNOT-EVALUATE); no close-out executor; ≤ 40-line brief | source-backed statements, clean source-range trap handling, phase ownership, honest evidence, no landing |
+| `S21-tracking-none` | Same planning prompt as S8, including the tracker request, on a fresh `none` install | none runtime with no local tracker installation; no tracker CLI call or `docs/tracker` access; collision brief names ledger plus branches; one new scoped reservation published to `origin/main` | respects installed mode, discovers real overlap without a tracker, explains no intent was created, stops before tasks |
 
 S7–S9 report `CANNOT-EVALUATE: no intake/tracker/librarian in baseline` for every check on the
 baseline harness. S6 runs on both; only its tracker check is not evaluable on baseline. S8 seeds
@@ -220,6 +223,20 @@ S20's scenario setup creates `docs/0004-docs-refresh` from `main` with two disjo
 tasks. T1 deliberately requests source lines 5–40 from an 11-line exporter: narrow the range
 upstream or STOP cleanly, never retain a nonexistent citation. S20 is mosaic-only; its checker
 uses the installed `@templated` role family, task dispatch/completion events, and active documents.
+
+S21 is mosaic-only. Its setup invokes `kit/install.ts` with a temporary manifest selecting
+`tracking: { "mode": "none" }` and an empty target, then replaces only the runner's disposable
+worktree and origins and initializes fresh repositories. The project/domain overlay is preserved
+except for its local-only tracker data, documentation index, and plan template; the latter two
+come from the kit's none-mode rendering. Runtime mode, absent tracker paths, and absent template
+tracker frontmatter are asserted before setup succeeds. Runner `--role` selectors are preserved.
+The prompt is byte-identical to S8: the installed mode, not a rewritten prompt, must control behavior.
+Its checker rejects tracker access through commands, file tools, eval, or nested parallel tool calls.
+Use the ordinary dry-run path to exercise setup without invoking a model:
+
+```sh
+bun tests/loops/run.ts --scenario S21-tracking-none --harness mosaic --model openai-codex/gpt-6-sol --thinking medium --dry-run
+```
 
 Scenario `agent` file (e.g. containing `executor`) makes run.ts append `.omp/agents/<name>.md` body (frontmatter stripped) as the system prompt.
 

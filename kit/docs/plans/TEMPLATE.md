@@ -5,12 +5,22 @@ status: draft        # draft | approved | executing | review | done | abandoned
 created: YYYY-MM-DD
 repo: {{MEMBERS}}       # {{MULTI_REPO}}{{MEMBERS}} | link-repo; one member ⇒ home there; link-repo or multiple ⇒ home in link repo{{/MULTI_REPO}}{{MONOREPO}}every plan is link-homed, including single-component work{{/MONOREPO}}
 branch: task/NNNN-<slug>
+{{TRACKING_LOCAL}}
 tracker:
   provider: replay
   id: <immutable UUID>
   key: <display key>
   url: <item URL>
-areas: []            # link-root-relative path globs and contract:<name>; fill from the intent
+{{/TRACKING_LOCAL}}
+{{TRACKING_MCP}}
+tracker:
+  provider: mcp
+  server: {{MCP_SERVER}}
+  id: <immutable id>
+  key: <display key>
+  url: <item URL>
+{{/TRACKING_MCP}}
+areas: []            # link-root-relative path globs and contract:<name>; fill from intended scope
 ---
 
 # Plan NNNN — <title>

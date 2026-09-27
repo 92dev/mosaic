@@ -1,4 +1,5 @@
 {
   "defaultBranch": "main",
-  "topology": "multi-repo"
+  "topology": "multi-repo",
+  "tracking": { "mode": "none" }
 }

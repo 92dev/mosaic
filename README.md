@@ -36,7 +36,6 @@ authoring locations:
 bun tests/loops/build-fixture.ts
 bun tests/loops/kit-parity.ts
 bun tests/kit/tooling-smoke.ts
-bun tests/kit/tracker-mcp-smoke.ts
 bun tests/loops/run.ts --scenario S1-closeout-triage --harness mosaic \
   --model claude-opus-5-5 --thinking medium --dry-run
 bun tests/loops/scoreboard.ts
@@ -49,8 +48,8 @@ own registry linter before replacing the generated fixture. The parity guard reb
 independently and rejects byte or symlink-target drift. Dry-runs exercise local setups and
 print the model command without starting a model.
 
-The `tests/kit/*` smokes exercise installed-tool boundaries and local replay/MCP tracker behavior
-in disposable roots, without model calls. Scenarios under `tests/loops/scenarios/` define prompts,
+The `tests/kit/*` smokes exercise installed-tool boundaries in disposable roots, without model
+calls. Scenarios under `tests/loops/scenarios/` define prompts,
 deterministic checks, and evaluation rubrics; run evidence is kept under `tests/loops/runs/`.
 [`SCOREBOARD.md`](tests/loops/SCOREBOARD.md) is generated from those evidence packets by
 `scoreboard.ts`, not maintained by hand. See the [rig guide](tests/loops/README.md) for running and
@@ -68,7 +67,7 @@ kit/                         Installable harness and mechanical installer
 install/                     Checkout-only migration references; never installed
 .omp/skills/mosaic-install/   Checkout-only migration skill; .claude/ has its twin
 tests/
-  kit/                       Deterministic tooling and tracker smokes
+  kit/                       Deterministic installed-tool smokes
   loops/
     fixtures/                Generated fixtures, source manifests, and overlays
     scenarios/               Prompts, checks, and rubrics

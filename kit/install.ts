@@ -4,10 +4,12 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseArgs } from "node:util";
 
 type Member = { name: string; path: string; stack: string; testCommand: string; coverageNote: string };
+type Tracking = { mode: "none" | "local" | "mcp"; mcp?: { server: string; team?: string; queue?: string } };
 type Manifest = {
   project: { name: string; summary: string };
   topology: "multi-repo" | "monorepo";
   git: { defaultBranch: string };
+  tracking: Tracking;
   remotes: { link: string; members: Record<string, string> };
   members: Member[];
   components: Member[];
@@ -34,6 +36,17 @@ function manifestFrom(value: unknown): Manifest {
   const git = value.git as Record<string, unknown> | undefined;
   const defaultBranch = git?.defaultBranch === undefined ? "main" : git.defaultBranch;
   line(defaultBranch, "git.defaultBranch");
+  const tracking = value.tracking === undefined ? { mode: "none" } : value.tracking;
+  if (!record(tracking) || (tracking.mode !== "none" && tracking.mode !== "local" && tracking.mode !== "mcp")) {
+    throw new Error("tracking.mode must be none, local, or mcp");
+  }
+  if (tracking.mode === "mcp") {
+    if (!record(tracking.mcp)) throw new Error("tracking.mcp must name a mounted server");
+    line(tracking.mcp.server, "tracking.mcp.server");
+    for (const field of ["team", "queue"]) {
+      if (tracking.mcp[field] !== undefined) line(tracking.mcp[field], `tracking.mcp.${field}`);
+    }
+  } else if (tracking.mcp !== undefined) throw new Error("tracking.mcp is only valid in mcp mode");
   line(value.project.name, "project.name");
   line(value.project.summary, "project.summary");
   line(value.remotes.link, "remotes.link");
@@ -62,7 +75,7 @@ function manifestFrom(value: unknown): Manifest {
     }
   }
   return {
-    project: value.project as Manifest["project"], topology, git: { defaultBranch },
+    project: value.project as Manifest["project"], topology, git: { defaultBranch }, tracking: tracking as Tracking,
     remotes: { link: value.remotes.link, members: remotes as Record<string, string> },
     members: value.members as Member[], components: components as Member[],
   };
@@ -113,14 +126,20 @@ function membersFor(file: string, manifest: Manifest): string {
   }
 }
 function render(content: string, file: string, manifest: Manifest): string {
-  const selected = content.replace(/\{\{(MULTI_REPO|MONOREPO)\}\}([\s\S]*?)\{\{\/\1\}\}/g,
-    (_match, topology: string, body: string) => topology === (manifest.topology === "monorepo" ? "MONOREPO" : "MULTI_REPO") ? body : "");
+  const selected = content.replace(/\{\{(TRACKING_NONE|TRACKING_LOCAL|TRACKING_MCP)\}\}([\s\S]*?)\{\{\/\1\}\}/g,
+    (_match, mode: string, body: string) => mode === `TRACKING_${manifest.tracking.mode.toUpperCase()}` ? body : "")
+    .replace(/\{\{(MULTI_REPO|MONOREPO)\}\}([\s\S]*?)\{\{\/\1\}\}/g,
+      (_match, topology: string, body: string) => topology === (manifest.topology === "monorepo" ? "MONOREPO" : "MULTI_REPO") ? body : "");
   const result = selected.replace(/\{\{([^{}]+)\}\}/g, (_match, token: string) => {
     switch (token) {
       case "PROJECT_NAME": return manifest.project.name;
       case "PROJECT_SUMMARY": return manifest.project.summary;
       case "LINK_REMOTE": return manifest.remotes.link;
       case "DEFAULT_BRANCH": return manifest.git.defaultBranch;
+      case "TRACKING": return manifest.tracking.mode;
+      case "MCP_SERVER": return manifest.tracking.mcp?.server ?? "";
+      case "MCP_TEAM": return manifest.tracking.mcp?.team ?? "not configured; resolve the target team before creating intent";
+      case "MCP_QUEUE": return manifest.tracking.mcp?.queue ?? "not configured; obtain the H-tracking queue ruling before intake";
       case "MEMBERS": return membersFor(file, manifest);
       default:
         if (token.startsWith("MEMBER_REMOTE:")) return memberRemote(manifest, token);
@@ -170,12 +189,18 @@ export async function install(options: { manifest: string; target: string; kit?:
   const entries = new Map<string, Entry>();
   const sourceNames = await readdir(source);
   await collect(source, roots.filter(name => sourceNames.includes(name)), entries, manifest);
+  // Overlays remain complete replacements, but cannot enable files excluded by the selected mode.
+  if (overlay) await collect(overlay, (await readdir(overlay)).sort(), entries);
+  if (manifest.tracking.mode !== "local") {
+    for (const name of entries.keys()) {
+      if (name === "tools/tracker.ts" || name === "docs/tracker" || name.startsWith("docs/tracker/")
+        || name === ".omp/agents/tracker-scout.md" || name === ".claude/agents/tracker-scout.md") entries.delete(name);
+    }
+  }
   const config = entries.get(".omp/mosaic.json");
   if (config?.kind === "file") {
-    config.content = Buffer.from(`${JSON.stringify({ defaultBranch: manifest.git.defaultBranch, topology: manifest.topology }, null, 2)}\n`);
+    config.content = Buffer.from(`${JSON.stringify({ defaultBranch: manifest.git.defaultBranch, topology: manifest.topology, tracking: manifest.tracking }, null, 2)}\n`);
   }
-  // Overlay files are complete replacements, not template fragments or table-row merges.
-  if (overlay) await collect(overlay, (await readdir(overlay)).sort(), entries);
   const targetStat = await existing(target);
   if (targetStat && !targetStat.isDirectory()) throw new Error(`Target must be a real directory: ${target}`);
   const pending: [string, Entry][] = [];

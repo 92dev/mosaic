@@ -13,6 +13,24 @@ Weigh both directions per row: what installed kit text would change, what target
 Every non-`done` row belongs to an actual plan task or the report's Human rulings list; `mechanical` is only for already verified `done` rows. Cite row IDs in task acceptance, evidence, and the brief's **Concept alignment** section (resolved / needing a ruling).
 A human-owned choice is not resolved by taking a conservative guess. Record the question and affected actions, stop those actions, retain the supplied answer, then assign its implementation to a plan task; mark done only with evidence.
 
+## Tracking survey and H-tracking
+
+Inspect `mcpServers` in `~/.omp/agent/mcp.json` and target `.omp/mcp.json`, plus user/project Claude `.claude/settings.json` and `.mcp.json`. Distinguish a configured server from tracker tools mounted in the session; retain runtime server names and access evidence, never credentials.
+Search commit messages and branch names for `[A-Z]+-\d+`; inspect tracker docs, ticket links, and retained local data. Keys are evidence of tracker use, not proof of a server, team, queue, or current item status.
+Always record **H-tracking** in the survey and concept-alignment report, including evidence or its absence, chosen mode and provenance, any blocked question, and the implementing task. A tracker alignment row is mandatory even when the project has no tracker.
+
+| Mode | Selection and installed behavior |
+|---|---|
+| `none` | Default only when there is no tracker evidence, or an explicit owner ruling disables integration. Do not create a tracker store or fabricate ticket IDs; preserve existing references and surface defects as evidenced findings under the tracker rule, never as gaps. |
+| `local` | Only an explicit owner request selects the offline replay workflow. Preserve local items/outbox and external provenance; seed observed facts only without cutoff. Local records and accepted writes are not a live tracker connection or remote synchronization. |
+| `mcp` | Select a mounted MCP tracker or the tracker the owner names. Require its exact runtime server name, record the team when known, and derive the intake queue state/label from docs or read-only tools; otherwise obtain a human queue ruling, including an explicit no-dedicated-queue decision if applicable. Sessions use that server's tools directly, not an installed client or local store. |
+
+Ticket/doc evidence without a selected usable tracker, competing servers, unknown runtime names, or an underivable queue needs a human ruling; never silently fall back to `local`. A named but unmounted server may establish the intended mode, but missing tools/credentials remain an explicit verification blocker, not a claimed connection.
+Generate manifest `tracking` as `{ "mode": "none" }`, `{ "mode": "local" }`, or `{ "mode": "mcp", "mcp": { "server": "<runtime name>", "team": "<known team>", "queue": "<state or label>" } }`; only `server` is structurally required within `mcp`. Omit unknown optional values rather than inventing them; a readable rendering fallback does not resolve H-tracking.
+The helper defaults omitted `tracking` to `none`; the skill records its choice explicitly. Runtime `.omp/mosaic.json` carries the same `tracking` alongside `defaultBranch` and `topology`. MCP mount configuration remains runtime-owned; installation makes no MCP writes and installs no MCP client/server implementation.
+Only `local` installs `tools/tracker.ts`, `docs/tracker/**`, and both ports' `tracker-scout.md`; `none` and `mcp` omit them. The plan template has no tracker frontmatter in `none`, local replay metadata in `local`, and MCP/server metadata in `mcp`. Mode-specific operations live in the rendered tracker rule; skills and agents read it rather than copy commands.
+Pre-existing project tracker records are not expendable because a mode omits their installation paths. Preserve/index records at their non-conflicting homes; archive data from omitted local installation paths with verified bytes and a recorded disposition before retiring those paths. Never delete project data by forcing a fresh render. Later mode changes use `/mosaic-kit` and the [maintenance procedure](../kit/docs/kit/maintenance.md).
+
 ## Migration-state lifecycle
 
 During migration, keep all reports, the generated manifest, inventory, and raw evidence under target `docs/mosaic-migration/` on `mosaic/install`; do not close them out before explicit sign-off approval. This lifecycle applies with or without cutoff.
@@ -41,7 +59,7 @@ With `cutoff: yes`, this section overrides the documentation/registry merge defa
 7. The last migration task writes and indexes `docs/docs-migration-instructions.md` (≤ 120 lines), filling [the brief template](docs-migration-instructions.template.md) with actual counts, paths, provenance, rough task sizes, and acceptance. Do not run the rebuild during installation; sign-off names it as the first `/mosaic-plan docs-rebuild`, which reads that brief.
 
 The brief must inventory archive families with counts; propose architecture map/element docs with `affinity:` and D-entries, product F-docs with `contracts:` and `repos:`, stack/process docs, and open questions. Every active claim cites its archived source and is checked against current evidence; superseded material stays archived, and unknown status becomes an open question, not a fact.
-Mint new gaps/pitfalls only from current evidence: obligations need a checkable `when:`, traps need a measured cite and prevention rule; defects go to the tracker, never gaps. Start the new ledgers with rebuild plan `0001`, following normal reservation/approval gates. Acceptance covers a complete index, frontmatter and source citations on every rebuilt active doc, doctor/lint/checkup exit 0, unchanged archive, and all docimpact classes evaluable.
+Mint new gaps/pitfalls only from current evidence: obligations need a checkable `when:`, traps need a measured cite and prevention rule; defects follow the installed tracking mode, never gaps or invented ticket IDs. Start the new ledgers with rebuild plan `0001`, following normal reservation/approval gates. Acceptance covers a complete index, frontmatter and source citations on every rebuilt active doc, doctor/lint/checkup exit 0, unchanged archive, and all docimpact classes evaluable.
 Scouts and drift tools follow the single frozen-history convention in `kit/docs/process/registries.md`; do not patch namespaces or retrofit frontmatter into archived documents (H6/H9).
 
 ## Concept → kit home (defaults, not mandatory relocations)
@@ -50,7 +68,7 @@ Scouts and drift tools follow the single frozen-history convention in `kit/docs/
 |---|---|
 | PRDs, feature specs, product flows | Default `docs/product/F-<n>-<slug>.md` plus the product index; preserve milestones/source links. Existing naming can remain with adapted routing; do not mint F-numbers or duplicate records without a justified mapping. |
 | Architecture, ADRs, settled decisions | Default `docs/architecture/*.md`, global D-entries, and the decision map in `docs/architecture/README.md`. An agreed ADR home may stay canonical via adapted rules; retain required mechanical indexes/definitions, ADR context, rejected alternatives, implications, and provenance. Keep frozen source records indexed. |
-| Gaps, TODOs, known issues: defects | Defect-first: an observed bug goes to an existing or new tracker item, retaining reproducer, evidence, owner, and source reference; never disguise it as a future obligation. |
+| Gaps, TODOs, known issues: defects | Defect-first: preserve reproducer, evidence, owner, and source reference under the selected tracking mode. Retain existing tickets; with `none`, surface an evidenced finding without inventing an ID. Installation never creates or changes remote items; never disguise a defect as a future obligation. |
 | Gaps, TODOs, known issues: future duties | `docs/gaps.md` with a checkable `when:` and why it is not actionable now; reuse a matching subject/trigger, otherwise allocate the next G-number. Preserve closed history in `docs/gaps-archive.md`. |
 | Gaps, TODOs, known issues: undecided questions | `docs/architecture/open-questions.md`; do not manufacture a duty, decision, or approval. Split mixed source entries across destinations with cross-links. |
 | Postmortems and known traps | Durable trap + prevention rule in `docs/architecture/pitfalls.md`; retain the full postmortem indexed as evidence, and preserve existing P-numbers. |
@@ -59,7 +77,8 @@ Scouts and drift tools follow the single frozen-history convention in `kit/docs/
 | Sticky rules: entrypoints, `.omp/AGENTS.md`, `.omp/RULES.md`, coding standards | Kit core first in `AGENTS.md`/`CLAUDE.md` (each ≤ 30 lines); preserve project safety/invariant text verbatim. Move excess intact behind a mandatory read gate to a project rule or document, preserving the original link frame. Retire duplicate authority with pointers, not lost rules. |
 | Project agents, including money-path reviewers and migrators | Keep target-only roles unchanged alongside kit agents and list scope/invocation in `docs/index.md`; retain required project safety reviews. For a kit same-name collision, preserve the distinct project role and repair callers or record an explicit duplicate ruling; never create new project-role twins merely to match the kit. |
 | Existing skills | Keep target-only skills unchanged; merge only kit-path collisions, preserving project-only requirements and mapping affected callers. Do not split or twin unrelated project skills; kit-owned merged entries retain budgets and paired-port parity. |
-| Plans, tickets, approval and execution history | Active kit plans use `docs/plans/TEMPLATE.md` and the ledgers without invented status/approval. A colliding project plan corpus can move losslessly to a distinct indexed home with caller repairs; completed history stays frozen. Tickets retain external IDs/URLs and human-owned fields; seed replay from observed facts. |
+| Plans, tickets, approval and execution history | Active kit plans use `docs/plans/TEMPLATE.md` and the ledgers without invented status/approval. A colliding project plan corpus can move losslessly to a distinct indexed home with caller repairs; completed history stays frozen. Tickets retain external IDs/URLs and human-owned fields; seed observed facts only for explicitly chosen `local` without cutoff. |
+| Tracker integration or its absence (mandatory row) | H-tracking maps evidence to `none`, explicit `local`, or runtime `mcp`; identify server/team/queue scope, record/data preservation, selected and omitted installation paths, and read-only verification. No tracker evidence still requires a row recording `none`, not an implicit local store. |
 | Other docs, API contracts, diagrams, assets, glossaries | Keep at the appropriate current home or move with inbound-link repairs; every pre-existing document, including non-Markdown and component docs, has an index link or a reasoned retirement ledger row. |
 
 ## Per-file conflict and merge policy
@@ -72,7 +91,7 @@ Use `diff -r` for content and compare entry types, symlink targets, and modes to
 |---|---|
 | `AGENTS.md`, `CLAUDE.md` | Merge kit core first with project safety/invariant text kept verbatim, never summarize it away. Keep both entry files ≤ 30 lines; excess moves intact behind an immediate read gate, retaining valid links. Replace an import wrapper only with a deliberate equivalent port entry. |
 | `.omp/config.yml` | Merge project model/tool/discovery settings with kit roles; do not discard working local settings or embed credentials. Resolve incompatible settings explicitly. |
-| `.omp/mosaic.json` | Render observed `defaultBranch` and `topology` for both guards. This is runtime install metadata, not the generated manifest; preserve compatible project settings and record any conflict. |
+| `.omp/mosaic.json` | Render observed `defaultBranch`, `topology`, and H-tracking's `tracking`. This is runtime install metadata, not the generated manifest; preserve compatible project settings and record any conflict. |
 | `.claude/settings.json` | Merge JSON keys and hook arrays; preserve existing hooks, permissions, and non-conflicting settings. Add each kit hook once; do not broaden permissions to make checks pass. |
 | `.omp/hooks/**`, `.claude/hooks/**` | Keep project hooks and install kit guards/lint; compose or rename same-path custom hooks and repair registrations. Never silently disable an existing guard. |
 | `.omp/rules/*`, `.claude/rules/*`, `docs/process/*.md` | Shared process text has one home with required port twins/symlinks. Adapt vocabulary, paths, commands, and conventions in that home; preserve doctor budgets/read gates and mirror core changes to `.claude/rules/mosaic-core.md`. Conflicting safety/landing rules need a human ruling. |
@@ -82,11 +101,11 @@ Use `diff -r` for content and compare entry types, symlink targets, and modes to
 | `docs/gaps.md`, `docs/gaps-archive.md` | Route each old row defect-first; merge genuine obligations into kit schema and preserve closed history, source evidence, and IDs. Never overwrite with the empty skeleton. |
 | `docs/architecture/README.md`, `pitfalls.md`, `open-questions.md` under `docs/architecture/` | Merge decisions, pitfalls, and questions into their own schemas; retain source records and avoid ID collisions. No sole-record compression. Adapt pointers to chosen project homes without breaking required mechanical indexes. |
 | `docs/product/README.md`, `docs/plans/README.md`, `docs/plans/TEMPLATE.md` | Merge registry rows and project requirements with kit structure; maintain links/status truth and preserve historical plans. Bootstrap reports are indexed separately, not fake numbered plans. |
-| `docs/tracker/config.json`, `docs/tracker/items.json` | Preserve items, IDs, discussion, and provider evidence. Default to local `replay`; opt into the local `mcp` mock only on request. Never turn a local seed into a live write. |
+| `docs/tracker/**`, `tools/tracker.ts`, both ports' `tracker-scout.md` | Installed only for explicit `local`; preserve existing items, IDs, discussion, and outbox before merging local seeds. In `none`/`mcp`, do not copy these paths; inventory any pre-existing files and preserve/archive records before retiring obsolete kit-owned paths with caller repairs. |
 | `tools/**`, any remaining kit path | Inspect every collision; preserve unrelated custom tooling/docs under a decided name and update callers. Copy new files; leave identical files unchanged. Never overwrite an unexplained collision. |
 
-Read `kit/docs/process/tracker.md` for seed schema/provider rules. Validate seeds with `bun tools/tracker.ts --provider replay list --all`, not an invented lint command.
-The kit has no live Linear adapter: explicit human instruction is necessary but not sufficient; report unsupported live integration rather than claiming a connection.
+Read the rendered target `docs/process/tracker.md` for the selected mode's read-only verification: validate preserved/seeded items only in `local`; verify server/team/queue access through mounted tools in `mcp`; confirm `none` has no installed local tracker paths or template metadata. Do not invent validation commands or MCP capabilities.
+Installation performs no MCP writes. Existing external tickets stay authoritative; a configured or owner-named server without mounted tools is Unverified until read access is demonstrated. Never seed a live workspace as an installation check.
 If topology or contradictory/unknown default-branch, landing/deploy, or safety constraints cannot be represented honestly, stop under `kit/docs/process/human-gates.md`; migration does not authorize a repository split or policy redesign. Observed PR-with-CI policy is an automatic kit-text adaptation, not itself a conflict needing permission (H3); a human may choose otherwise.
 
 ## Installed-kit adaptations and gate
@@ -100,8 +119,8 @@ On a future kit upgrade, compare each recorded hunk with the new rendered baseli
 
 ## Derivation, placeholders, and manual placement
 
-The human supplies a target and factual answers, never a manifest/config. Derive all values from the survey; the skill generates `docs/mosaic-migration/manifest.json` as a record for `kit/install.ts`. `.omp/mosaic.json` is the only runtime installation-metadata config; port settings and tracker configuration keep their separate purposes.
-Token names below mean the name enclosed by two opening and two closing braces. Read [placeholders.md](placeholders.md) for exact per-file expansion, topology blocks, escaping, file modes/symlinks, and hand-placement steps.
+The human supplies a target and factual answers, never a manifest/config. Derive all values from the survey; the skill generates `docs/mosaic-migration/manifest.json` as a record for `kit/install.ts`. `.omp/mosaic.json` is the only runtime installation-metadata config (`defaultBranch`, `topology`, `tracking`); port settings and MCP mounts keep their separate purposes.
+Token names below mean the name enclosed by two opening and two closing braces. Read [placeholders.md](placeholders.md) for exact per-file expansion, mode/topology blocks, escaping, file modes/symlinks, and hand-placement steps.
 
 | Token | Survey-derived value and rendering |
 |---|---|
@@ -111,7 +130,10 @@ Token names below mean the name enclosed by two opening and two closing braces. 
 | `DEFAULT_BRANCH` | `git symbolic-ref refs/remotes/origin/HEAD`, otherwise the sole `main`/`master` branch present on origin; explicit human override wins. Record ambiguous/missing evidence, never infer from the feature branch; use the result in Markdown and `.omp/mosaic.json`. |
 | `MEMBERS` | Multi-repo members or monorepo components → stack/index rows; topology sentence in `plan-home.md`; remote clauses in `git-flow.md`; first member name or `link-repo` in tracker/plan examples. |
 | `MEMBER_REMOTE:<name>` | Observed `remotes.members[name]` → named remote lookup; missing names are errors. |
-| `MULTI_REPO` / `MONOREPO` and their slash-prefixed closing tokens | Non-nested conditional blocks: keep only the selected topology's body, remove all block markers before expanding values. |
+| `TRACKING` | H-tracking's selected `tracking.mode`: `none`, `local`, or `mcp`; omitted helper input defaults to `none`, not an inferred survey result. |
+| `MCP_SERVER`, `MCP_TEAM`, `MCP_QUEUE` | Runtime server name and optional known scope; missing optional values render readable instructions, not fabricated team/queue names. |
+| `TRACKING_NONE` / `TRACKING_LOCAL` / `TRACKING_MCP` and closing tokens | Keep the selected mode's body, remove markers; these blocks may contain topology conditionals. |
+| `MULTI_REPO` / `MONOREPO` and their slash-prefixed closing tokens | Non-nested topology blocks: keep only the selected topology's body after mode selection; remove markers before value expansion. |
 
 Derive landing policy from CI configuration, repository guidance, and observable branch protection. When the target lands by PR into the derived branch with CI, render that policy in `docs/process/git-flow.md` instead of the kit's no-PR/ff-only default, retaining required reviews, sign-off, safety, and deployment constraints. Reconcile all contradictory kit landing instructions/callers and hook diagnostic text; record each deviation in `kit-adaptations.md`. Cite inaccessible protection data as unavailable rather than invented; ask only if the evidence conflicts or cannot establish a policy.
 
@@ -136,6 +158,7 @@ Reconcile inventory against the ledger: no missing source paths, unexplained del
 
 - Every pre-existing document is moved, linked from `docs/index.md`, or retired with a reason; full records, IDs, diagrams, and source evidence survive.
 - Alignment covers every concept/family/role/hook/registry; every non-done row names a task or listed human ruling. The brief cites resolved/ruling IDs; both durable reports are indexed.
+- The mandatory tracker row and H-tracking agree with manifest/runtime metadata and rendered mode; `local` has explicit owner provenance, `mcp` has a runtime server and queue ruling/read-only scope evidence, `none` has no fabricated tracker. Local-only paths are absent in `none`/`mcp`; pre-existing records are preserved, not overwritten or deleted.
 - Every overwrite has a recorded merge decision; user changes were untouched; all work stays on `mosaic/install` until explicit landing approval.
 - Kit core precedes project guidance; safety/invariant text survives verbatim with mandatory read gates. `AGENTS.md` and `CLAUDE.md` are each ≤ 30 lines.
 - Every edited kit file has an adaptation reason; skill/rule/agent budgets, paired ports, single-home rules, symlinks, hook configuration, and no placeholders pass doctor after adaptations.

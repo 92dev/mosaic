@@ -6,7 +6,7 @@ Read when: breaking down work or dispatching executors.
 The role is fixed by the phase, not by the kind of file touched; task class selects review, not who implements.
 | Phase | Acts | Never |
 |---|---|---|
-| Planning (`/mosaic-plan`) | orchestrator drafts; `context-scout`/`registry-scout`/`tracker-scout` read; `plan-adversary` challenges | executor, reviewers |
+| Planning (`/mosaic-plan`) | orchestrator drafts; `context-scout`/`registry-scout`/`tracker-scout` read | executor, reviewers |
 | Task implementation (`/mosaic-execute` steps 3–4) | `executor` per task (code, tests, or documents alike); reviewers per task class below | orchestrator editing task files |
 | REVISE repair | `executor` re-dispatched with the findings, or the orchestrator for a mechanical correction (read `rule://review-loop`) | reviewers editing |
 | Close-out (`/mosaic-execute` steps 7–9) | orchestrator writes dispositions, the Execution log, and mechanical corrections; `librarian` proposes doc alignment; both reviewers review the closure packet | `executor` (except a REVISE repair of a plan task) |

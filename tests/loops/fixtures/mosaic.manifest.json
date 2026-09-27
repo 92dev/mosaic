@@ -3,6 +3,9 @@
     "name": "Fixture",
     "summary": "Fixture is a link repo for the `member-a/` Python export API."
   },
+  "tracking": {
+    "mode": "local"
+  },
   "remotes": {
     "link": "../origins/link.git",
     "members": {

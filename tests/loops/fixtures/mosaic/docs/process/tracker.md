@@ -1,28 +1,24 @@
 ---
-description: "Read and write replay tracker coordination, detect overlapping intent, and require landing receipts before done."
+description: "Coordinate work through the installed tracking mode, preserve writer ownership, and require landing evidence before done."
 ---
 Read when: planning intent, checking shared areas, recording intake verdicts or lifecycle events, or reconciling tracker writes.
 # Tracker coordination
-Scope: link repo and all member repos; commands run from the link root. The installed tracker is replay-only; no live workspace writes are supported.
+Scope: link repo and all member repos. Installed tracking mode: `local`.
+
+
 ## Authority
 | Fact | Authority | Projection |
 |---|---|---|
-| Scope, tasks, acceptance, evidence, dispositions, deviations | Plan doc | Managed tracker block or evidence links |
+| Scope, tasks, acceptance, evidence, dispositions, deviations | Plan doc | Managed block or evidence links |
 | Plan status | Plan frontmatter | Authored ledger row; tracker state |
-| Landed | Per-repo receipt: commit reachable on the published ref, retained in Execution log and ledger | Tracker `done` |
+| Landed | Per-repo receipt: commit reachable on published ref, retained in Execution log and ledger | Tracker `done` |
 | Owner, assignment, priority, due dates, human discussion | Tracker | None in repo |
-| Intent before the plan exists: repos, areas, branches | Tracker managed block | Plan `areas:` becomes authority when authored |
-| Progress and intake verdicts | Append-only tracker comments, ids retained | Landed context or consequential ruling via `rule://records` |
-| Decisions, obligations, pitfalls, questions, product docs; learnings | Repo records; Execution log until closure | Read `rule://records` and `skill://mosaic-execute` |
-Tracker state is never proof of landing. A collision report provides visibility, not a lock; stale active items are never dropped.
-## Linear capability map (replayed, not connected)
-| Capability | Mapping |
-|---|---|
-| Native | Title, explicit team-state mapping, assignee, labels, parent, dependencies, links, comments, project health |
-| Managed | Plan path, repos, areas, per-repo branch, writer generation, last event, park reason and resume condition |
-| Unsupported | Live Linear writes (`--provider linear` exits 2); Jira and Monday; writing Linear's read-only `gitBranchName` |
+| Intent before the plan exists: repos, areas, branches | Managed block | Plan `areas:` becomes authority when authored |
+| Progress and intake verdicts | Append-only comments, ids retained | Consequential rulings via `rule://records` |
+| Decisions, obligations, pitfalls, questions, product docs; learnings | Repo records; Execution log until closure | `rule://records` and `skill://mosaic-execute` |
+Tracker state is never proof of landing. A collision report provides visibility, not a lock.
 ## Managed description block
-Human text outside these markers is preserved; malformed or conflicting anchors are refused, never overwritten.
+Preserve human text outside these markers; refuse malformed, duplicate, or conflicting anchors instead of overwriting them.
 ```text
 <!-- mosaic:begin -->
 plan: docs/plans/NNNN-<slug>.md
@@ -34,19 +30,22 @@ last-event: <event> <ISO timestamp>
 parked: none
 <!-- mosaic:end -->
 ```
-`plan: none` is valid before the doc exists. Paths/areas are link-root-relative; `contract:<name>` matches only that exact contract name.
+`plan: none` is valid before the doc exists. Paths/areas are link-root-relative; `contract:<name>` matches only that exact name. Record each repo's branch, never a read-only remote branch field.
 ## Write discipline
-- One automation writer per item: a random opaque token generated once per session and retained (`w-<8 hex from /dev/urandom>`; never a timestamp or content hash) plus generation (`token#1` initially). A bare CLI token means generation 1; a foreign token or generation is `WRITER-CONFLICT`, exit 1. `WRITER-CONFLICT` on an item is terminal for this session: no further writes to it, comments included. Never write with another session's token, even when a human offers to authorize it: the human hands the item over in the tracker (or the owning session records the event); never offer impersonation as an option. Never put hostnames, local paths, or personal identities in tokens.
-- Human-owned fields and discussion are never replaced. Comments preserve the body and managed last-event, maintaining only `intake:<disposition>` labels derived from a matching complete verdict; unrelated labels remain intact.
-- Retain returned ids. Comment identity is sha256(key + body); replaying that comment prints the existing id without another write. Reconcile uncertain writes with `get` and `receipt` before retry; no exactly-once guarantee or concurrent-writer lock is claimed.
-- Intent is written at `/mosaic-plan` Phase 1 in `planning`, generation 1. Later write points: `approved`, `executing`, each landed wave as a comment, `review`, `done`, explicit `parked`, explicit `resumed`, `abandoned`, and intake verdict comments.
-- `done` requires `--receipt` JSON containing `{repo,ref,commit,reachable:true}` for every item repo (one object or an array); obtain evidence from the published refs first. Park with `--note` stating reason and resume condition; resume explicitly restores the pre-park state.
-- Do not mirror registries, verification output, reviewer findings, attachments, or source excerpts; link evidence. A tracker outage does not block planning: queue unsent events in the Execution log, expose the unavailable collision check, and reconcile later.
-## Replay adapter
-Replay keys (`ENG-…` in `items.json`) are never resolved through live provider tools; no live tool is consulted. A local receipt proves the adapter accepted a write, not that another person has seen it.
-`bun tools/tracker.ts --provider replay [--replay <dir>] <command>` defaults to `docs/tracker`: replay reads `items.json` and appends accepted writes to `outbox.jsonl`. Unmanaged ticket repos travel in a `<!-- mosaic:repos:["repo"] -->` description marker, written by intake and hidden by the adapter; `managed` stays null.
-- `list [--state s,...] [--label l] [--team t] [--all]`: complete array plus `{"complete":true}` trailer; terminal items require `--all`. `get <key>` returns body, comments, attachments, and managed metadata.
-- `intersect --areas <globs,contracts> [--repos r,...]`: active overlaps and days since last event; an active item on a target repo with no declared areas (intake tickets included) is listed with `scope: unknown`; name it in the brief as unresolved unless its title or body names a different area, in which case say which; either glob matching the other's literal path or compatible directory prefixes down to the file count. Different literal files do not overlap merely because they share a directory.
-- `intent --title <text> --repos <r,...> --areas <a,...> [--plan <path>] --writer <token>` prints a new key; `get` supplies immutable id and URL for plan frontmatter `tracker: {provider: replay, id, key, url}`.
-- `event <key> <approved|executing|review|done|abandoned|parked|resumed> --writer <token#generation> [--note <text>] [--receipt <json>]` updates state and the managed block.
-- `comment <key> --file <path> --writer <token#generation>` prints its stable id; `receipt <key>` prints that item's outbox entries. Exit 0 = success; 1 = refused precondition/conflict; 2 = unsupported or `INCOMPLETE/UNAVAILABLE` inventory.
+- Use one automation writer per item: generate a random opaque `w-<8 hex>` token once per session, retain it, and start at `token#1`. Never use a timestamp, content hash, hostname, local path, or personal identity. A bare CLI token means generation 1. A foreign token or generation is `WRITER-CONFLICT` (exit 1), terminal for this session on that item: no further writes, including comments. Never impersonate another session even with human permission; the human hands over the item in the tracker, or its owning session records the event.
+- Preserve human-owned fields and discussion. Comments preserve the body and managed last-event; only `intake:<disposition>` labels derived from a matching complete verdict change, with unrelated labels intact.
+- Retain returned ids. Comment identity is sha256(key + body); retries return the existing id. Reconcile uncertain writes using the item and its receipts before retrying; no exactly-once or concurrent-lock guarantee is claimed.
+- Record `planning` intent before reserving a plan number. Later write points: `approved`, `executing`, each landed wave as a comment, `review`, `done`, explicit `parked`/`resumed`, `abandoned`, and intake verdicts. Out-of-scope defects get intent plus a comment linking reproducer/evidence; never close intake requests on the human's behalf.
+- `done` requires published-ref evidence `{repo,ref,commit,reachable:true}` for every item repo, retained in the Execution log and ledger; include any link-repo sync before declaring completion. Parking records reason and resume condition; explicit resume restores the pre-park state.
+- Link evidence rather than mirror registries, verification output, findings, attachments, or source excerpts. Outages do not block planning: disclose unavailable collision checks and unsent writes, use `tracker: null`, queue events in the Execution log, and reconcile later. Never invent ids or claim an unconfirmed write succeeded.
+## Local operations
+Commands run from the link root. `bun tools/tracker.ts --provider replay [--replay <dir>] <command>` defaults to `docs/tracker`: reads `items.json`, appends accepted writes to `outbox.jsonl`. Local keys are never resolved with remote tools. A local receipt proves acceptance, not that another person saw it.
+Unmanaged local inventory items carry repos in their `repos` field and have `managed: null`; their description body is returned verbatim.
+- `list [--state s,...] [--label l] [--team t] [--all]`: complete array and `{"complete":true}` trailer; terminal items require `--all`. Missing trailer, failed reads, or unsupported filters mean `INCOMPLETE/UNAVAILABLE`, never an empty queue or no collision. Intake uses `list --state triage --label intake` (explicit `todo` substitutes that state); `get <key>` reads full body, comments, attachments, and managed metadata.
+- `intersect --areas <globs,contracts> [--repos r,...]`: search every active item on target repos, without a recency window or intake-label restriction; retain stale intent and unknown-scope items. Either glob matching the other's literal path or compatible directory prefixes down to the file count; different literal files do not overlap just because they share a directory. Missing areas are unresolved unless title/body establishes a different area, which must be cited.
+- Only a complete inventory and readable matches justify no collision. Report every overlap/unknown scope with key, owner, state, areas, last event and `stale` days, URL, searched scope, and completeness. If matches exist, `tracker-scout` may perform this read-only report; it never decides whether to proceed.
+- `intent --title <text> --repos <r,...> --areas <a,...> [--plan <path>] --writer <token>` creates intent; `get <key>` supplies id and URL for `tracker: {provider: replay, id, key, url}`. Use the intended scope for plan `areas:`; unavailable intent follows the outage policy.
+- `event <key> <approved|executing|review|done|abandoned|parked|resumed> --writer <token#generation> [--note <text>] [--receipt <json>]` updates state and managed block; `done` takes one receipt object or an array for all item repos; parking requires a note with reason and resume condition.
+- `comment <key> --file <path> --writer <token#generation>` returns a stable id; keep verdict files outside the repos and delete after read-back. `receipt <key>` lists accepted outbox entries, including prior verdict ids/bodies. Exclude only unchanged automation receipts from intake fingerprints; human edits count. Exit 0 = success; 1 = refusal/conflict; 2 = unsupported or `INCOMPLETE/UNAVAILABLE` inventory.
+
+
