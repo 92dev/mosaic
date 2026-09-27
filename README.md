@@ -1,7 +1,13 @@
+<div align="center">
+
+<img src="assets/mosi_gecko_pose5.png" alt="Mosi the gecko waving hello" width="240">
+
 # mosaic
 
-Modular Orchestration System A.I. Context: an installable assistant harness and a separate rig for
-building and evaluating it.
+Modular Orchestration System A.I. Context:\
+an installable assistant harness and a separate rig for building and evaluating it.
+
+</div>
 
 ## Using mosaic
 
@@ -11,6 +17,8 @@ to a project. The skill surveys the target, derives its settings, records the mi
 cutoff mode, first use, and later customization with `/mosaic-kit`.
 
 ## Building mosaic
+
+<img src="assets/mosi_gecko_pose4.png" alt="Mosi the gecko climbing" width="150" align="right">
 
 [`tests/loops/`](tests/loops/README.md) is the loop rig: scenarios, deterministic checks, rubrics,
 fixture setup, and run evidence. `run.ts` copies `fixtures/<harness>/` and runs its setup.
@@ -66,4 +74,5 @@ tests/
     runs/                    Run evidence (gitignored)
     SCOREBOARD.md            Generated results
 docs/ideation/               Design, experiment, and migration records
+assets/                      README artwork (Mosi the gecko)
 ```
