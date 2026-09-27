@@ -24,17 +24,14 @@ Lifecycle mechanics are canonical in [verification](process/verification.md#regi
 - **G-1 · Preserve export semantics across formats.**
   Verify that explicit format selection preserves field values and that omitted `fmt` still produces CSV.
   **Trigger:** when `member_a/api.py` gains a second output format.
-  **From:** plan 0001 export contract; intersects plan 0003.
-  **Status:** open.
+  **From:** plan 0001 export contract; intersects plan 0003. **Status:** open.
 
 - **G-2 · Re-verify empty-input export.**
   Re-run `test_export_empty` without its skip and record the actual result.
   **Trigger:** when plan 0002 lands.
-  **From:** plan 0002 Verification gaps (a); the test remains skipped.
-  **Status:** open.
+  **From:** plan 0002 Verification gaps (a); the test remains skipped. **Status:** open.
 
 - **G-3 · Re-verify cross-repo documentation links.**
   Check upward-relative architecture links and member-homed plan pointers from both member repos.
   **Trigger:** when a second member repo is added.
-  **From:** plan 0001 composed-tree setup.
-  **Status:** open.
+  **From:** plan 0001 composed-tree setup. **Status:** open.

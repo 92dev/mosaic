@@ -155,7 +155,38 @@ try {
 	console.log("PASS both lint ports: attributed findings, exact later round counts, merged reviewer rejection, docs/code classes");
 
 	const gaps = readFileSync(join(target, "docs/gaps.md"), "utf8");
-	put("docs/gaps.md", `${gaps}\n- **G-999 · Missing path**\n  **Trigger:** when \`missing/docs/**\` is added.\n  **Duty:** Recheck the path.\n  **Why not now:** The path does not exist.\n  **From:** smoke\n  **Status:** open\n`);
+	const gapBody = (trigger: string) => [
+		"- **G-999 · Recheck the runbooks**", `  when: ${trigger}`,
+		"  Recheck the new workflow; its implementation has not landed.",
+		"  **From:** smoke. **Status:** open.", "",
+	].join("\n");
+	const longGap = [
+		"- **G-999 · Recheck the runbooks**", "  when: plan 0004 lands",
+		...Array.from({ length: 11 }, (_, index) => `  Recheck step ${index + 1} after the implementation lands.`),
+		"  **From:** smoke.", "  **Status:** open.", "",
+	].join("\n");
+	const fixtureGaps = readFileSync(new URL("../loops/fixtures/mosaic/docs/gaps.md", import.meta.url), "utf8");
+	const gapsArchive = readFileSync(join(target, "docs/gaps-archive.md"), "utf8");
+	const firstUseDiagnostic = "G-999: trigger is a first-use condition; unexercised verification belongs in the plan's Unverified section (rule://records)";
+	for (const command of [[bun, "tools/lint-ledgers.ts"], [bun, ".omp/hooks/post/lint-ledgers.ts"], ["bash", ".claude/hooks/lint-ledgers.sh"]]) {
+		const check = (body: string, code: number, diagnostic = "", file = "docs/gaps.md") => {
+			put(file, body);
+			const result = Bun.spawnSync([...command, file], { cwd: target, stdout: "pipe", stderr: "pipe" });
+			strictEqual(result.exitCode, code, result.stderr.toString());
+			if (diagnostic) ok(result.stderr.toString().includes(diagnostic), result.stderr.toString());
+		};
+		check(longGap, 1, "G-999: entry has 15 lines; at most four (rule://records)");
+		check(gapBody("the first operator run of each runbook in docs/runbooks/*.md"), 1, firstUseDiagnostic);
+		check(fixtureGaps, 0);
+		check(`${gapBody("plan 0004 lands")}\n  \n## Notes\nOutside the entry.\n`, 0);
+		check(gapBody("plan 0004 lands").replace("  Recheck", "\n  Recheck"), 1, "G-999: entry has 5 lines; at most four (rule://records)");
+		check(gapBody("plan 0004 lands").replace("  when: plan 0004 lands\n", "") + "\n## Notes\nwhen: plan 0004 lands\n", 1, firstUseDiagnostic);
+		check(longGap.replace("G-999", "G-998").replace("plan 0004 lands", "the first operator run of each runbook").replace("**Status:** open.", "**Status:** closed by 0004."), 0, "", "docs/gaps-archive.md");
+	}
+	put("docs/gaps-archive.md", gapsArchive);
+	console.log("PASS all lint entrypoints: 15-line rejection, first-use rejection, fixture G-1..G-3, four-line plan trigger, physical-line boundaries, archive exemption");
+
+	put("docs/gaps.md", `${gaps}\n- **G-999 · Missing path**\n  **Trigger:** when \`missing/docs/**\` is added.\n  Recheck the path once it exists; it cannot be checked now.\n  **From:** smoke. **Status:** open.\n`);
 	const triggered = JSON.parse(run([bun, "tools/checkup.ts", "--json"], 1));
 	deepStrictEqual(triggered.cannotEvaluate, []);
 	deepStrictEqual(triggered.findings.filter((finding: { class: string }) => finding.class === "stale-trigger").map((finding: { path: string; detail: string }) => [finding.path, finding.detail.split(" ")[0]]), [["docs/gaps.md", "G-999"]]);

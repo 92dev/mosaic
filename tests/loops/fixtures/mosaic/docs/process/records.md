@@ -16,7 +16,7 @@ This file is read at the point of use: every skill step that mutates a governed 
 | Knowledge | Record | Destination |
 |---|---|---|
 | Settled ruling with reach beyond the current change | Decision | Next global D# in its [element doc](../architecture/README.md#extension-rules), following Context → Decision → Rejected → Implications; update the decision map. Promote a plan-local D-NNNN-n when it outlives its plan |
-| Future engineering duty tied to a checkable condition | Obligation (G-x) | Next global G-number in [gaps.md](../gaps.md), with `Trigger:` (or `when:`) naming a path, glob, plan, or event; explain why it is not actionable now and outside current acceptance |
+| Future engineering duty tied to a checkable condition that fires on its own (a path or glob appears, a plan lands, an event occurs) | Obligation (G-x) | Next global G-number in [gaps.md](../gaps.md), with `Trigger:` (or `when:`) naming that path, glob, plan, or event; explain why it is not actionable now and outside current acceptance; at most four physical lines. Verification the plan could not perform (a procedure nobody ran, an environment nobody had) is not a duty: it stays in the plan's Unverified section, and "when someone first does X" is not a trigger |
 | Tempting wrong path already ruled out | Pitfall | Next global P-number in [pitfalls.md](../architecture/pitfalls.md), following rule 7 |
 | Genuinely undecided question | Open question | [open-questions.md](../architecture/open-questions.md); promotion to G-x requires a cited human ruling |
 | Product flow, feature, raw ideation | Product | [product/](../product/README.md); feature docs use its F-number and milestone conventions |

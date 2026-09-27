@@ -16,8 +16,11 @@ const REQUIRED_SECTIONS = [
 ] as const;
 
 const GAP_ENTRY = /^- \*\*(G-\d+) ·/;
-const TRIGGER_LINE = /^[ \t]*(?:[-*][ \t]+)?(?:\*\*)?(?:Trigger[^*:\r\n]*|when):(?:\*\*)?[ \t]*(.*)$/gim;
+const TRIGGER_LINE = /^[ \t]*(?:[-*][ \t]+)?(?:\*\*)?(Trigger[^*:\r\n]*|when):(?:\*\*)?[ \t]*(.*)$/gim;
 const TRIGGER_TARGET = /[/*]|\.(?:py|md)\b|\b\d{4}\b|\b(?:lands|added|merges|migrates|moves\s+to|gains|changes)\b/i;
+const ACTIVE_TRIGGER_TARGET = /[/*]|\.[a-z][a-z\d]*\b|\b0\d{3}\b|\bplan[ \t]+\d{4}\b/i;
+const TRIGGER_EVENT = /\bwhen[ \t]+(?:[a-z][\w-]*[ \t]+)+(?:lands|added|merges|migrates|moves[ \t]+to|gains|changes|exists|occurs|happens|completes|begins|ends)\b/i;
+const FIRST_USE_TRIGGER = /\bfirst\s+(?:operator\s+|authorized\s+)?(?:run|use|execution|operation|time)\b|\bwhen (?:someone|an operator|a human)\b/i;
 const ANY_ENTRY = /^- \*\*/;
 const LEDGER_ROW = /^\| *\[?(\d{4})\]?/;
 const STATUS_CELL = new RegExp(`\\| *(${STATUS_ENUM.join("|")}) *\\|`);
@@ -90,12 +93,15 @@ function dupErrors(ids: readonly string[], label: string): string[] {
 }
 
 /** Split a registry into `- **G-n ·` blocks. */
-function gapEntries(content: string): { id: string; body: string }[] {
-	const out: { id: string; body: string }[] = [];
+function gapEntries(content: string, active = false): { id: string; body: string; lines: number }[] {
+	const out: { id: string; body: string; lines: number }[] = [];
 	let id = "";
 	let buf: string[] = [];
 	const flush = (): void => {
-		if (id !== "") out.push({ id, body: buf.join("\n") });
+		if (id !== "") {
+			while (buf.length > 0 && buf[buf.length - 1]!.trim() === "") buf.pop();
+			out.push({ id, body: buf.join("\n"), lines: buf.length });
+		}
 		id = "";
 		buf = [];
 	};
@@ -108,7 +114,7 @@ function gapEntries(content: string): { id: string; body: string }[] {
 			buf = [line];
 			continue;
 		}
-		if (ANY_ENTRY.test(line)) {
+		if (ANY_ENTRY.test(line) || (active && /^#{1,6}(?:[ \t]|$)/.test(line))) {
 			flush();
 			continue;
 		}
@@ -118,11 +124,23 @@ function gapEntries(content: string): { id: string; body: string }[] {
 	return out;
 }
 
-function triggerErrors(id: string, body: string): string[] {
+function triggerErrors(id: string, body: string, active = false): string[] {
+	let checkable = false;
 	for (const match of body.matchAll(TRIGGER_LINE)) {
-		if (TRIGGER_TARGET.test(match[1]!.trim())) return [];
+		const value = match[2]!.trim();
+		const trigger = match[1]!.toLowerCase() === "when" ? `when ${value}` : value;
+		if (active && FIRST_USE_TRIGGER.test(trigger)) {
+			checkable = false;
+			break;
+		}
+		checkable ||= active
+			? ACTIVE_TRIGGER_TARGET.test(trigger) || TRIGGER_EVENT.test(trigger)
+			: TRIGGER_TARGET.test(trigger);
 	}
-	return [`${id} has no checkable Trigger:/when: — name a path/glob, plan NNNN, or event (lands, added, merges, migrates, moves to, gains, changes)`];
+	if (checkable) return [];
+	return [active
+		? `${id}: trigger is a first-use condition; unexercised verification belongs in the plan's Unverified section (rule://records)`
+		: `${id} has no checkable Trigger:/when: — name a path/glob, plan NNNN, or event (lands, added, merges, migrates, moves to, gains, changes)`];
 }
 
 function validateGapBody(content: string, abs: string): string[] {
@@ -211,7 +229,7 @@ function validateLedger(content: string): string[] {
 
 function validateGaps(content: string, archive: boolean): string[] {
 	const errors = dupErrors(idsMatching(content, GAP_ENTRY), "gap");
-	for (const { id, body } of gapEntries(content)) {
+	for (const { id, body, lines } of gapEntries(content, !archive)) {
 		if (archive) {
 			// Closure is written several ways and all are legitimate: `closed by NNNN (<hash>)`,
 			// `**CLOSED by 0054 T6**`, `**Overtaken by ...**`, `**Status:** archived as overtaken`.
@@ -224,6 +242,7 @@ function validateGaps(content: string, archive: boolean): string[] {
 			}
 			continue;
 		}
+		if (lines > 4) errors.push(`${id}: entry has ${lines} lines; at most four (rule://records)`);
 		// A closed entry must not remain in the active registry, which sessions read as open work.
 		if (/\*\*Status:\*\* *closed/.test(body)) {
 			errors.push(
@@ -233,7 +252,7 @@ function validateGaps(content: string, archive: boolean): string[] {
 		}
 		const missing: string[] = [];
 		// Qualified Trigger fields and plain/bold when fields share the same trigger check.
-		errors.push(...triggerErrors(id, body));
+		errors.push(...triggerErrors(id, body, true));
 		if (!/\*\*Status:\*\*/.test(body)) missing.push("**Status:**");
 		// SPLIT rows (`/mosaic-gap-audit` step 3) hold only id + summary + trigger + link here; the full
 		// body — including provenance — lives in docs/gaps/G-<n>-<slug>.md. Requiring provenance on

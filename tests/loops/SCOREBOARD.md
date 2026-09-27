@@ -56,6 +56,8 @@ Tokens include input, output, and cache tokens; prompt tokens are the first requ
 | S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-27T13:22:27.641Z | 7127109 | 13481 | 3.7833 | 63 | 94 | 12/0/0 |  | clean-1 |
 | S1-closeout-triage | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T13:50:04.716Z | 2548812 | 7654 | 0.8495 | 53 | 92 | 8/4/0 |  | dedup-1 |
 | S1-closeout-triage | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T14:20:36.698Z | 3755195 | 7656 | 1.2344 | 66 | 110 | 12/0/0 |  | dedup-2 |
+| S1-closeout-triage | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T21:02:04.112Z | 5409263 | 7656 | 1.5378 | 86 | 131 | 12/0/0 |  | gapshape-1 |
+| S1-closeout-triage | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-27T21:22:58.033Z | 6977547 | 13483 | 3.9182 | 65 | 97 | 11/1/0 |  | gapshape-1 |
 | S10-writer-conflict | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T13:24:56.002Z | 219561 | 13217 | 0.2717 | 10 | 16 | 5/1/0 | claude-orchestrator:better, gpt-critic:same | r4-1 |
 | S10-writer-conflict | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T13:26:04.681Z | 141673 | 7519 | 0.4730 | 9 | 28 | 5/1/0 | claude-orchestrator:better, gpt-critic:same | r4-1 |
 | S10-writer-conflict | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T13:28:01.446Z | 260651 | 13215 | 0.3165 | 11 | 18 | 4/2/0 | claude-orchestrator:better, gpt-critic:worse | r4-2 |
