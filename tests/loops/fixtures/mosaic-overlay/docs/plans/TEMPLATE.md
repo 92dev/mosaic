@@ -38,6 +38,7 @@ Path-frame example: member-homed `reads: ../docs/...` versus prose `../../../doc
 ### T1 — <name>
 
 - repo: <only for cross-repo plans: which repo this task runs in; omit otherwise>
+- class: <code | docs — default code when omitted>
 - files: <exact paths this task may create/modify — the parallelism contract>
 - reads: <docs/files the executor needs as context — keep minimal>
 - instructions: <precise, no-judgment-needed steps>
@@ -70,3 +71,8 @@ the human's disposition. A waived debate records the waiver (who, why) instead. 
 
 Filled during execution: task → agent → result; reviewer verdicts; deviations from plan and why;
 final verification output.
+Log per `rule://review-loop`: one verdict per task/reviewer/round, followed by its findings.
+```text
+- <task> R<round> <reviewer>: APPROVE|REVISE (<n> findings)
+- <task> R<round> <reviewer>: <S|P> — <finding in ≤ 15 words> → <fixed|rejected: reason|deferred: where>
+```

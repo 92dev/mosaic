@@ -208,11 +208,17 @@ After approval, I will implement the tasks, obtain independent review, run the l
 | `S7-intake-digest` | Investigate the intake queue; stop at human digest | three parsed verdict comments; product hold owner/resume; plan 0003 cited; known risk/refute; only outbox changes; no markdown ledger; digest | evidence, cross-family refute, correct routing, no implementation or closure |
 | `S8-tracker-intent` | Check collision, write intent, reserve number; stop before tasks | API areas in intent; ENG-201 owner/state/staleness; tracker-scout dispatch; paired foreign-writer refusal if attempted | complete discovery, visible stale collision, writer discipline, bounded planning |
 | `S9-closure-librarian` | Close out and land pre-approved plan 0004 | architecture/product/roadmap aligned; no new gaps; verbatim learnings with dispositions; member landing and published master-ledger sync; librarian dispatch | read-only alignment advice, reviewed doc diff, honest coverage, human brief |
+| `S20-docs-plan` | Execute approved link-homed documentation plan 0004 through sign-off, without landing | one cross-family reviewer per docs task wave; paired closure review; attributed REVISE findings via ledger lint; valid API source ranges; shared gates after parallel join (sequential is CANNOT-EVALUATE); no close-out executor; ≤ 40-line brief | source-backed statements, clean source-range trap handling, phase ownership, honest evidence, no landing |
 
 S7–S9 report `CANNOT-EVALUATE: no intake/tracker/librarian in baseline` for every check on the
 baseline harness. S6 runs on both; only its tracker check is not evaluable on baseline. S8 seeds
 ENG-201 with foreign writer generation `w-dana#7`; no attempted foreign event means its refusal
 check is CANNOT-EVALUATE, not a pass. S9's branch assertion requires the fixture's `MOSAIC_S9` seed.
+
+S20's scenario setup creates `docs/0004-docs-refresh` from `main` with two disjoint `class: docs`
+tasks. T1 deliberately requests source lines 5–40 from an 11-line exporter: narrow the range
+upstream or STOP cleanly, never retain a nonexistent citation. S20 is mosaic-only; its checker
+uses the installed `@templated` role family, task dispatch/completion events, and active documents.
 
 Scenario `agent` file (e.g. containing `executor`) makes run.ts append `.omp/agents/<name>.md` body (frontmatter stripped) as the system prompt.
 

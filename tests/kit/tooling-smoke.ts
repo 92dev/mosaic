@@ -118,6 +118,42 @@ try {
 	}
 	console.log("PASS both lint ports: project programs unsupported; numbered plans still schema-gated");
 
+	const reviewPlan = "docs/plans/0884-review-attribution.md";
+	const reviewBody = (log: string, status = "review", taskClass = "docs") => [
+		"---", `status: ${status}`, "---", "## Context", "## Scope", "## Task breakdown",
+		"### T1 — Refresh docs", ...(taskClass ? [`- class: ${taskClass}`] : []),
+		"## Review checklist", "## Verification", "### Unverified", "## Planning log", "## Execution log", log, "",
+	].join("\n");
+	const first = "- T1 R2 claude-reviewer: S — CSV default claim contradicts the source → fixed";
+	const second = "- T1 R2 claude-reviewer: P — Missing source citation → rejected: the preceding sentence already cites it";
+	const attributed = [
+		"- T1 R2 claude-reviewer: REVISE (2 findings)",
+		"- T1 R2 gpt-reviewer: REVISE (1 findings)", first,
+		"- Verification retained after the wave joined.", second,
+		"- T1 R2 gpt-reviewer: S — Empty input behavior is misstated → deferred: plan 0884 Unverified",
+		"- T1 R3 claude-reviewer: APPROVE (0 findings)",
+	].join("\n");
+	for (const command of [[bun, ".omp/hooks/post/lint-ledgers.ts"], ["bash", ".claude/hooks/lint-ledgers.sh"]]) {
+		const check = (body: string, code: number, diagnostic = "") => {
+			put(reviewPlan, body);
+			const result = Bun.spawnSync([...command, reviewPlan], { cwd: target, stdout: "pipe", stderr: "pipe" });
+			strictEqual(result.exitCode, code, result.stderr.toString());
+			if (diagnostic) ok(result.stderr.toString().includes(diagnostic), result.stderr.toString());
+		};
+		check(reviewBody(attributed), 0);
+		check(reviewBody(attributed, "done", "code"), 0);
+		check(reviewBody(attributed, "review", ""), 0);
+		check(reviewBody(attributed, "review", "other"), 1, "invalid class 'other'");
+		check(reviewBody("- T1 R2 C9/G6: REVISE (1 findings)\n- T1 R2 C9/G6: S — Incorrect claim → fixed"), 1, "R2");
+		check(reviewBody(attributed.replace(second, "")), 1, "T1 R2 claude-reviewer");
+		check(reviewBody(`${attributed}\n${first}`), 1, "T1 R2 claude-reviewer");
+		check(reviewBody(`${first}\n- T1 R2 claude-reviewer: REVISE (1 findings)`), 1, "T1 R2 claude-reviewer");
+		check(reviewBody(attributed.replace(second, second.replace("R2", "R3"))), 1, "T1 R2 claude-reviewer");
+		check(reviewBody("- T1 R2 claude-reviewer: REVISE (1 findings)", "executing"), 0);
+	}
+	rmSync(join(target, reviewPlan));
+	console.log("PASS both lint ports: attributed findings, exact later round counts, merged reviewer rejection, docs/code classes");
+
 	const gaps = readFileSync(join(target, "docs/gaps.md"), "utf8");
 	put("docs/gaps.md", `${gaps}\n- **G-999 · Missing path**\n  **Trigger:** when \`missing/docs/**\` is added.\n  **Duty:** Recheck the path.\n  **Why not now:** The path does not exist.\n  **From:** smoke\n  **Status:** open\n`);
 	const triggered = JSON.parse(run([bun, "tools/checkup.ts", "--json"], 1));

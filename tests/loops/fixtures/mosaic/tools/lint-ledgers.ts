@@ -132,6 +132,38 @@ function validateGapBody(content: string, abs: string): string[] {
 	return id ? triggerErrors(id, content) : [];
 }
 
+function planSection(content: string, heading: string): string {
+	return new RegExp(`^## ${heading}[ \\t]*\\r?\\n([\\s\\S]*?)(?=^## |$(?![\\s\\S]))`, "m").exec(content)?.[1] ?? "";
+}
+
+function reviewLogErrors(log: string): string[] {
+	const errors: string[] = [];
+	const laterFindings = new Map<string, number>();
+	const lines = log.split(/\r?\n/);
+	// Scan backwards so findings before their verdict never discharge it.
+	for (let index = lines.length - 1; index >= 0; index--) {
+		const line = lines[index]!;
+		const finding = /^- (\S+) R(\d+) ([A-Za-z][\w.-]*): [SP] — (\S(?:.*\S)?) → (?:fixed|rejected: \S.*|deferred: \S.*)$/.exec(line);
+		if (finding && finding[4]!.split(/\s+/).length <= 15) {
+			const key = `${finding[1]} R${finding[2]} ${finding[3]}`;
+			laterFindings.set(key, (laterFindings.get(key) ?? 0) + 1);
+		}
+		if (!/\bREVISE \(\d+ findings\)/.test(line)) continue;
+		const verdict = /^- (\S+) R(\d+) ([A-Za-z][\w.-]*): REVISE \((\d+) findings\)$/.exec(line);
+		if (!verdict) {
+			const round = /\bR\d+\b/.exec(line)?.[0] ?? "unknown round";
+			errors.push(`${round}: malformed REVISE verdict — use one task/round/reviewer per line, never merged reviewer names; see review-loop`);
+			continue;
+		}
+		const key = `${verdict[1]} R${verdict[2]} ${verdict[3]}`;
+		const found = laterFindings.get(key) ?? 0;
+		if (found !== Number(verdict[4])) {
+			errors.push(`${key}: REVISE (${verdict[4]} findings) requires exactly ${verdict[4]} attributed finding lines later in the Execution log; found ${found} in review-loop format`);
+		}
+	}
+	return errors.reverse();
+}
+
 function validatePlan(content: string): string[] {
 	const errors: string[] = [];
 	const status = frontmatterStatus(content);
@@ -148,6 +180,16 @@ function validatePlan(content: string): string[] {
 	if (!content.includes("### Unverified") && !content.includes("### Verification gaps")) {
 		errors.push("missing required section: '### Unverified' (or legacy '### Verification gaps')");
 	}
+	let task = "Task breakdown";
+	for (const line of planSection(content, "Task breakdown").split(/\r?\n/)) {
+		const heading = /^### (.+)/.exec(line);
+		if (heading) task = heading[1]!;
+		const field = /^[ \t]*- class:[ \t]*(.*)$/.exec(line);
+		if (field && !/^(?:docs|code)(?:[ \t]+#.*)?$/.test(field[1]!.trim())) {
+			errors.push(`${task}: invalid class '${field[1]!.trim()}' (expected docs|code; omitted defaults to code)`);
+		}
+	}
+	if (status === "review" || status === "done") errors.push(...reviewLogErrors(planSection(content, "Execution log")));
 	return errors;
 }
 

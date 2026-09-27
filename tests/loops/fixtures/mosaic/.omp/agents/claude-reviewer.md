@@ -30,7 +30,7 @@ Review independently: do not coordinate with or wait for another reviewer. Verif
 ```text
 VERDICT: APPROVE | REVISE
 Findings:
-1. <file>:<line> — <problem> — <why it matters; D#/P-x/checklist item>
+1. <S|P> <file>:<line> — <problem> — <why it matters; D#/P-x/checklist item>
    Fix: <precise instruction executable without a decision>
 ```
 - Lead with the verdict; order findings by severity.

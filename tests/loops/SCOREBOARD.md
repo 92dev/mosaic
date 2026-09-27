@@ -170,6 +170,10 @@ Tokens include input, output, and cache tokens; prompt tokens are the first requ
 | S2-approval-brief | baseline | anthropic/claude-opus-5-5-xhigh | 2026-09-25T11:11:30.236Z | 171747 | 13170 | 0.4933 | 6 | 19 | 2/0/0 | claude-orchestrator:same, gpt-critic:same | r3-2 |
 | S2-approval-brief | mosaic | openai-codex/gpt-6-astra-xhigh | 2026-09-25T13:56:22.601Z | 151087 | 7488 | 0.4621 | 8 | 21 | 2/0/0 | claude-orchestrator:better, gpt-critic:better | r4-1 |
 | S2-approval-brief | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-25T14:04:37.680Z | 300457 | 13171 | 0.7382 | 8 | 29 | 2/0/0 | claude-orchestrator:better, gpt-critic:better | r4-1 |
+| S20-docs-plan | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T17:53:14.836Z | 6554900 | 7494 | 1.8743 | 104 | 149 | 7/0/0 |  | docs-1 |
+| S20-docs-plan | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T18:19:06.208Z | 7769920 | 7496 | 2.1085 | 117 | 164 | 7/0/0 |  | docs-2 |
+| S20-docs-plan | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-27T18:53:32.266Z | 11034304 | 13243 | 5.8851 | 83 | 146 | 7/0/0 |  | docs-1 |
+| S20-docs-plan | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-27T19:18:50.375Z | 11366588 | 13241 | 5.4217 | 91 | 129 | 7/0/0 |  | docs-2 |
 | S3-governed-edit | baseline | anthropic/claude-opus-5-xhigh | 2026-09-24T14:56:15.528Z | 594650 | 19694 | 1.0207 | 13 | 17 | 5/1/0 | claude-orchestrator:same, gpt-critic:same | baseline-v0 |
 | S3-governed-edit | baseline | openai-codex/gpt-6-astra-xhigh | 2026-09-24T15:04:54.563Z | 257505 | 11740 | 0.6394 | 10 | 20 | 5/1/0 | claude-orchestrator:same, gpt-critic:same | baseline-v0-promptv2 |
 | S3-governed-edit | mosaic | anthropic/claude-opus-5-xhigh | 2026-09-24T15:10:57.365Z | 692283 | 19463 | 0.9933 | 21 | 19 | 5/1/0 | claude-orchestrator:worse, gpt-critic:worse | mosaic-v0-promptv2 |
