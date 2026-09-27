@@ -4,7 +4,7 @@ description: Re-check active gaps against current code, propose evidenced KEEP/U
 ---
 # /mosaic-gap-audit — Re-check active gaps
 
-This skill never mints a G-entry. In ordinary project work new obligations are born only in `/mosaic-execute` close-out (step 7) with the human's sign-off; the only other minting path is an approved installation/migration (`docs/install/migration-map.md`). It answers one question per active entry — is it still true as written? — and applies nothing without sign-off.
+This skill never mints a G-entry. In ordinary project work new obligations are born only in `/mosaic-execute` close-out (step 7) with the human's sign-off; the only other minting path is an approved installation/migration run from the mosaic checkout. It answers one question per active entry — is it still true as written? — and applies nothing without sign-off.
 
 | Run it when | Scope | Started by |
 |---|---|---|

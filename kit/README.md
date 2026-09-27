@@ -6,7 +6,7 @@ Mosaic installs an orchestration harness into a project root: a multi-repo link 
 It supplies shared process rules, omp and Claude Code ports, bounded agents and skills, hooks,
 local tools, a starting pitfalls catalog, and empty architecture/product/gap/plan/tracker registries.
 The installation roots are `AGENTS.md`, `CLAUDE.md`, `.omp/`, `.claude/`, `docs/`, and `tools/`.
-The source installer, this README, the loop rig, and the fake export project are not installed.
+The source installer, this README, checkout-only `../install/` migration references, loop rig, and fake export project are not installed.
 Without cutoff, existing project records are reconciled, not replaced with empty registries.
 
 ## Installing into a project
@@ -24,7 +24,7 @@ summary, `multi-repo` or `monorepo` topology, default branch from `origin/HEAD`,
 components, remotes, stacks, test commands and cwd, coverage notes, and the observed landing/CI
 policy. Ambiguous evidence is a question, not permission to assume the helper's defaults.
 
-The [migration guide](docs/install/README.md) and [mapping policy](docs/install/migration-map.md)
+The [migration guide](../install/README.md) and [mapping policy](../install/migration-map.md)
 define the full procedure:
 
 1. Survey the target read-only, including existing rules, agents, skills, hooks, docs, and ledgers.
@@ -46,7 +46,7 @@ define the full procedure:
    This last check needs the `omp` binary and working model credentials even for a Claude-led
    migration; missing runtime proof is a blocker, not an assumed pass.
 
-All target writes, including reports, stay on `mosaic/install`. Under `docs/mosaic-migration/`:
+During migration, all target writes, including reports, stay on `mosaic/install` under `docs/mosaic-migration/`:
 
 | Record | What it preserves |
 |---|---|
@@ -55,10 +55,15 @@ All target writes, including reports, stay on `mosaic/install`. Under `docs/mosa
 | `manifest.json` | Skill-generated input to `kit/install.ts`; a reproducibility record, not runtime config |
 | `01-dry-install.md` | Scratch comparison, per-path merge decisions, and external snapshot locations |
 | `02-plan.md` | Tasks, adversary rulings, nothing-lost ledger, and execution evidence |
-| `03-concept-alignment.md` | Permanent concept-to-kit table and human rulings, using [this template](docs/install/concept-alignment.md) |
+| `03-concept-alignment.md` | Permanent concept-to-kit table and human rulings, using [this template](../install/concept-alignment.md) |
 | `kit-adaptations.md` | Each changed kit file's hunk summary, reason, alignment IDs, and verification |
 
-The alignment and adaptation records remain linked from `docs/index.md` after landing.
+At sign-off approval, only the alignment and adaptation records remain in `docs/mosaic-migration/`.
+Both cutoff and non-cutoff migrations move transient reports, status, manifest, and inventory into
+`docs/archived/mosaic-migration/` as frozen history. Evidence logs are ignored from phase 3 and deleted
+after the archived plan/brief records their file list and final doctor/lint/checkup exits and reviewer
+verdict lines. The document index's Migration rows link the two kept records and the archive, with a
+History row for the archive. See [the lifecycle](../install/migration-map.md#migration-state-lifecycle).
 
 Optional **CUTOFF mode** requires explicit `cutoff: yes` input or ruling H0; it is never the default.
 It archives all inventoried pre-existing docs and ledgers under each owning repo's
@@ -66,9 +71,9 @@ It archives all inventoried pre-existing docs and ledgers under each owning repo
 bytes, modes, and symlink targets. This includes root/component docs and PR documents; entry files and harness
 configuration still follow the merge policy. Fresh registries replace old active records, and the
 index links archived families and counts. Old gaps and defects are not re-minted. The last task
-writes `docs/docs-migration-instructions.md` from [the template](docs/install/docs-migration-instructions.template.md)
+writes `docs/docs-migration-instructions.md` from [the template](../install/docs-migration-instructions.template.md)
 for the first real plan, `/mosaic-plan docs-rebuild` (`0001`); rebuilding current docs is not part of
-installation. See [the cutoff boundary](docs/install/migration-map.md#cutoff-mode).
+installation. See [the cutoff boundary](../install/migration-map.md#cutoff-mode).
 
 At the brief, inspect the branch and evidence, answer the exact questions against concept-alignment
 row IDs, and decide whether to land. Questions concern missing facts or choices such as conflicting
@@ -121,7 +126,7 @@ the hooks; the generated manifest is not runtime configuration.
 
 ### Placeholders and generated manifest schema
 
-The [rendering reference](docs/install/placeholders.md) defines exact expansions and safe placement.
+The [rendering reference](../install/placeholders.md) defines exact expansions and safe placement.
 The skill supplies every value from survey evidence; source Markdown uses these double-brace tokens:
 
 | Token | Value or expansion |

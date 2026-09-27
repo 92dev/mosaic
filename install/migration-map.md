@@ -1,6 +1,6 @@
 # Existing-project migration map
 
-Read from the mosaic checkout before `/mosaic-install` surveys a target. This is a migration, not a reset.
+Read from the mosaic checkout's root `install/` before `/mosaic-install` surveys a target. These references are never installed; this is a migration, not a reset.
 Read `kit/docs/process/records.md` before applying mappings; read `kit/docs/process/plan-home.md` for ownership and links.
 Preserve source meaning, evidence, IDs, safety constraints, and history. A missing answer is not permission to invent one.
 
@@ -12,6 +12,19 @@ Each row carries `alignment` (`same`, `rename`, `merge`, `split`, `keep-as-proje
 Weigh both directions per row: what installed kit text would change, what target structure would change, and why one wins. Adapt kit text when only vocabulary, paths, commands, or conventions differ; restructure target docs/registries/ledgers only where lint, doctor, checkup, tracker, or plan-ledger mechanics require a named shape, or the human explicitly chooses it.
 Every non-`done` row belongs to an actual plan task or the report's Human rulings list; `mechanical` is only for already verified `done` rows. Cite row IDs in task acceptance, evidence, and the brief's **Concept alignment** section (resolved / needing a ruling).
 A human-owned choice is not resolved by taking a conservative guess. Record the question and affected actions, stop those actions, retain the supplied answer, then assign its implementation to a plan task; mark done only with evidence.
+
+## Migration-state lifecycle
+
+During migration, keep all reports, the generated manifest, inventory, and raw evidence under target `docs/mosaic-migration/` on `mosaic/install`; do not close them out before explicit sign-off approval. This lifecycle applies with or without cutoff.
+In phase 3, add `/docs/mosaic-migration/evidence/` to the target's `.gitignore`, preserving existing entries; never force-add logs. Ignoring does not untrack logs already committed by an older session.
+After approval and any rebase/check/review required by the landing flow, close out on `mosaic/install` before landing:
+1. Keep `docs/mosaic-migration/03-concept-alignment.md` and `docs/mosaic-migration/kit-adaptations.md` as the only durable records in that directory; `/mosaic-kit upgrade` still reads the latter.
+2. In `02-plan.md` and `06-sign-off-brief.md`, record the sign-off, the complete relative file list under `evidence/`, and the final gate summary: exact doctor, each registry lint, and checkup commands/cwd/exit codes plus both reviewers' verbatim verdict lines and reviewed commit. Keep these summaries, not copies of the raw logs.
+3. Use per-file `git mv -- docs/mosaic-migration/<name> docs/archived/mosaic-migration/<name>` for `00-survey.md`, `01-dry-install.md`, `02-plan.md`, `06-sign-off-brief.md`, every other `0[0-9]-*.md` except `03-concept-alignment.md`, `STATUS.md`, `manifest.json`, and `inventory-pre-install.tsv` when present. Create the destination directory; never overwrite existing history. Complete the final STATUS checkpoint before moving it.
+4. After the evidence inventory and gate summary are recorded in the archived plan/brief, delete `docs/mosaic-migration/evidence/`, including tracked logs with `git rm`; do not archive raw logs. Preserve unrelated user files and stop for a disposition if unexpected migration files would prevent the two-record end state.
+5. In target `docs/index.md`, the **Migration** rows link `mosaic-migration/03-concept-alignment.md`, `mosaic-migration/kit-adaptations.md`, and `archived/mosaic-migration/`; add a **History** row for that frozen migration folder without changing cutoff-history rows. Repair active inbound links, including durable-record manifest/evidence pointers and the rebuild brief: use the archived manifest and retained plan/brief summaries, not deleted logs.
+6. Run final doctor, registry lint, and checkup on the closed-out tree; if repairs change reviewed content, repeat the required review loop. Record actual final exits/verdict lines and any additional evidence filenames in the archived plan/brief before freezing, then remove any new raw logs. Commit the closeout on `mosaic/install` and land only per the authorized flow.
+Read `kit/docs/process/registries.md` (`rule://registries` in the target): the completed `docs/archived/mosaic-migration/` is frozen history, not current status. Do not rewrite it or an existing cutoff archive on upgrades; repair active callers rather than historical links.
 
 ## Cutoff mode
 
@@ -70,7 +83,7 @@ Use `diff -r` for content and compare entry types, symlink targets, and modes to
 | `docs/architecture/README.md`, `pitfalls.md`, `open-questions.md` under `docs/architecture/` | Merge decisions, pitfalls, and questions into their own schemas; retain source records and avoid ID collisions. No sole-record compression. Adapt pointers to chosen project homes without breaking required mechanical indexes. |
 | `docs/product/README.md`, `docs/plans/README.md`, `docs/plans/TEMPLATE.md` | Merge registry rows and project requirements with kit structure; maintain links/status truth and preserve historical plans. Bootstrap reports are indexed separately, not fake numbered plans. |
 | `docs/tracker/config.json`, `docs/tracker/items.json` | Preserve items, IDs, discussion, and provider evidence. Default to local `replay`; opt into the local `mcp` mock only on request. Never turn a local seed into a live write. |
-| `tools/**`, `docs/install/**`, any remaining kit path | Inspect every collision; preserve unrelated custom tooling/docs under a decided name and update callers. Copy new files; leave identical files unchanged. Never overwrite an unexplained collision. |
+| `tools/**`, any remaining kit path | Inspect every collision; preserve unrelated custom tooling/docs under a decided name and update callers. Copy new files; leave identical files unchanged. Never overwrite an unexplained collision. |
 
 Read `kit/docs/process/tracker.md` for seed schema/provider rules. Validate seeds with `bun tools/tracker.ts --provider replay list --all`, not an invented lint command.
 The kit has no live Linear adapter: explicit human instruction is necessary but not sufficient; report unsupported live integration rather than claiming a connection.
@@ -88,7 +101,7 @@ On a future kit upgrade, compare each recorded hunk with the new rendered baseli
 ## Derivation, placeholders, and manual placement
 
 The human supplies a target and factual answers, never a manifest/config. Derive all values from the survey; the skill generates `docs/mosaic-migration/manifest.json` as a record for `kit/install.ts`. `.omp/mosaic.json` is the only runtime installation-metadata config; port settings and tracker configuration keep their separate purposes.
-Token names below mean the name enclosed by two opening and two closing braces; no literal template delimiters are printed here because these docs are themselves installed/rendered. Read [placeholders.md](placeholders.md) for exact per-file expansion, topology blocks, escaping, file modes/symlinks, and hand-placement steps.
+Token names below mean the name enclosed by two opening and two closing braces. Read [placeholders.md](placeholders.md) for exact per-file expansion, topology blocks, escaping, file modes/symlinks, and hand-placement steps.
 
 | Token | Survey-derived value and rendering |
 |---|---|
@@ -131,3 +144,4 @@ Reconcile inventory against the ledger: no missing source paths, unexplained del
 - Stack commands were executed with cwd, actual exit status, and retained output; unavailable proof is Unverified, not passing. Defects stay defects, obligations have `when:`, questions stay undecided; registry/tracker validation preserves external references.
 - Doctor, each registry lint, and checkup exit 0; both migration reviewers APPROVE the final committed snapshot after at most two correction rounds.
 - The target's `/mosaic-checkup` loads and produces a digest with zero mechanical findings (human-only decisions may be surfaced, never suppressed).
+- At sign-off approval, both cutoff modes leave exactly the alignment/adaptations records active, transient state in indexed frozen history, and no evidence directory; the archived plan/brief retains the evidence file list and final gate summary.

@@ -311,12 +311,11 @@ if (guard !== undefined && guardTwin !== undefined && guardHook !== undefined) {
 }
 // Placeholder ownership is the installed harness's text surface, not the project tree.
 // Exclude project sources (JSX), workflows, Makefiles, fonts/images, and nested checkouts.
-const placeholderText = (file: string) => /\.(?:md|mdc|ts|sh|json|jsonl|ya?ml|toml|txt)$/.test(file);
 const placeholderFiles = new Set([
 	"AGENTS.md", "CLAUDE.md", "docs/index.md", "docs/gaps.md", "docs/gaps-archive.md",
 	"docs/architecture/README.md", "docs/architecture/pitfalls.md", "docs/architecture/open-questions.md", "docs/kit/maintenance.md",
 	"docs/plans/README.md", "docs/plans/TEMPLATE.md", "docs/product/README.md",
-	...harnessFiles, ...processFiles, ...files("placeholders", "docs/install").filter(placeholderText),
+	...harnessFiles, ...processFiles,
 	...files("placeholders", "docs/tracker", false).filter(file => file.endsWith(".json")),
 	...files("placeholders", "tools").filter(file => file.endsWith(".ts")),
 ]);

@@ -74,6 +74,7 @@ The same installer handles both: `bun kit/install.ts --kit <dir> --manifest <jso
 --target <dir>`. `--kit` defaults to `kit/` beside the installer, independently of the working
 directory. It copies the install roots present in that source (`AGENTS.md`, `CLAUDE.md`, `.omp/`,
 `.claude/`, `docs/`, `tools/`); installer code and kit-maintainer documentation are not installed.
+Migration references live in the checkout's [`../../install/`](../../install/README.md), beside `kit/`; the checkout-only `/mosaic-install` skill reads them there. They are not installed or exported into fixtures.
 
 `bun tests/kit/tracker-mcp-smoke.ts` exercises the local Linear MCP mock and compares tracker CLI behavior with replay; seed an installed mock with `bun tools/mcp/linear-mock.ts --seed-from docs/tracker/items.json`, then set `docs/tracker/config.json`'s `provider` to `mcp` (or `MOSAIC_TRACKER_PROVIDER=mcp`).
 

@@ -7,6 +7,7 @@ Link it from target `docs/index.md` with destination `mosaic-migration/03-concep
 ## Report header
 
 Record the surveyed target/root, observed topology/default branch and landing-policy evidence, `cutoff: yes|no`, H0/exceptions, baseline commit, kit revision or source hash, and links to `00-survey.md`, `01-dry-install.md`, `02-plan.md`, `kit-adaptations.md`, and `STATUS.md` from the report's own directory.
+At sign-off closeout, repair this active report's links to moved files under `../archived/mosaic-migration/` and replace raw-evidence links with the archived plan/brief summaries; this report and `kit-adaptations.md` stay here.
 Use prose/code paths until a referenced file exists; reports must not introduce broken example links or literal unrendered template delimiters.
 
 ## Alignment table

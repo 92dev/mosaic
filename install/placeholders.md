@@ -26,7 +26,7 @@ Cutoff is also a recorded survey/ruling choice (`cutoff: yes|no`, H0), not a pla
 
 ## Placeholder grammar and values
 
-A placeholder is two opening braces, a token name, then two closing braces. This reference prints token names without the delimiters so installing it neither expands its examples nor leaves forbidden placeholders in the target.
+A placeholder is two opening braces, a token name, then two closing braces. This checkout-only reference prints token names without the delimiters; it is not rendered or installed.
 Only `.md` regular files are rendered; non-Markdown files and symlink targets retain their bytes, except the separately generated `.omp/mosaic.json` configuration.
 First process non-nested `MULTI_REPO` and `MONOREPO` blocks (opening token, body, slash-prefixed closing token): retain the chosen topology's body, discard the other, remove the markers. Then substitute value tokens; unknown tokens, unsupported `MEMBERS` destinations, or leftover opening delimiters are errors.
 
@@ -57,7 +57,7 @@ Hand-rendering keeps table delimiters and file context from the template; the ta
 
 1. Complete the branch/cleanliness, snapshots, per-file dry comparison, alignment/ruling, and plan gates in the skill; hand placement is not a bypass around them.
 2. Prefer a fresh helper-rendered scratch tree from the generated manifest as the baseline. When rendering by hand, select topology blocks and substitute every token above in the same order, then compare with that scratch output; planned adaptations may differ only as recorded hunks.
-3. Place only planned files under `AGENTS.md`, `CLAUDE.md`, `.omp/`, `.claude/`, `docs/`, and `tools/`. The source installer and source README are not installed. Never traverse a destination directory symlink, replace a directory with a file, or overwrite an unexplained collision; preserve target-only files.
+3. Place only planned files under `AGENTS.md`, `CLAUDE.md`, `.omp/`, `.claude/`, `docs/`, and `tools/`. The source installer, source README, and checkout `install/` references are not installed. Never traverse a destination directory symlink, replace a directory with a file, or overwrite an unexplained collision; preserve target-only files.
 4. Preserve file modes (including executable hooks/tools). Keep `.omp/rules/*.md` as relative file symlinks to `../../docs/process/*.md`; the two `.claude/rules/` files are ordinary files. Shared rules are edited at their home, with required port core/guard parity.
 5. Generate `.omp/mosaic.json` with the observed `defaultBranch` and `topology` exactly as the helper does; merge `.omp/config.yml` and `.claude/settings.json` safely so registered hooks and project permissions remain effective. Do not add a root manifest/config copy.
 6. Merge/adapt installed Markdown, including core/rules/skills/agents and routing to selected project homes; record every deviation from the rendered baseline in `kit-adaptations.md` with file, hunk summary, reason, and alignment IDs. Repair all callers and file-relative links, preserving both ports and all doctor budgets.

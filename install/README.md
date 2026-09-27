@@ -5,9 +5,9 @@ Prerequisites: Bun, Git, a clean target branch/worktree (including member repos)
 Use omp at maximum effort: start `omp --thinking max`, then enter `/mosaic-install ../target`.
 Claude Code equivalent: start `claude` in this checkout, select maximum effort, then enter `/mosaic-install ../target`.
 Append known factual answers, for example the link-repo path, `tracker=replay`, or `cutoff: yes`; discovery supplies the rest. **The human never writes a manifest or installation config.**
-The checkout provides `.omp/skills/mosaic-install/SKILL.md` and `.claude/skills/mosaic-install/SKILL.md`; the installed kit does not copy this bootstrap skill.
+The checkout provides `.omp/skills/mosaic-install/SKILL.md` and `.claude/skills/mosaic-install/SKILL.md`; neither this bootstrap skill nor its root `install/` references are installed into the target.
 The procedure reads [migration-map.md](migration-map.md), surveys the project, renders a scratch install, plans both alignment directions, and preserves project-specific rules, agents, skills, hooks, and documents.
-All target writes, including migration reports, happen on `mosaic/install`; no main/default-branch writes, commits, or landing without explicit sign-off.
+All target writes, including migration reports, happen on `mosaic/install`; no default-branch writes, commits, or landing without explicit sign-off.
 Dirty files are never stashed, reset, overwritten, or committed; unresolved human-owned choices stop before the affected installation work, and safety/merge blockers stop all target writes.
 
 ## What the skill derives and adapts
@@ -39,6 +39,7 @@ All paths below are under target `docs/mosaic-migration/`; `STATUS.md` records p
 | `kit-adaptations.md` | Every edited kit file's hunk summary/reason, alignment IDs and verification; used to re-apply or retire adaptations on future upgrades |
 
 The alignment and adaptation records are linked from target `docs/index.md`. Every non-done alignment row is a named plan task or a listed human ruling, never a silent mismatch.
+At sign-off approval, for cutoff and non-cutoff migrations alike, keep only those two durable records here; archive the transient reports, status, manifest, and inventory under `docs/archived/mosaic-migration/`. Raw `evidence/` logs are ignored from phase 3 and deleted only after the archived plan/brief records their file list and final gate results. Follow the [migration-state lifecycle](migration-map.md#migration-state-lifecycle) for moves, frozen history, and Migration/History index rows.
 After phase 3, the **kit-adaptations gate** accounts for every edited kit file and requires doctor PASS on the adapted tree, including the final log edits; review/self-check repairs repeat the gate.
 The phase-6 brief includes **Concept alignment**: resolved rows / rows needing a ruling by ID, exact questions and blocked actions, plus any unfinished plan work; cutoff adds the SHA, archive counts by family, and the rebuild-instructions link. Human sign-off does not substitute for task evidence or reviewer verdicts; at most two correction rounds precede escalation.
 The final installed-skill self-check needs the `omp` binary and working model credentials even when you invoke the migration through Claude Code; missing proof is a blocker, not an assumed pass.

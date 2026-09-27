@@ -65,6 +65,7 @@ directories are reference material, not the product installation source.
 
 ```text
 kit/                         Installable harness and mechanical installer
+install/                     Checkout-only migration references; never installed
 .omp/skills/mosaic-install/   Checkout-only migration skill; .claude/ has its twin
 tests/
   kit/                       Deterministic tooling and tracker smokes
