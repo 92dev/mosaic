@@ -1,13 +1,13 @@
-<div align="center">
+<img src="assets/mosi_gecko_pose5.png" alt="Mosi the gecko waving hello" width="160" align="left">
 
-<img src="assets/mosi_gecko_pose5.png" alt="Mosi the gecko waving hello" width="240">
+### mosaic
 
-# mosaic
+---
 
 Modular Orchestration System A.I. Context:\
 an installable assistant harness and a separate rig for building and evaluating it.
 
-</div>
+<br clear="left">
 
 ## Using mosaic
 
