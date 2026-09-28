@@ -126,8 +126,12 @@ function membersFor(file: string, manifest: Manifest): string {
   }
 }
 function render(content: string, file: string, manifest: Manifest): string {
-  const selected = content.replace(/\{\{(TRACKING_NONE|TRACKING_LOCAL|TRACKING_MCP)\}\}([\s\S]*?)\{\{\/\1\}\}/g,
-    (_match, mode: string, body: string) => mode === `TRACKING_${manifest.tracking.mode.toUpperCase()}` ? body : "")
+  // Tracking conditionals: a tag on its own line is consumed with its newline (no blank-line residue); inline tags keep the line.
+  const keep = (mode: string) => mode === `TRACKING_${manifest.tracking.mode.toUpperCase()}`;
+  const selected = content.replace(/^\{\{(TRACKING_NONE|TRACKING_LOCAL|TRACKING_MCP)\}\}\n([\s\S]*?)^\{\{\/\1\}\}\n?/gm,
+    (_match, mode: string, body: string) => keep(mode) ? body : "")
+    .replace(/\{\{(TRACKING_NONE|TRACKING_LOCAL|TRACKING_MCP)\}\}([\s\S]*?)\{\{\/\1\}\}/g,
+      (_match, mode: string, body: string) => keep(mode) ? body : "")
     .replace(/\{\{(MULTI_REPO|MONOREPO)\}\}([\s\S]*?)\{\{\/\1\}\}/g,
       (_match, topology: string, body: string) => topology === (manifest.topology === "monorepo" ? "MONOREPO" : "MULTI_REPO") ? body : "");
   const result = selected.replace(/\{\{([^{}]+)\}\}/g, (_match, token: string) => {

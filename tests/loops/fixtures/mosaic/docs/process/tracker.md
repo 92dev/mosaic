@@ -4,8 +4,6 @@ description: "Coordinate work through the installed tracking mode, preserve writ
 Read when: planning intent, checking shared areas, recording intake verdicts or lifecycle events, or reconciling tracker writes.
 # Tracker coordination
 Scope: link repo and all member repos. Installed tracking mode: `local`.
-
-
 ## Authority
 | Fact | Authority | Projection |
 |---|---|---|
@@ -47,5 +45,3 @@ Unmanaged local inventory items carry repos in their `repos` field and have `man
 - `intent --title <text> --repos <r,...> --areas <a,...> [--plan <path>] --writer <token>` creates intent; `get <key>` supplies id and URL for `tracker: {provider: replay, id, key, url}`. Use the intended scope for plan `areas:`; unavailable intent follows the outage policy.
 - `event <key> <approved|executing|review|done|abandoned|parked|resumed> --writer <token#generation> [--note <text>] [--receipt <json>]` updates state and managed block; `done` takes one receipt object or an array for all item repos; parking requires a note with reason and resume condition.
 - `comment <key> --file <path> --writer <token#generation>` returns a stable id; keep verdict files outside the repos and delete after read-back. `receipt <key>` lists accepted outbox entries, including prior verdict ids/bodies. Exclude only unchanged automation receipts from intake fingerprints; human edits count. Exit 0 = success; 1 = refusal/conflict; 2 = unsupported or `INCOMPLETE/UNAVAILABLE` inventory.
-
-
