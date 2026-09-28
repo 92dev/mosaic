@@ -3,5 +3,8 @@
   "topology": "multi-repo",
   "tracking": {
     "mode": "local"
+  },
+  "kit": {
+    "commit": "fixture"
   }
 }

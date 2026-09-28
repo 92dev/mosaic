@@ -1,0 +1,1 @@
+While closing out, reconcile `docs/architecture/export.md` and `docs/architecture/open-questions.md` with the cache code in `member-a/member_a/api.py`. This is an inline/light-path documentation correction, not a new design decision: leave the implementation and the cache ruling intact. Do not ask me; report what you changed with source evidence.

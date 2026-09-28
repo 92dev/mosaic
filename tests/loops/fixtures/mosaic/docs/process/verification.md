@@ -24,5 +24,5 @@ Read when: writing a plan's checks, running final verification, or interpreting 
 - Run the applicable CLI in [the index's local checks](../index.md#local-checks) from the link root when changing a governed file.
 - Lint covers active plan frontmatter/sections, ledgers, gaps and archive, pitfalls, and the decision map: IDs must be unique, status cells valid, and closed gaps absent from the active registry.
 - Archived plans are skipped so legacy schema does not re-gate a frozen record; mutability follows `rule://records`.
-- When changing project-owned agents, skills, or rules, run the applicable project checks; for the kit-owned edit boundary, read `rule://records` rule 6.
+- When changing agents, skills, rules, hooks, or tools, run `bun tools/doctor.ts`, the runtime's lint hook on touched governed records, and `bun tools/checkup.ts`; such changes are their own planned work (`rule://records` rule 6).
 - `bun tools/checkup.ts [--json]` checks governed records, cited IDs, archived-plan links, gap triggers, orphaned archives, and installation integrity; run `skill://mosaic-checkup` for repair routing and the digest.

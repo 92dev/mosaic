@@ -96,12 +96,9 @@ The [maintenance guide](docs/kit/maintenance.md) owns the procedures for paired 
 homes, budgets, checks, and upgrades. The skill works on `kit/<slug>` and stops for a human brief
 before landing.
 
-Keep `docs/mosaic-migration/kit-adaptations.md` indexed and current: record each changed kit file,
-hunk summary, reason, and verification, plus project additions and model-role/upgrade decisions.
-Create the record if absent. Upgrades and tracking-mode changes render into a new scratch baseline,
-then re-apply or explicitly retire adaptations rather than forcing fresh skeletons over live data.
-Before leaving `local`, archive and verify local data, preserve plan/ticket IDs and history, then
-remove obsolete kit-owned tool/data/scout paths with caller repairs; see the maintenance procedure.
+Ownership, adaptation-record authorship, and upgrade reconciliation have one home in the
+[maintenance guide](docs/kit/maintenance.md#ownership). Keep the record indexed; use that procedure
+rather than treating its old rows as an authoritative change list or overwriting live project docs.
 
 Add project-specific agents and skills alongside kit roles, following neighboring files and their
 runtime conventions; preserve existing project-only entries. Configure available models and effort
@@ -124,8 +121,9 @@ Monorepo plans live in root `docs/plans/` with `repo: link-repo`; `files:` and `
 repo-root-relative. Components do not get separate branches or plan homes. The skill derives the
 default branch from `origin/HEAD`, falling back only to the sole `main`/`master` branch on origin;
 missing or conflicting evidence needs a ruling. Existing PR/CI and deployment policy is preserved
-unless the human overrides it. `.omp/mosaic.json` holds runtime `defaultBranch`, `topology`, and
-`tracking`; the generated manifest is an installation record, not runtime configuration.
+unless the human overrides it. `.omp/mosaic.json` holds runtime `defaultBranch`, `topology`,
+`tracking`, and source provenance in `kit.commit`; the generated manifest is an installation
+record, not runtime configuration.
 
 ### Placeholders and generated manifest schema
 

@@ -80,6 +80,10 @@ The mosaic fixture explicitly selects `tracking: { "mode": "local" }`, retaining
 seed inventory, and writer-conflict behavior used by S8, S10, S12, and S15b. The installer's default
 is `none`; S21 exercises it through a fresh installation rather than a mode-flipped fixture copy.
 
+The builder supplies `kitCommit: "fixture"` (installer CLI: `--kit-commit fixture`) so generated
+provenance is deterministic. Ordinary installs derive `kit.commit` from the source Git revision
+or use `unknown` outside Git; fixture parity remains byte-strict, including runtime metadata.
+
 The builder installs with `--force` into staging and validates before replacing a fixture
 (including removing obsolete generated files). Mosaic runs `kit/tools/doctor.ts`; the baseline
 predates that doctor and runs its own `.omp/hooks/post/lint-ledgers.ts` against active plans,
@@ -213,6 +217,7 @@ After approval, I will implement the tasks, obtain independent review, run the l
 | `S9-closure-librarian` | Close out and land pre-approved plan 0004 | architecture/product/roadmap aligned; no new gaps; verbatim learnings with dispositions; member landing and published master-ledger sync; librarian dispatch | read-only alignment advice, reviewed doc diff, honest coverage, human brief |
 | `S20-docs-plan` | Execute approved link-homed documentation plan 0004 through sign-off, without landing | one cross-family reviewer per docs task wave; paired closure review; attributed REVISE findings via ledger lint; valid API source ranges; shared gates after parallel join (sequential is CANNOT-EVALUATE); no close-out executor; ≤ 40-line brief | source-backed statements, clean source-range trap handling, phase ownership, honest evidence, no landing |
 | `S21-tracking-none` | Same planning prompt as S8, including the tracker request, on a fresh `none` install | none runtime with no local tracker installation; no tracker CLI call or `docs/tracker` access; collision brief names ledger plus branches; one new scoped reservation published to `origin/main` | respects installed mode, discovers real overlap without a tracker, explains no intent was created, stops before tasks |
+| `S22-reconcile-decision` | Reconcile a stale cache implication and a partially answered question inline, without reopening the ruling | D3 amended in place; ruling/Rejected blocks and global D-numbers preserved; question/owner unchanged with appended evidence; Execution-log or brief source citation; no assistant-authored ownership vocabulary, maintenance-procedure reads, or human question; source unchanged; exit 0 | correct amendment versus supersession, evidence without resolving policy, no procedural deferral |
 
 S7–S9 report `CANNOT-EVALUATE: no intake/tracker/librarian in baseline` for every check on the
 baseline harness. S6 runs on both; only its tracker check is not evaluable on baseline. S8 seeds
@@ -236,6 +241,18 @@ Use the ordinary dry-run path to exercise setup without invoking a model:
 
 ```sh
 bun tests/loops/run.ts --scenario S21-tracking-none --harness mosaic --model openai-codex/gpt-6-sol --thinking medium --dry-run
+```
+
+S22 is mosaic-only. Setup adds a cache to the existing `member-a/member_a/api.py`: a cache hit
+returns stored data without testing its expiry timestamp. D3 retains that ruling but incorrectly
+claims TTL enforcement in its Implications; Q-1 asks about cross-worker freshness and caller
+invalidation. Its seed commits provide immutable comparison records for the checker.
+The ownership check excludes passive tool output (including navigation labels), but rejects
+ownership vocabulary in assistant messages or added records and reads of maintenance procedures.
+Use the full scenario directory name, as for every runner invocation:
+
+```sh
+bun tests/loops/run.ts --scenario S22-reconcile-decision --model anthropic/claude-fable-5-1 --thinking max --harness mosaic --tag s22-r1 --timeout 1800
 ```
 
 Scenario `agent` file (e.g. containing `executor`) makes run.ts append `.omp/agents/<name>.md` body (frontmatter stripped) as the system prompt.

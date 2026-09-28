@@ -26,6 +26,7 @@ export async function buildFixture(harness: Harness, target = fixtureRoot(harnes
   try {
     await install({
       kit: harness === "baseline" ? join(import.meta.dir, "fixtures", "baseline-kit") : undefined,
+      kitCommit: "fixture",
       manifest: join(import.meta.dir, "fixtures", `${harness}.manifest.json`),
       overlay: join(import.meta.dir, "fixtures", `${harness}-overlay`),
       target: staging,

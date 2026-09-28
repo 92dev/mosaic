@@ -13,7 +13,7 @@ Dirty files are never stashed, reset, overwritten, or committed; unresolved huma
 ## What the skill derives and adapts
 
 The survey supplies project name/summary, topology, default branch from `origin/HEAD` (fallback: the sole `main`/`master` on origin), observed landing policy/CI, members or components, remotes, stacks, and real commands/cwd. Follow the observed branch and PR-with-CI policy unless the human overrides; missing or conflicting facts are questions, not a request to author JSON.
-The skill generates `docs/mosaic-migration/manifest.json` as an installation record for `kit/install.ts`, which remains a mechanical helper. No root manifest is installed; `.omp/mosaic.json` holds runtime `defaultBranch`, `topology`, and `tracking`. Port/model settings and MCP mounts stay runtime-owned.
+The skill generates `docs/mosaic-migration/manifest.json` as an installation record for `kit/install.ts`, which remains a mechanical helper. No root manifest is installed; `.omp/mosaic.json` holds runtime `defaultBranch`, `topology`, `tracking`, and source `kit.commit`. Port/model settings and MCP mounts stay runtime-owned.
 Read [placeholders.md](placeholders.md) for each token's rendering and safe hand placement; the helper is not the authority for migration decisions.
 Installed kit Markdown may change to the repo's vocabulary, paths, commands, conventions, and project agents, including an agreed ADR home or an additional money-path reviewer. Preserve kit safety/review contracts, doctor budgets, paired ports, symlinks/read gates, no placeholders, and hook configuration.
 Default to adapting kit text when only wording/paths differ. Restructure the destination's docs, registries, or ledgers only where named kit mechanics need the shape or the human chooses it; preserve the document corpus and repair every affected link/caller.
@@ -51,7 +51,7 @@ All paths below are under target `docs/mosaic-migration/`; `STATUS.md` records p
 | `01-dry-install.md` | Scratch comparison, each new/identical/overwrite/blocker path, merge decision, external snapshots |
 | `02-plan.md` | Tn tasks, adversary challenges/rulings, nothing-lost ledger, command/exit/output evidence and Execution log |
 | `03-concept-alignment.md` | Permanent concept/doc-family/agent/skill/hook/registry ↔ kit map; chosen direction, exact resolution, owner, status and evidence, using [the template](concept-alignment.md) |
-| `kit-adaptations.md` | Every edited kit file's hunk summary/reason, alignment IDs and verification; used to re-apply or retire adaptations on future upgrades |
+| `kit-adaptations.md` | Kit-owned baseline adaptations with hunk summary/reason, alignment IDs and verification; starter notes are informational under the [Ownership policy](../kit/docs/kit/maintenance.md#ownership) |
 
 The alignment and adaptation records are linked from target `docs/index.md`. Every non-done alignment row is a named plan task or a listed human ruling, never a silent mismatch.
 At sign-off approval, for cutoff and non-cutoff migrations alike, keep only those two durable records here; archive the transient reports, status, manifest, and inventory under `docs/archived/mosaic-migration/`. Raw `evidence/` logs are ignored from phase 3 and deleted only after the archived plan/brief records their file list and final gate results. Follow the [migration-state lifecycle](migration-map.md#migration-state-lifecycle) for moves, frozen history, and Migration/History index rows.

@@ -12,4 +12,4 @@ paths:
 ---
 Read when: editing a governed record.
 You are editing a governed record. Before continuing:
-- Read `docs/process/records.md` if you have not this session; apply its schema, sole-record, condition, provenance, and kit-owned edit rules.
+- Read `docs/process/records.md` if you have not this session; apply its schema, sole-record, condition, provenance, and reconciliation rules; a process file (rule, skill, agent, hook, tool) is edited only as its own planned work (rule 6).

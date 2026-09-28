@@ -53,6 +53,6 @@ When extending this record, keep the guardrails intact:
 
 - **New decisions** APPEND to the relevant element doc using the same **Context → Decision → Rejected → Implications** structure, with the **next global D-number** (continue past the last ratified number). Keep the heading greppable as `### D<number> —`.
 - **Update this README's Decision map** whenever a decision is added or moved.
-- **Never delete rejected alternatives** — their recorded failure reasons are the guardrails. New facts that overturn a decision are recorded as a *new* decision that supersedes the old one; the old entry (and its Rejected block) stays.
+- **Never delete rejected alternatives** — their recorded failure reasons are the guardrails. New facts that overturn a decision are recorded as a *new* decision that supersedes the old one; the old entry (and its Rejected block) stays. Text corrections that leave the ruling intact are amended in place (`rule://records` reconciliation test).
 - **New pitfalls** get the **next global P-number** appended in [pitfalls.md](pitfalls.md) (continue past the last catalogued number), greppable as `- **P-<n>`.
 - Archived plans are frozen under `docs/plans/archived/`; no source archive is seeded here.

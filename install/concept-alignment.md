@@ -48,7 +48,7 @@ For example, an ADR↔D namespace question or a decision whether to renumber PRD
 - Every non-`done` row names a real Tn task in `02-plan.md` or appears in Human rulings with owner `human` and an exact question; no mechanical-owned open rows.
 - Each task cites its alignment IDs in instructions and acceptance; each `done` row cites executed evidence, its preserved/moved/retired source disposition, and resolving index links.
 - All installed-kit adaptations cite these IDs and are recorded per file in `kit-adaptations.md`; doctor still passes after the final edits to both records.
-- `docs/index.md` links this report and the adaptations log; retain them after landing and use them to re-apply or retire adaptations on upgrades.
+- `docs/index.md` links this report and the adaptations log; retain them after landing. Upgrades use the [maintenance baseline-diff procedure](../kit/docs/kit/maintenance.md#manifest-placeholders-and-upgrades), not old rows alone; starter notes are informational and never re-applied.
 
 ## Concept alignment — brief excerpt
 

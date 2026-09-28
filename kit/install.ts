@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+import { spawnSync } from "node:child_process";
 import { chmod, lstat, mkdir, readFile, readdir, readlink, rm, symlink, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseArgs } from "node:util";
@@ -182,7 +183,7 @@ function contains(parent: string, child: string): boolean {
   return suffix === "" || (!suffix.startsWith(`..${sep}`) && suffix !== ".." && !isAbsolute(suffix));
 }
 
-export async function install(options: { manifest: string; target: string; kit?: string; overlay?: string; force?: boolean }): Promise<void> {
+export async function install(options: { manifest: string; target: string; kit?: string; kitCommit?: string; overlay?: string; force?: boolean }): Promise<void> {
   const manifest = manifestFrom(JSON.parse(await readFile(resolve(options.manifest), "utf8")));
   const source = options.kit ? resolve(options.kit) : import.meta.dir;
   const target = resolve(options.target);
@@ -203,7 +204,14 @@ export async function install(options: { manifest: string; target: string; kit?:
   }
   const config = entries.get(".omp/mosaic.json");
   if (config?.kind === "file") {
-    config.content = Buffer.from(`${JSON.stringify({ defaultBranch: manifest.git.defaultBranch, topology: manifest.topology, tracking: manifest.tracking }, null, 2)}\n`);
+    let commit = options.kitCommit;
+    if (commit === undefined) {
+      const revision = spawnSync("git", ["-C", source, "rev-parse", "HEAD"], { encoding: "utf8" });
+      commit = revision.status === 0 ? revision.stdout.trim() || "unknown" : "unknown";
+    }
+    config.content = Buffer.from(`${JSON.stringify({
+      defaultBranch: manifest.git.defaultBranch, topology: manifest.topology, tracking: manifest.tracking, kit: { commit },
+    }, null, 2)}\n`);
   }
   const targetStat = await existing(target);
   if (targetStat && !targetStat.isDirectory()) throw new Error(`Target must be a real directory: ${target}`);
@@ -251,11 +259,11 @@ export async function install(options: { manifest: string; target: string; kit?:
 if (import.meta.main) {
   try {
     const { values } = parseArgs({ args: Bun.argv.slice(2), strict: true, options: {
-      manifest: { type: "string" }, target: { type: "string" }, kit: { type: "string" },
+      manifest: { type: "string" }, target: { type: "string" }, kit: { type: "string" }, "kit-commit": { type: "string" },
       overlay: { type: "string" }, force: { type: "boolean" },
     } });
-    if (!values.manifest || !values.target) throw new Error("Usage: bun kit/install.ts --manifest <json> --target <dir> [--kit <dir>] [--overlay <dir>] [--force]");
-    await install({ manifest: values.manifest, target: values.target, kit: values.kit, overlay: values.overlay, force: values.force });
+    if (!values.manifest || !values.target) throw new Error("Usage: bun kit/install.ts --manifest <json> --target <dir> [--kit <dir>] [--kit-commit <value>] [--overlay <dir>] [--force]");
+    await install({ manifest: values.manifest, target: values.target, kit: values.kit, kitCommit: values["kit-commit"], overlay: values.overlay, force: values.force });
     console.log(`Installed harness into ${resolve(values.target)}`);
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
