@@ -190,12 +190,12 @@ function validatePlan(content: string): string[] {
 	} else if (!STATUS_ENUM.some(s => s === status)) {
 		errors.push(`invalid status '${status}' (${STATUS_HINT})`);
 	}
-	// Required headings may appear anywhere in the document.
+	// Required headings must occupy whole lines, not merely appear in prose or longer names.
 	for (const h of REQUIRED_SECTIONS) {
-		if (!content.includes(h)) errors.push(`missing required section: '${h}'`);
+		if (!new RegExp(`^${h}\\s*$`, "m").test(content)) errors.push(`missing required section: '${h}'`);
 	}
 	// Existing plans retain the old section; new plans use Unverified.
-	if (!content.includes("### Unverified") && !content.includes("### Verification gaps")) {
+	if (!/^### Unverified\s*$/m.test(content) && !/^### Verification gaps\s*$/m.test(content)) {
 		errors.push("missing required section: '### Unverified' (or legacy '### Verification gaps')");
 	}
 	let task = "Task breakdown";

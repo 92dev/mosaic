@@ -3,6 +3,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { spawnSync, type SpawnSyncReturns } from "node:child_process";
+import { realpathWithinRoot } from "./root-containment.ts";
 
 const classes = ["lint", "doctor", "dangling-reference", "stale-plan-link", "stale-trigger", "orphan-plan"] as const;
 type CheckClass = typeof classes[number];
@@ -265,7 +266,7 @@ if (doctor) {
 		const file = match[3]!;
 		if (match[1] === "CANNOT-EVALUATE") { unavailable("doctor", file, line); continue; }
 		const sourceLine = Number(/^line (\d+):/.exec(match[4]!)?.[1] ?? 1);
-		const target = match[2] === "references" ? /: unresolved .* \(([^)]+)\)$/.exec(match[4]!)?.[1] : undefined;
+		const target = match[2] === "references" ? /: unresolved .*? \(([^)]+)\)(?: \(outside repository\))?$/.exec(match[4]!)?.[1] : undefined;
 		const stale = target ? staleLocations.get(`${file}:${sourceLine}:${path.normalize(target)}`) : undefined;
 		if (stale) stale.detail += `; ${line}`;
 		else findings.push({ class: "doctor", path: file, line: sourceLine, detail: line,
@@ -278,8 +279,12 @@ if (doctor) {
 function matchesTarget(target: string): boolean {
 	for (const repo of repos) {
 		const cwd = path.join(root, repo);
-		if (fs.existsSync(path.resolve(cwd, target))) return true;
-		for (const _ of new Bun.Glob(target).scanSync({ cwd, onlyFiles: false, dot: true, followSymlinks: true })) return true;
+		const candidate = path.resolve(cwd, target);
+		if (fs.existsSync(candidate) && realpathWithinRoot(root, candidate) !== null) return true;
+		for (const match of new Bun.Glob(target).scanSync({ cwd, onlyFiles: false, dot: true, followSymlinks: true })) {
+			const candidate = path.resolve(cwd, match);
+			if (fs.existsSync(candidate) && realpathWithinRoot(root, candidate) !== null) return true;
+		}
 	}
 	return false;
 }

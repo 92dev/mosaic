@@ -30,7 +30,7 @@ Run `bun tools/doctor.ts` from the installed project root (or pass `--root <dir>
 | Diagnostic | Meaning / maintenance action |
 |---|---|
 | `budgets` | Split or shorten the named authoritative instruction without duplicating it. |
-| `references` | A rule/skill target or active Markdown link is missing; restore or correct its owning reference. |
+| `references` | A rule/skill target or active Markdown link is missing or resolves outside the repository root; restore or correct its owning reference. |
 | `read-before-mutate` | A skill must explicitly read records before a later governed-record mutation. |
 | `mosaic-config`, `guard-config` | Runtime topology/default-branch/tracking metadata is invalid, or a commit guard is not reading its metadata. |
 | `single-home` | A canonical instruction appears in multiple homes; retain one rule and pointers. |
@@ -44,11 +44,12 @@ Builder-only diagnostics are labelled `/mosaic-kit`; checkup routes them here, n
 |---|---|
 | omp | `bun .omp/hooks/post/lint-ledgers.ts <path>` |
 | Claude Code | `bash .claude/hooks/lint-ledgers.sh <path>` |
-Use only the current runtime's lint hook on touched governed records. CLI exits: 0 valid, 1 schema violations, 2 usage/unreadable/unsupported path. Numbered active plans, ledgers, gaps, pitfalls, and decision maps are governed; unrelated program documents and archived plans are not.
-`bun tools/checkup.ts [--json]` calls the shared TypeScript validator `tools/lint-ledgers.ts` directly; it never invokes another runtime's lint hook. It also checks doctor, links, plan citations, stale triggers, and orphan plans; exits 0 PASS, 1 findings, 2 incomplete evaluation. Exercise changed behavior in addition to these checks.
+Use only the current runtime's lint hook on touched governed records. CLI exits: 0 valid, 1 schema violations, 2 usage/unreadable/unsupported path. Numbered active plans, ledgers, gaps, pitfalls, and decision maps are governed; unrelated program documents and archived plans are not. Required plan sections must be whole heading lines, not prose mentions or longer heading names.
+`bun tools/checkup.ts [--json]` calls the shared TypeScript validator `tools/lint-ledgers.ts` directly; it never invokes another runtime's lint hook. It also checks doctor, links, plan citations, stale triggers, and orphan plans; exits 0 PASS, 1 findings, 2 incomplete evaluation. Trigger paths/globs must resolve inside the repository root, including member repos; outside targets never match. Exercise changed behavior in addition to these checks.
 Hook interfaces are not ordinary CLI arguments: omp consumes `tool_call`/`tool_result` events, and Claude consumes JSON stdin. A manual Claude guard probe uses `printf '%s' '{"tool_input":{"command":"git commit -m x","cwd":"/path/to/project"}}' | bash .claude/hooks/guard-main.sh`; inspect observable output, not a silent no-input exit. The guard blocks direct commits on the configured default branch, not ff-only merges or `git commit-tree`; a human terminal remains the escape for a misfire.
+Both commit hooks are adapters around `tools/guard-main.ts`. Its resolver CLI reads `{"command":"git commit -m x","cwd":"/path/to/project"}` on stdin and prints a target path or `SKIP` (exit 0; unreadable input exits 2); `--hook` accepts Claude's unchanged payload and checks the branch. No Python dependency is needed for either guard.
 The omp lint adapter appends errors to tool-result content because the wrapper may discard `isError`; the Claude hook feeds schema errors back through exit 2. Shared validation retains duplicate-ID, closure-evidence, and active-versus-archive checks, and mechanically enforces the active G-entry shape in `rule://records`; archive entries are exempt from the length and trigger-shape checks.
-In multi-repo projects, lint also covers member active plans and local ledgers. The commit guard resolves `git -C <member>` or a leading `cd <member> &&` against the tool cwd before the session cwd.
+In multi-repo projects, lint also covers member active plans and local ledgers. The shared guard follows every `cd`/`pushd` segment and accumulates relative `git -C` options from that effective cwd; absolute paths reset it. Inline shells, eval, substitutions, and shell heredocs inherit that cwd; unknown `cd` destinations (no argument or `-`) fall back to the tool cwd.
 
 ## Adapt text and add project harness entries
 Adapt vocabulary, paths, commands, conventions, and role descriptions while retaining authority, evidence, and structural contracts. Do not use a kit change to bypass a project decision or a failed check. Keep the smallest scope; a review fix to kit-owned files remains maintenance work, not an executor self-edit exception.

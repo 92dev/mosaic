@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { deepStrictEqual, ok, strictEqual } from "node:assert";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { install } from "../../kit/install.ts";
@@ -49,6 +49,23 @@ try {
 		put(file, original);
 	}
 	console.log("PASS placeholders: project assets excluded; harness text defects rejected");
+
+	mkdirSync(join(scratch, "etc"));
+	writeFileSync(join(scratch, "etc/hosts"), "outside the installed root\n");
+	put("docs/containment.md", "[outside](../../etc/hosts)\n");
+	ok(run([bun, "tools/doctor.ts"], 1).includes("unresolved ../../etc/hosts (../etc/hosts) (outside repository)"));
+	mkdirSync(`${target}-outside`);
+	writeFileSync(join(`${target}-outside`, "entry"), "a sibling sharing the root prefix\n");
+	symlinkSync(join(`${target}-outside`, "entry"), join(target, "docs/escape-target"));
+	put("docs/containment.md", "[outside symlink](escape-target)\n");
+	ok(run([bun, "tools/doctor.ts"], 1).includes("(outside repository)"));
+	rmSync(join(target, "docs/escape-target"));
+	symlinkSync(join(target, "AGENTS.md"), join(target, "docs/inside-target"));
+	put("docs/containment.md", "[inside symlink](inside-target)\n");
+	run([bun, "tools/doctor.ts"], 0);
+	rmSync(join(target, "docs/inside-target"));
+	rmSync(join(target, "docs/containment.md"));
+	console.log("PASS doctor containment: parent escape and sibling-prefix symlink rejected; internal symlink accepted");
 
 	put(".claude/skills/project-only/SKILL.md", "---\nname: project-only\n---\nArchive the ledger using {{PROJECT_SYNTAX}}.\n" + "Retain this project instruction.\n".repeat(125));
 	put(".omp/agents/project-only.md", "---\nname: project-only\n---\nRead skill://project-only and rule://project-only.\n" + "Retain this project instruction.\n".repeat(65));
@@ -151,9 +168,15 @@ try {
 		check(reviewBody(`${first}\n- T1 R2 claude-reviewer: REVISE (1 findings)`), 1, "T1 R2 claude-reviewer");
 		check(reviewBody(attributed.replace(second, second.replace("R2", "R3"))), 1, "T1 R2 claude-reviewer");
 		check(reviewBody("- T1 R2 claude-reviewer: REVISE (1 findings)", "executing"), 0);
+		const complete = reviewBody("", "draft");
+		check(complete.replace("## Context\n", "## Contextual\n"), 1, "missing required section: '## Context'");
+		check(complete.replace("## Context\n", "The ## Context section is discussed here.\n"), 1, "missing required section: '## Context'");
+		check(complete.replace("### Unverified\n", "### Unverified assumptions\n"), 1, "missing required section: '### Unverified'");
+		check(complete.replace("### Unverified\n", "A ### Verification gaps section is discussed here.\n"), 1, "missing required section: '### Unverified'");
+		check(complete.replace("## Context\n", "## Context \t\n").replace("### Unverified\n", "### Verification gaps \t\n"), 0);
 	}
 	rmSync(join(target, reviewPlan));
-	console.log("PASS both lint ports: attributed findings, exact later round counts, merged reviewer rejection, docs/code classes");
+	console.log("PASS both lint ports: whole-line required headings, attributed findings, exact later round counts, merged reviewer rejection, docs/code classes");
 
 	const gaps = readFileSync(join(target, "docs/gaps.md"), "utf8");
 	const gapBody = (trigger: string) => [
@@ -192,6 +215,23 @@ try {
 	deepStrictEqual(triggered.cannotEvaluate, []);
 	deepStrictEqual(triggered.findings.filter((finding: { class: string }) => finding.class === "stale-trigger").map((finding: { path: string; detail: string }) => [finding.path, finding.detail.split(" ")[0]]), [["docs/gaps.md", "G-999"]]);
 	console.log("PASS monorepo root stale-trigger evaluation");
+
+	writeFileSync(join(scratch, "outside"), "outside the installed root\n");
+	put("proof/inside", "inside the installed root\n");
+	symlinkSync(join(scratch, "outside"), join(target, "proof/escape"));
+	for (const [trigger, missing] of [
+		["../outside", true], ["../target-outside/*", true], ["proof/escape", true],
+		["proof/esc*", true], ["proof/inside", false], ["../target/proof/inside", false],
+	] as const) {
+		put("docs/gaps.md", `${gaps}\n${gapBody(`\`${trigger}\` is added`)}`);
+		const result = JSON.parse(run([bun, "tools/checkup.ts", "--json"], 1));
+		deepStrictEqual(result.cannotEvaluate, []);
+		strictEqual(result.findings.some((finding: { class: string; detail: string }) =>
+			finding.class === "stale-trigger" && finding.detail.startsWith("G-999 ")), missing, trigger);
+	}
+	rmSync(join(target, "proof"), { recursive: true });
+	put("docs/gaps.md", gaps);
+	console.log("PASS trigger containment: external paths/globs/symlinks never match; in-root targets match");
 
 	put("impact.md", "---\nplan: 0001\nrepo: link-repo\nareas: [contract:export_rows]\n---\n# Impact probe\n");
 	put("docs/prd/legacy.md", "# Existing PRD without metadata\n");

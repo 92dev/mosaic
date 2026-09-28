@@ -230,6 +230,7 @@ Run these from the installed project root:
 | `bun tools/doctor.ts` | Harness structural checks; exit 0 / 1 / 2 means pass / fail / cannot evaluate |
 | `bun tools/checkup.ts --json` | Lint, doctor, and document/plan/trigger drift sweep |
 | `bun tools/docimpact.ts <plan-path>` | Document-impact candidates to inspect, not automatic edit instructions |
+| `bun tools/guard-main.ts` | Shared commit-target resolver for both guard adapters; JSON stdin → target path or `SKIP`; `--hook` checks Claude hook payloads |
 | `tools/tracker.ts` (`local` only) | Offline inventory/intent operations; commands and safety gates live in the [tracker rule](docs/process/tracker.md) |
 | `bun .omp/hooks/post/lint-ledgers.ts <path>` | Governed registry/plan lint when using omp |
 | `bash .claude/hooks/lint-ledgers.sh <path>` | Governed registry/plan lint when using Claude Code |

@@ -3,6 +3,7 @@
 // Exit 0: all hard checks pass; 1: failed checks; 2: a check cannot evaluate.
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { realpathWithinRoot } from "./root-containment.ts";
 
 type Outcome = "FAIL" | "WARN" | "CANNOT-EVALUATE";
 const counts = { FAIL: 0, WARN: 0, "CANNOT-EVALUATE": 0 };
@@ -159,7 +160,11 @@ for (const [file, max] of budgets) {
 // A missing reference target is a failure; an unreadable source cannot be evaluated.
 function reference(source: string, target: string, label: string, line: number, directoryOK = false): void {
 	try {
-		const real = fs.realpathSync(path.resolve(root, target));
+		const real = realpathWithinRoot(root, path.resolve(root, target));
+		if (real === null) {
+			finding("FAIL", "references", source, `line ${line}: unresolved ${label} (${target}) (outside repository)`);
+			return;
+		}
 		if (!directoryOK && !fs.statSync(real).isFile()) throw new Error("target is not a file");
 	} catch {
 		finding("FAIL", "references", source, `line ${line}: unresolved ${label} (${target})`);
@@ -213,11 +218,11 @@ for (const port of [".omp", ".claude"] as const) {
 }
 
 const ompGuard = text("guard-config", ".omp/hooks/pre/guard-main.ts");
-const claudeGuard = text("guard-config", ".claude/hooks/guard-main.sh");
-if (ompGuard !== undefined && claudeGuard !== undefined) {
+const sharedGuard = text("guard-config", "tools/guard-main.ts");
+if (ompGuard !== undefined && sharedGuard !== undefined) {
 	const ompConfig = /^const CONFIG_PATH = "([^"]+)";$/m.exec(ompGuard)?.[1];
-	const claudeConfig = /^config_path="([^"]+)"$/m.exec(claudeGuard)?.[1];
-	if (ompConfig !== configPath || claudeConfig !== configPath) {
+	const sharedConfig = /^const CONFIG_PATH = "([^"]+)";$/m.exec(sharedGuard)?.[1];
+	if (ompConfig !== configPath || sharedConfig !== configPath) {
 		finding("FAIL", "guard-config", configPath, "an installed commit guard does not read the configured default branch");
 	}
 }
