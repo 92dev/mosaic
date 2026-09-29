@@ -290,8 +290,10 @@ function matchesTarget(target: string): boolean {
 }
 // A bare (unquoted) slash token is a path candidate only when it is shaped like one: an explicit relative or
 // absolute prefix, a glob, a file extension, or a first segment that exists as a directory in some repo root.
-// Prose such as `headed/GPU` or `either/or` never names a trigger target; backticked tokens are always candidates.
+// Prose such as `headed/GPU` or `either/or`, and the lone `/` between two backticked spans (`a`/`b`), never name
+// a trigger target; backticked tokens are always candidates.
 function pathShaped(target: string): boolean {
+	if (!/[^/]/.test(target)) return false;
 	if (/^(?:\.{1,2}\/|\/)/.test(target) || target.includes("*") || /\.[a-z0-9]+$/i.test(target)) return true;
 	const first = target.split("/")[0]!;
 	return first !== "" && repos.some(repo => fs.existsSync(path.join(root, repo, first)));

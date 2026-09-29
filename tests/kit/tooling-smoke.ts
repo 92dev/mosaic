@@ -251,7 +251,7 @@ try {
 	put("docs/gaps.md", gaps);
 	console.log("PASS trigger containment: external paths/globs/symlinks never match; in-root targets match");
 	// Bare prose with slashes is not a path; quoted tokens and path-shaped bare tokens still are.
-	put("docs/gaps.md", `${gaps}\n${gapBody("headed/GPU runners exist, the category/link/view-range check lands, or apps/missing/*.ts appears")}`);
+	put("docs/gaps.md", `${gaps}\n${gapBody("headed/GPU runners exist, the \`server-fold\`/\`server-pdf\` split lands, the category/link/view-range check lands, or apps/missing/*.ts appears")}`);
 	const prose = JSON.parse(run([bun, "tools/checkup.ts", "--json"], 1));
 	deepStrictEqual(prose.cannotEvaluate, []);
 	deepStrictEqual(prose.findings.filter((finding: { class: string }) => finding.class === "stale-trigger").map((finding: { detail: string }) => finding.detail.split(";")[0]),
