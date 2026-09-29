@@ -77,6 +77,8 @@ try {
 	put("docs/archived/docs/product/legacy.md", "# Old product without metadata\n\nOldContract cites plan 0042.\n");
 	put("docs/archived/docs/gaps.md", "# Unstructured old gaps and defects\n");
 	put("docs/history.md", "[plan 0042 and D9](archived/docs/old/x.md)\n");
+	// Architecture source records are Archive class too (rule://records): their stale links never fail doctor or checkup.
+	put("docs/architecture/source/bakeoff/README.md", "# Frozen bake-off\n\n[superseded plan](../../../plans/0042-gone.md) cites D9.\n");
 	run([bun, "tools/doctor.ts"], 0);
 	deepStrictEqual(JSON.parse(run([bun, "tools/checkup.ts", "--json"], 0)), { findings: [], cannotEvaluate: [] });
 	put("archive-impact.md", "---\nplan: \"0042\"\nrepo: link-repo\nareas: [contract:OldContract]\n---\n# Impact probe\n");
@@ -248,6 +250,14 @@ try {
 	rmSync(join(target, "proof"), { recursive: true });
 	put("docs/gaps.md", gaps);
 	console.log("PASS trigger containment: external paths/globs/symlinks never match; in-root targets match");
+	// Bare prose with slashes is not a path; quoted tokens and path-shaped bare tokens still are.
+	put("docs/gaps.md", `${gaps}\n${gapBody("headed/GPU runners exist, the category/link/view-range check lands, or apps/missing/*.ts appears")}`);
+	const prose = JSON.parse(run([bun, "tools/checkup.ts", "--json"], 1));
+	deepStrictEqual(prose.cannotEvaluate, []);
+	deepStrictEqual(prose.findings.filter((finding: { class: string }) => finding.class === "stale-trigger").map((finding: { detail: string }) => finding.detail.split(";")[0]),
+		["G-999 Trigger matches nothing in the link or member repos: apps/missing/*.ts"]);
+	put("docs/gaps.md", gaps);
+	console.log("PASS trigger prose: bare slash words ignored; path-shaped bare tokens evaluated");
 
 	put("impact.md", "---\nplan: 0001\nrepo: link-repo\nareas: [contract:export_rows]\n---\n# Impact probe\n");
 	put("docs/prd/legacy.md", "# Existing PRD without metadata\n");

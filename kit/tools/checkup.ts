@@ -99,7 +99,7 @@ if (!monorepo && !members.length) {
 const repos = ["", ...members];
 for (const repo of repos) collect(repo ? `${repo}/docs` : "docs");
 const planArchive = (file: string) => /(?:^|\/)docs\/plans\/archived\//.test(file);
-const frozen = (file: string) => planArchive(file) || /(?:^|\/)docs\/(?:gaps-archive\.md$|architecture\/archived\/)/.test(file);
+const frozen = (file: string) => planArchive(file) || /(?:^|\/)docs\/(?:gaps-archive\.md$|architecture\/(?:archived|source)\/)/.test(file);
 
 function run(script: string, args: string[], kind: CheckClass): SpawnSyncReturns<string> | undefined {
 	if (!fs.existsSync(path.join(root, script))) {
@@ -203,7 +203,7 @@ function planCitations(file: string, line: string, index: number): string[] {
 	return ids;
 }
 for (const [file, lines] of markdown) {
-	if (planArchive(file)) continue;
+	if (frozen(file)) continue;
 	for (const [index, line] of lines.entries()) {
 		for (const id of new Set([...(line.match(/\b(?:D\d+|G-\d+|P-\d+)\b/g) ?? []), ...planCitations(file, line, index)])) {
 			if (id.startsWith("D") && !/(?:^|\/)docs\/(?:architecture\/|plans\/|gaps[^/]*\.md$|product\/|process\/)/.test(file)) continue;
@@ -288,6 +288,14 @@ function matchesTarget(target: string): boolean {
 	}
 	return false;
 }
+// A bare (unquoted) slash token is a path candidate only when it is shaped like one: an explicit relative or
+// absolute prefix, a glob, a file extension, or a first segment that exists as a directory in some repo root.
+// Prose such as `headed/GPU` or `either/or` never names a trigger target; backticked tokens are always candidates.
+function pathShaped(target: string): boolean {
+	if (/^(?:\.{1,2}\/|\/)/.test(target) || target.includes("*") || /\.[a-z0-9]+$/i.test(target)) return true;
+	const first = target.split("/")[0]!;
+	return first !== "" && repos.some(repo => fs.existsSync(path.join(root, repo, first)));
+}
 for (const repo of repos) {
 	const file = `${repo ? `${repo}/` : ""}docs/gaps.md`;
 	const content = repo ? docs.get(file) : read(file, ["stale-trigger"]);
@@ -300,7 +308,9 @@ for (const repo of repos) {
 		const trigger = /^[ \t]*(?:[-*][ \t]+)?(?:\*\*)?(?:Trigger[^*:\r\n]*|when):(?:\*\*)?[ \t]*(.*)$/i.exec(line);
 		if (!id || !trigger) continue;
 		const targets = new Set([...trigger[1]!.matchAll(/`([^`]+)`|([^\s`<>"()]*\/[^\s`<>"()]*)/g)]
-			.map(match => (match[1] ?? match[2]!).replace(/[.,;:]+$/, "")).filter(target => target.includes("/") && !/^[a-z][\w+.-]*:\/\//i.test(target)));
+			.map(match => ({ target: (match[1] ?? match[2]!).replace(/[.,;:]+$/, ""), quoted: match[1] !== undefined }))
+			.filter(({ target, quoted }) => target.includes("/") && !/^[a-z][\w+.-]*:\/\//i.test(target) && (quoted || pathShaped(target)))
+			.map(({ target }) => target));
 		const missing: string[] = [];
 		for (const target of targets) {
 			try { if (!matchesTarget(target)) missing.push(target); }

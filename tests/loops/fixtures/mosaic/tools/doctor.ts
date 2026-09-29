@@ -64,8 +64,9 @@ function files(check: string, dir: string, recursive = true): string[] {
 	const result: string[] = [];
 	for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
 		const file = `${dir}/${entry.name}`;
-		// Historical sources are frozen; active links into them still resolve normally.
-		if (/(?:^|\/)docs\/(?:plans\/)?archived(?:\/|$)/.test(file)) continue;
+		// Historical sources are frozen (rule://records Archive class: docs/archived, plans/archived, architecture
+		// source records); active links into them still resolve normally.
+		if (/(?:^|\/)docs\/(?:(?:plans\/)?archived|architecture\/(?:archived|source))(?:\/|$)/.test(file)) continue;
 		if (entry.isDirectory()) {
 			if (recursive && entry.name !== ".git" && entry.name !== "node_modules"
 				&& !fs.existsSync(path.join(root, file, ".git"))) result.push(...files(check, file));
