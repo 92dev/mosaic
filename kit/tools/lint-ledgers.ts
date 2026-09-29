@@ -16,11 +16,10 @@ const REQUIRED_SECTIONS = [
 ] as const;
 
 const GAP_ENTRY = /^- \*\*(G-\d+) ·/;
+// Structure only: a trigger field starts its own line. Whether its condition is a legitimate
+// self-firing trigger (versus first use, a report, a device becoming available) is a judgment
+// for the author under rule://records and for /mosaic-gap-audit's REROUTE verdict, never a regex.
 const TRIGGER_LINE = /^[ \t]*(?:[-*][ \t]+)?(?:\*\*)?(Trigger[^*:\r\n]*|when):(?:\*\*)?[ \t]*(.*)$/gim;
-const TRIGGER_TARGET = /[/*]|\.(?:py|md)\b|\b\d{4}\b|\b(?:lands|added|merges|migrates|moves\s+to|gains|changes)\b/i;
-const ACTIVE_TRIGGER_TARGET = /[/*]|\.[a-z][a-z\d]*\b|\b0\d{3}\b|\bplan[ \t]+\d{4}\b/i;
-const TRIGGER_EVENT = /\bwhen[ \t]+(?:[a-z][\w-]*[ \t]+)+(?:lands|added|merges|migrates|moves[ \t]+to|gains|changes|exists|occurs|happens|completes|begins|ends)\b/i;
-const FIRST_USE_TRIGGER = /\bfirst\s+(?:operator\s+|authorized\s+)?(?:run|use|execution|operation|time)\b|\bwhen (?:someone|an operator|a human)\b/i;
 const ANY_ENTRY = /^- \*\*/;
 const LEDGER_ROW = /^\| *\[?(\d{4})\]?/;
 const STATUS_CELL = new RegExp(`\\| *(${STATUS_ENUM.join("|")}) *\\|`);
@@ -124,30 +123,28 @@ function gapEntries(content: string, active = false): { id: string; body: string
 	return out;
 }
 
-function triggerErrors(id: string, body: string, active = false): string[] {
-	let checkable = false;
+function triggerErrors(id: string, body: string): string[] {
 	for (const match of body.matchAll(TRIGGER_LINE)) {
-		const value = match[2]!.trim();
-		const trigger = match[1]!.toLowerCase() === "when" ? `when ${value}` : value;
-		if (active && FIRST_USE_TRIGGER.test(trigger)) {
-			checkable = false;
-			break;
-		}
-		checkable ||= active
-			? ACTIVE_TRIGGER_TARGET.test(trigger) || TRIGGER_EVENT.test(trigger)
-			: TRIGGER_TARGET.test(trigger);
+		if (match[2]!.trim() !== "") return [];
 	}
-	if (checkable) return [];
-	return [active
-		? `${id}: trigger is a first-use condition; unexercised verification belongs in the plan's Unverified section (rule://records)`
-		: `${id} has no checkable Trigger:/when: — name a path/glob, plan NNNN, or event (lands, added, merges, migrates, moves to, gains, changes)`];
+	return [`${id} has no Trigger:/when: line naming its condition — a gap is a conditional obligation; put the condition on its own line (rule://records)`];
 }
 
+/** A split dossier is the whole body of one gap: its trigger line may sit anywhere in the file, not only inside a quoted registry row. */
 function validateGapBody(content: string, abs: string): string[] {
-	const entries = gapEntries(content);
-	if (entries.length > 0) return entries.flatMap(({ id, body }) => triggerErrors(id, body));
-	const id = /^#+\s+(?:\*\*)?(G-\d+)\b/m.exec(content)?.[1] ?? /\b(G-\d+)\b/.exec(path.basename(abs))?.[1];
-	return id ? triggerErrors(id, content) : [];
+	const id = /^#+\s+(?:\*\*)?(G-\d+)\b/m.exec(content)?.[1]
+		?? /\b(G-\d+)\b/.exec(path.basename(abs))?.[1]
+		?? idsMatching(content, GAP_ENTRY)[0];
+	if (!id) return [];
+	// The dossier of an archived gap is frozen history (rule://records), not an active obligation to shape-check.
+	let archive = "";
+	try {
+		archive = fs.readFileSync(path.join(path.dirname(abs), "..", "gaps-archive.md"), "utf8");
+	} catch {
+		// fail-open: archive absent
+	}
+	if (idsMatching(archive, GAP_ENTRY).includes(id)) return [];
+	return triggerErrors(id, content);
 }
 
 function planSection(content: string, heading: string): string {
@@ -251,8 +248,8 @@ function validateGaps(content: string, archive: boolean): string[] {
 			continue;
 		}
 		const missing: string[] = [];
-		// Qualified Trigger fields and plain/bold when fields share the same trigger check.
-		errors.push(...triggerErrors(id, body, true));
+		// Qualified Trigger fields and plain/bold when fields share the same structural check.
+		errors.push(...triggerErrors(id, body));
 		if (!/\*\*Status:\*\*/.test(body)) missing.push("**Status:**");
 		// SPLIT rows (`/mosaic-gap-audit` step 3) hold only id + summary + trigger + link here; the full
 		// body — including provenance — lives in docs/gaps/G-<n>-<slug>.md. Requiring provenance on

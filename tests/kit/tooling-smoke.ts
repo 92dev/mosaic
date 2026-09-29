@@ -191,7 +191,7 @@ try {
 	].join("\n");
 	const fixtureGaps = readFileSync(new URL("../loops/fixtures/mosaic/docs/gaps.md", import.meta.url), "utf8");
 	const gapsArchive = readFileSync(join(target, "docs/gaps-archive.md"), "utf8");
-	const firstUseDiagnostic = "G-999: trigger is a first-use condition; unexercised verification belongs in the plan's Unverified section (rule://records)";
+	const noTriggerDiagnostic = "G-999 has no Trigger:/when: line naming its condition";
 	for (const command of [[bun, "tools/lint-ledgers.ts"], [bun, ".omp/hooks/post/lint-ledgers.ts"], ["bash", ".claude/hooks/lint-ledgers.sh"]]) {
 		const check = (body: string, code: number, diagnostic = "", file = "docs/gaps.md") => {
 			put(file, body);
@@ -200,15 +200,31 @@ try {
 			if (diagnostic) ok(result.stderr.toString().includes(diagnostic), result.stderr.toString());
 		};
 		check(longGap, 1, "G-999: entry has 15 lines; at most four (rule://records)");
-		check(gapBody("the first operator run of each runbook in docs/runbooks/*.md"), 1, firstUseDiagnostic);
+		// Legitimacy is a judgment (records routing, gap-audit REROUTE), never a regex: shape-valid first-use text passes.
+		check(gapBody("the first operator run of each runbook in docs/runbooks/*.md"), 0);
+		check(gapBody("when someone wants it"), 0);
+		check(gapBody(""), 1, noTriggerDiagnostic);
 		check(fixtureGaps, 0);
 		check(`${gapBody("plan 0004 lands")}\n  \n## Notes\nOutside the entry.\n`, 0);
 		check(gapBody("plan 0004 lands").replace("  Recheck", "\n  Recheck"), 1, "G-999: entry has 5 lines; at most four (rule://records)");
-		check(gapBody("plan 0004 lands").replace("  when: plan 0004 lands\n", "") + "\n## Notes\nwhen: plan 0004 lands\n", 1, firstUseDiagnostic);
+		check(gapBody("plan 0004 lands").replace("  when: plan 0004 lands\n", "") + "\n## Notes\nwhen: plan 0004 lands\n", 1, noTriggerDiagnostic);
 		check(longGap.replace("G-999", "G-998").replace("plan 0004 lands", "the first operator run of each runbook").replace("**Status:** open.", "**Status:** closed by 0004."), 0, "", "docs/gaps-archive.md");
 	}
+	// Split dossiers: the archived G-998 above is frozen history; an active dossier needs a trigger line anywhere, not only in a quoted row.
+	put("docs/gaps/G-998-frozen.md", "# G-998 · Frozen dossier\nHistory only; no trigger line.\n");
+	put("docs/gaps/G-999-active.md", "# G-999 · Active dossier\n- **G-999 · Recheck the runbooks** — quoted row with an inline **Trigger:** copy.\n\n**Trigger:** plan 0004 lands.\n");
+	put("docs/gaps/G-997-untriggered.md", "# G-997 · Active dossier without a trigger\nBody only.\n");
+	for (const command of [[bun, "tools/lint-ledgers.ts"], [bun, ".omp/hooks/post/lint-ledgers.ts"], ["bash", ".claude/hooks/lint-ledgers.sh"]]) {
+		run([...command, "docs/gaps/G-998-frozen.md"], 0);
+		run([...command, "docs/gaps/G-999-active.md"], 0);
+		const result = Bun.spawnSync([...command, "docs/gaps/G-997-untriggered.md"], { cwd: target, stdout: "pipe", stderr: "pipe" });
+		strictEqual(result.exitCode, 1, result.stderr.toString());
+		ok(result.stderr.toString().includes("G-997 has no Trigger:/when: line naming its condition"), result.stderr.toString());
+	}
+	rmSync(join(target, "docs/gaps"), { recursive: true });
+	console.log("PASS split dossiers: archived ids frozen, trigger line anywhere in an active dossier, untriggered dossier rejected");
 	put("docs/gaps-archive.md", gapsArchive);
-	console.log("PASS all lint entrypoints: 15-line rejection, first-use rejection, fixture G-1..G-3, four-line plan trigger, physical-line boundaries, archive exemption");
+	console.log("PASS all lint entrypoints: 15-line rejection, shape-only trigger line, fixture G-1..G-3, four-line plan trigger, physical-line boundaries, archive exemption");
 
 	put("docs/gaps.md", `${gaps}\n- **G-999 · Missing path**\n  **Trigger:** when \`missing/docs/**\` is added.\n  Recheck the path once it exists; it cannot be checked now.\n  **From:** smoke. **Status:** open.\n`);
 	const triggered = JSON.parse(run([bun, "tools/checkup.ts", "--json"], 1));

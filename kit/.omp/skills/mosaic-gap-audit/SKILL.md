@@ -1,6 +1,6 @@
 ---
 name: mosaic-gap-audit
-description: Re-check active gaps against current code, propose evidenced KEEP/UPDATE/ARCHIVE/SPLIT/STALE-TRIGGER verdicts, apply them after human sign-off; never mints entries. Argument: G-ids, diff, branch, plan, or all.
+description: Re-check active gaps against current code, propose evidenced KEEP/UPDATE/ARCHIVE/SPLIT/STALE-TRIGGER/REROUTE verdicts, apply them after human sign-off; never mints entries. Argument: G-ids, diff, branch, plan, or all.
 ---
 # /mosaic-gap-audit — Re-check active gaps
 
@@ -24,8 +24,9 @@ This skill never mints a G-entry. In ordinary project work new obligations are b
    - `ARCHIVE`: fully discharged; propose moving it to `docs/gaps-archive.md` with `closed by NNNN (<landed hash>)`, citing the plan that discharged it and what solved it, per `rule://verification`.
    - `SPLIT`: about 15+ lines or 3+ `Extended by` additions; propose moving its full body to `docs/gaps/G-<n>-<slug>.md`, creating the directory on first use, and leaving a one-line row with id, summary, trigger, and link.
    - `STALE-TRIGGER`: its `when:` names nothing that exists. Cite the failed path/glob/plan/event lookup; propose a supported correction or ask for a ruling. A stale trigger alone does not prove the obligation discharged.
+   - `REROUTE`: not an obligation as written — its trigger does not fire on its own (first use, a device/host/human becoming available, a report, a measurement crossing a line, someone wanting it), or the entry is really a defect, a settled ruling, or an open question. This is your judgment, not lint's: lint checks only the entry's shape. Propose moving it to `docs/gaps-archive.md` with `**Status:** archived — rerouted to <destination>`, naming the destination per `rule://records` (the owning plan's Unverified section, a defect repair, a D#, an open question).
    Route findings per `rule://records`.
 5. **Present** gap → verdict → evidence to the human. Wait for sign-off before applying any proposed change.
 6. Read `rule://records`; read `rule://git-flow`.
-   **Apply signed-off dispositions:** a standalone `docs/gaps-eval-<yyyymmdd>` branch applies only signed-off `UPDATE` / `SPLIT` / `STALE-TRIGGER` corrections. Apply an `ARCHIVE` closure only from a plan's registry sync; when called from `/mosaic-execute`, use its registry-sync branch and commit for all approved dispositions. Preserve ids and history. Leave unresolved stale triggers visible.
+   **Apply signed-off dispositions:** a standalone `docs/gaps-eval-<yyyymmdd>` branch applies only signed-off `UPDATE` / `SPLIT` / `STALE-TRIGGER` / `REROUTE` corrections. Apply an `ARCHIVE` closure only from a plan's registry sync; when called from `/mosaic-execute`, use its registry-sync branch and commit for all approved dispositions. Preserve ids and history. Leave unresolved stale triggers visible.
 7. Read `rule://records`; read `rule://git-flow`. **Lint and land:** run ledger lint for the changed registry files, resolve failures, and land using the git-flow procedure; inside `/mosaic-execute`, return the results for its close-out.
