@@ -117,7 +117,7 @@ const registries = new Set(["docs/gaps.md", "docs/gaps-archive.md", "docs/archit
 	...members.map(repo => `${repo}/docs/plans/README.md`)]);
 for (const file of docs.keys()) {
 	if (/(?:^|\/)docs\/(?:gaps(?:-archive)?\.md|gaps\/.*\.md|architecture\/(?:pitfalls|README)\.md)$/.test(file)
-		|| (/(?:^|\/)docs\/plans\/(?:[^/]+\/)*\d{4}-[^/]+\.md$/.test(file) && !planArchive(file) && !file.endsWith("-wire.md"))) registries.add(file);
+		|| (/(?:^|\/)docs\/plans\/(?:[^/]+\/)*\d{4}-[^/]+\.md$/.test(file) && !planArchive(file) && !/(?:^|\/)docs\/plans\/evidence\//.test(file) && !file.endsWith("-wire.md"))) registries.add(file);
 }
 for (const file of [...registries].sort()) {
 	if (read(file, ["lint"]) === undefined) continue;

@@ -135,8 +135,15 @@ try {
 		run([...command, "docs/plans/program.md"], 2);
 		put("docs/plans/0881-probe.md", "---\nstatus: draft\n---\n# Incomplete numbered plan\n");
 		run([...command, "docs/plans/0881-probe.md"], 1);
+		// Retained evidence artifacts under docs/plans/evidence/ are not lifecycle plans, even with a NNNN- name.
+		put("docs/plans/evidence/0881/session/0881-design-memo.md", "# Design memo kept as evidence\n");
+		run([...command, "docs/plans/evidence/0881/session/0881-design-memo.md"], 2);
 	}
-	console.log("PASS both lint ports: project programs unsupported; numbered plans still schema-gated");
+	rmSync(join(target, "docs/plans/0881-probe.md"));
+	const evidenceScan = Bun.spawnSync([bun, "tools/checkup.ts", "--json"], { cwd: target, stdout: "pipe", stderr: "pipe" });
+	ok(!JSON.parse(evidenceScan.stdout.toString()).findings.some((finding: { path: string }) => finding.path.startsWith("docs/plans/evidence/")), evidenceScan.stdout.toString());
+	rmSync(join(target, "docs/plans/evidence"), { recursive: true });
+	console.log("PASS both lint ports: project programs and evidence artifacts unsupported; numbered plans still schema-gated");
 
 	const reviewPlan = "docs/plans/0884-review-attribution.md";
 	const reviewBody = (log: string, status = "review", taskClass = "docs") => [

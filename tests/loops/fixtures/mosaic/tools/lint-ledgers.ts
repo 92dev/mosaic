@@ -42,6 +42,8 @@ function classify(file: string): Kind | undefined {
 	if (at("docs/plans/README.md")) return "ledger";
 
 	if (!norm.includes("/docs/plans/") && !norm.startsWith("docs/plans/")) return undefined;
+	// Retained verification artifacts under docs/plans/evidence/ are evidence, not lifecycle documents.
+	if (norm.includes("/docs/plans/evidence/") || norm.startsWith("docs/plans/evidence/")) return undefined;
 	const base = norm.slice(norm.lastIndexOf("/") + 1);
 	if (base === "TEMPLATE.md") return undefined;
 	if (base.endsWith("-wire.md")) return undefined; // wire annexes are frozen contracts, not lifecycle docs
