@@ -130,6 +130,37 @@ try {
 	]);
 	console.log("PASS citations: explicit plan cues, ADR exclusions, indexed D scope, unchanged G/P");
 
+	// Retired decisions and pitfalls keep resolving; reserved numbers resolve from their map row; lint keeps ids unique across active and archive.
+	const decisionsArchive = readFileSync(join(target, "docs/architecture/decisions-archive.md"), "utf8");
+	const pitfallsArchive = readFileSync(join(target, "docs/architecture/pitfalls-archive.md"), "utf8");
+	const pitfalls = readFileSync(join(target, "docs/architecture/pitfalls.md"), "utf8");
+	put("docs/architecture/README.md", `${index}\n| D1 | Default | decision.md |\n| D2 | Reserved by plan 0881 — settlement | — |\n`);
+	put("docs/architecture/decisions-archive.md", `${decisionsArchive}| D3 | Retired choice | [archived/decision.md](archived/decision.md#d3--retired-choice) |\n`);
+	put("docs/architecture/archived/decision.md", "# Decisions (retired)\n\n### D3 — Retired choice\n**Archived:** superseded by D1.\n");
+	put("docs/architecture/pitfalls-archive.md", `${pitfallsArchive}- **P-997 · Old trap.** Retired text.\n  **Archived:** subject removed by plan 0881.\n`);
+	put("docs/analysis/citations.md", "D2 D3 P-997 all resolve.\n");
+	const archives = JSON.parse(run([bun, "tools/checkup.ts", "--json"], 1));
+	deepStrictEqual(archives.cannotEvaluate, []);
+	ok(!archives.findings.some((finding: { path: string }) => finding.path === "docs/analysis/citations.md"), JSON.stringify(archives.findings));
+	for (const command of [[bun, ".omp/hooks/post/lint-ledgers.ts"], ["bash", ".claude/hooks/lint-ledgers.sh"]]) {
+		run([...command, "docs/architecture/pitfalls-archive.md"], 0);
+		run([...command, "docs/architecture/decisions-archive.md"], 0);
+		put("docs/architecture/pitfalls-archive.md", `${pitfallsArchive}- **P-997 · Old trap.** Retired text without a reason.\n`);
+		run([...command, "docs/architecture/pitfalls-archive.md"], 1);
+		put("docs/architecture/pitfalls-archive.md", `${pitfallsArchive}${pitfalls.match(/^- \*\*P-\d+ ·.*$/m)![0]}\n  **Archived:** duplicate probe.\n`);
+		run([...command, "docs/architecture/pitfalls-archive.md"], 1);
+		run([...command, "docs/architecture/pitfalls.md"], 1);
+		put("docs/architecture/decisions-archive.md", `${decisionsArchive}| D1 | Duplicate of the active map | archived/decision.md |\n`);
+		run([...command, "docs/architecture/decisions-archive.md"], 1);
+		run([...command, "docs/architecture/README.md"], 1);
+		put("docs/architecture/pitfalls-archive.md", pitfallsArchive);
+		put("docs/architecture/decisions-archive.md", decisionsArchive);
+	}
+	rmSync(join(target, "docs/architecture/archived"), { recursive: true });
+	put("docs/architecture/README.md", `${index}\n| D1 | Default | decision.md |\n`);
+	put("docs/analysis/citations.md", "D7 is local; plan 0777 is not.\nG-998 and P-998 keep their namespaces.\n");
+	console.log("PASS record archives: retired D/P and reserved D resolve; archive reason required; ids unique across active and archive");
+
 	put("docs/plans/program.md", "# Existing project program, not a kit lifecycle plan\n");
 	for (const command of [[bun, ".omp/hooks/post/lint-ledgers.ts"], ["bash", ".claude/hooks/lint-ledgers.sh"]]) {
 		run([...command, "docs/plans/program.md"], 2);

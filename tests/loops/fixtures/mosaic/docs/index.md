@@ -5,6 +5,7 @@
 | [architecture/README.md](architecture/README.md) | Architecture index, decisions, extension rules | Orienting or making a technical proposal |
 | [architecture/export.md](architecture/export.md) | CSV defaults and empty-input behavior | Changing the export API or its tests |
 | [architecture/pitfalls.md](architecture/pitfalls.md) | Known traps | Selected by the procedure in `rule://registries` |
+| [architecture/pitfalls-archive.md](architecture/pitfalls-archive.md), [architecture/decisions-archive.md](architecture/decisions-archive.md) | Retired pitfalls and decisions (frozen; numbers never reused) | Following a `P-x`/`D#` citation that is no longer active |
 | [architecture/open-questions.md](architecture/open-questions.md) | Undecided product questions | Resolving product scope |
 | [architecture/roadmap.md](architecture/roadmap.md) | Delivery order and glossary | Checking feature order |
 | [product/README.md](product/README.md) | Product flows, maturity, promotion | Product work or information ingestion |

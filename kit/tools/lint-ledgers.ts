@@ -24,7 +24,7 @@ const ANY_ENTRY = /^- \*\*/;
 const LEDGER_ROW = /^\| *\[?(\d{4})\]?/;
 const STATUS_CELL = new RegExp(`\\| *(${STATUS_ENUM.join("|")}) *\\|`);
 
-type Kind = "plan" | "ledger" | "gaps" | "gapBody" | "gapsArchive" | "pitfalls" | "decisions";
+type Kind = "plan" | "ledger" | "gaps" | "gapBody" | "gapsArchive" | "pitfalls" | "pitfallsArchive" | "decisions" | "decisionsArchive";
 
 /** Classify governed paths by suffix. */
 function classify(file: string): Kind | undefined {
@@ -38,7 +38,9 @@ function classify(file: string): Kind | undefined {
 	if (at("docs/gaps-archive.md")) return "gapsArchive";
 	if (norm.includes("/docs/gaps/") || norm.startsWith("docs/gaps/")) return "gapBody";
 	if (at("docs/architecture/pitfalls.md")) return "pitfalls";
+	if (at("docs/architecture/pitfalls-archive.md")) return "pitfallsArchive";
 	if (at("docs/architecture/README.md")) return "decisions";
+	if (at("docs/architecture/decisions-archive.md")) return "decisionsArchive";
 	if (at("docs/plans/README.md")) return "ledger";
 
 	if (!norm.includes("/docs/plans/") && !norm.startsWith("docs/plans/")) return undefined;
@@ -93,8 +95,8 @@ function dupErrors(ids: readonly string[], label: string): string[] {
 	);
 }
 
-/** Split a registry into `- **G-n ·` blocks. */
-function gapEntries(content: string, active = false): { id: string; body: string; lines: number }[] {
+/** Split a registry into `- **G-n ·` (or, with `marker`, `- **P-n ·`) blocks. */
+function gapEntries(content: string, active = false, marker: RegExp = GAP_ENTRY): { id: string; body: string; lines: number }[] {
 	const out: { id: string; body: string; lines: number }[] = [];
 	let id = "";
 	let buf: string[] = [];
@@ -108,7 +110,7 @@ function gapEntries(content: string, active = false): { id: string; body: string
 	};
 	for (const raw of content.split("\n")) {
 		const line = raw.replace(/\r$/, "");
-		const m = GAP_ENTRY.exec(line);
+		const m = marker.exec(line);
 		if (m?.[1] !== undefined) {
 			flush();
 			id = m[1];
@@ -268,24 +270,47 @@ function validateGaps(content: string, archive: boolean): string[] {
 	return errors;
 }
 
-/** An id must live in exactly one of gaps.md / gaps-archive.md. */
-function crossFileErrors(abs: string, content: string, archive: boolean): string[] {
-	const counterpart = path.join(path.dirname(abs), archive ? "gaps.md" : "gaps-archive.md");
+/** An id must live in exactly one of an active registry and its archive (gaps.md / gaps-archive.md, pitfalls.md / pitfalls-archive.md). */
+function crossFileErrors(abs: string, content: string, archive: boolean, marker: RegExp = GAP_ENTRY, label = "gap", pair: readonly [string, string] = ["gaps.md", "gaps-archive.md"]): string[] {
+	const counterpart = path.join(path.dirname(abs), archive ? pair[0] : pair[1]);
 	let other: string;
 	try {
 		other = fs.readFileSync(counterpart, "utf8");
 	} catch {
 		return []; // fail-open: counterpart absent
 	}
-	const theirs = new Set(idsMatching(other, GAP_ENTRY));
+	const theirs = new Set(idsMatching(other, marker));
 	const where = archive ? "the active registry" : "the archive";
 	const out: string[] = [];
-	for (const id of new Set(idsMatching(content, GAP_ENTRY))) {
+	for (const id of new Set(idsMatching(content, marker))) {
 		if (theirs.has(id)) {
-			out.push(`gap '${id}' is present here AND in ${where} — a gap is either open or closed, never both`);
+			out.push(`${label} '${id}' is present here AND in ${where} — a ${label} is either active or archived, never both`);
 		}
 	}
 	return out;
+}
+
+const PITFALL_ENTRY = /^- \*\*(P-\d+) ·/;
+const PITFALL_PAIR = ["pitfalls.md", "pitfalls-archive.md"] as const;
+
+/** Archived pitfalls keep their text and add an `**Archived:**` reason (superseded, disproved, or subject removed). */
+function validatePitfalls(abs: string, content: string, archive: boolean): string[] {
+	const errors = [...dupErrors(idsMatching(content, PITFALL_ENTRY), "pitfall"), ...crossFileErrors(abs, content, archive, PITFALL_ENTRY, "pitfall", PITFALL_PAIR)];
+	if (!archive) return errors;
+	for (const { id, body } of gapEntries(content, false, PITFALL_ENTRY)) {
+		if (!/\*\*Archived:\*\*/.test(body)) {
+			errors.push(`${id} records no **Archived:** reason — an archived pitfall says what superseded or disproved it (rule://records)`);
+		}
+	}
+	return errors;
+}
+
+const DECISION_ROW = /^\| *(D\d+) *\|/;
+const DECISION_PAIR = ["README.md", "decisions-archive.md"] as const;
+
+/** The active map and the archive map each list a D# at most once, and never both. */
+function validateDecisions(abs: string, content: string, archive: boolean): string[] {
+	return [...dupErrors(idsMatching(content, DECISION_ROW), "decision"), ...crossFileErrors(abs, content, archive, DECISION_ROW, "decision", DECISION_PAIR)];
 }
 
 function subjectFor(kind: Kind, base: string): string {
@@ -302,8 +327,12 @@ function subjectFor(kind: Kind, base: string): string {
 			return `Gaps archive '${base}'`;
 		case "pitfalls":
 			return `Pitfalls catalog '${base}'`;
+		case "pitfallsArchive":
+			return `Pitfalls archive '${base}'`;
 		case "decisions":
 			return `Decision map '${base}'`;
+		case "decisionsArchive":
+			return `Decisions archive '${base}'`;
 	}
 }
 
@@ -320,9 +349,13 @@ function validate(kind: Kind, abs: string, content: string): string[] {
 		case "gapsArchive":
 			return [...validateGaps(content, true), ...crossFileErrors(abs, content, true)];
 		case "pitfalls":
-			return dupErrors(idsMatching(content, /^- \*\*(P-\d+) ·/), "pitfall");
+			return validatePitfalls(abs, content, false);
+		case "pitfallsArchive":
+			return validatePitfalls(abs, content, true);
 		case "decisions":
-			return dupErrors(idsMatching(content, /^\| *(D\d+) *\|/), "decision");
+			return validateDecisions(abs, content, false);
+		case "decisionsArchive":
+			return validateDecisions(abs, content, true);
 	}
 }
 

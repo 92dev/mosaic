@@ -333,7 +333,7 @@ if (guard !== undefined && guardTwin !== undefined && guardHook !== undefined) {
 // Exclude project sources (JSX), workflows, Makefiles, fonts/images, and nested checkouts.
 const placeholderFiles = new Set([
 	"AGENTS.md", "CLAUDE.md", "docs/index.md", "docs/gaps.md", "docs/gaps-archive.md",
-	"docs/architecture/README.md", "docs/architecture/pitfalls.md", "docs/architecture/open-questions.md", "docs/kit/maintenance.md",
+	"docs/architecture/README.md", "docs/architecture/pitfalls.md", "docs/architecture/pitfalls-archive.md", "docs/architecture/decisions-archive.md", "docs/architecture/open-questions.md", "docs/kit/maintenance.md",
 	"docs/plans/README.md", "docs/plans/TEMPLATE.md", "docs/product/README.md",
 	...harnessFiles, ...processFiles,
 	...(trackingMode === "local" ? files("placeholders", "docs/tracker", false).filter(file => file.endsWith(".json")) : []),

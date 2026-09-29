@@ -11,5 +11,5 @@ Read when: checking a proposal, selecting obligations, reviewing changes, or ent
 - Challenger agents (plan-adversary and reviewers) read the pitfalls catalog whole as an independent backstop; the main session's scoped reading does not replace their check.
 - The small orientation set remains the entrypoint, [index](../index.md), and [architecture entry](../architecture/README.md); none requires loading every linked record.
 ## Frozen project history
-Archived history lives under `docs/archived/<original path>`; its mutability follows `rule://records`, and active links into it remain valid.
+Archived history lives under `docs/archived/<original path>`, `docs/plans/archived/`, `docs/gaps-archive.md`, `docs/architecture/pitfalls-archive.md`, `docs/architecture/decisions-archive.md`, and `docs/architecture/archived/` (retired decision sections); its mutability follows `rule://records`, and active links into it remain valid.
 On request or when active docs lack a subject, scouts may consult it for old decisions; report historical hits separately as `archived: <path>`, never as current status.

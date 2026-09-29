@@ -8,10 +8,10 @@ This file is read at the point of use: every skill step that mutates a governed 
 ## Doc classes
 | Class | Examples | Mutability |
 |---|---|---|
-| Truth | Architecture decisions (D#), pitfalls (P-x), open questions | Amend in place when the text misdescribes what was decided or realized and the ruling stands; supersede with a new D# when the ruling itself changes; append evidence under an open question without rewording it. Preserve rejected alternatives |
+| Truth | Architecture decisions (D#), pitfalls (P-x), open questions | Amend in place when the text misdescribes what was decided or realized and the ruling stands; supersede with a new D# when the ruling itself changes; append evidence under an open question without rewording it. Preserve rejected alternatives. A decision or pitfall whose subject no longer exists is archived (section to `docs/architecture/archived/<element doc>.md` and its map row to `decisions-archive.md`; pitfall entry to `pitfalls-archive.md`; each under an `**Archived:**` reason) only by a signed-off `skill://mosaic-gap-audit` verdict or the superseding plan, never deleted; a number allocated before ratification is a `Reserved by plan NNNN` map row |
 | Process | Project-owned rules, skills, agents | Keep one authoritative project location; select the authorized procedure via `rule://plan-triage` |
 | Registry | Plan ledgers, gaps, documentation index tables | Fixed row schema; append rows or change status |
-| Archive | `docs/archived/` (read `rule://registries`), `docs/plans/archived/`, `docs/gaps-archive.md`, architecture source records | Frozen once archived; never rewrite or repoint historical records |
+| Archive | `docs/archived/` (read `rule://registries`), `docs/plans/archived/`, `docs/gaps-archive.md`, `docs/architecture/pitfalls-archive.md`, `docs/architecture/decisions-archive.md`, `docs/architecture/archived/`, architecture source records | Frozen once archived; never rewrite or repoint historical records |
 ## Record routing
 | Knowledge | Record | Destination |
 |---|---|---|
@@ -22,7 +22,7 @@ This file is read at the point of use: every skill step that mutates a governed 
 | Product flow, feature, raw ideation | Product | [product/](../product/README.md); feature docs use its F-number and milestone conventions |
 | No lasting decision, duty, trap, question, or product information | No retained record | State the reason in the owning plan's Execution log or light-path commit |
 Routing test: settled? → Decision; fires on a future condition? → Obligation; warns against a tempting wrong path? → Pitfall; otherwise Open question, Product, or no retained record with a reason. Defects are repair work, not future obligations. Whether a trigger truly fires on its own is the author's judgment here and `skill://mosaic-gap-audit`'s REROUTE verdict later; lint checks only the entry's shape.
-Reconciliation test (a record disagrees with code or evidence): ruling stands, text wrong → amend the sentence in place and cite the evidence in the owning plan's Execution log; ruling overturned → new superseding D#, old entry stays; question narrowed → append the evidence, keep the question and its owner; pitfall disproved → amend its trap/prevention with the new measurement. Do not defer a known contradiction to a later decision.
+Reconciliation test (a record disagrees with code or evidence): ruling stands, text wrong → amend the sentence in place and cite the evidence in the owning plan's Execution log; ruling overturned → new superseding D#, old entry stays; ruling's subject gone → archive the decision with the reason; question narrowed → append the evidence, keep the question and its owner; pitfall disproved → amend its trap/prevention with the new measurement; pitfall's subject gone → archive it with the reason. Do not defer a known contradiction to a later decision.
 Before minting an entry, search its destination for an existing record. When subject and trigger match, amend that entry (even when the addition changes how the property is checked); mint a new id only for a different subject or a different trigger, citing the neighbour. Lifecycle and reassessment: read `rule://verification`; close-out defect checks and dispositions: read `skill://mosaic-execute`.
 Closure document alignment is `skill://mosaic-execute` step 8.
 ## Rules
