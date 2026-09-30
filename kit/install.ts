@@ -116,7 +116,7 @@ function membersFor(file: string, manifest: Manifest): string {
       return members.map(member => `| \`${cell(memberPath(member))}\` | ${cell(member.stack)} |`).join("\n");
     case "docs/process/plan-home.md": {
       const locations = members.map(member => `\`${memberPath(member)}\``).join(", ");
-      return `${manifest.project.name} is the link repo; ${locations} ${members.length === 1 ? "is an independent, gitignored member repo" : "are independent, gitignored member repos"}.`;
+      return `${manifest.project.name} is the link repo; its ${members.length === 1 ? "subdirectory" : "subdirectories"} ${locations} ${members.length === 1 ? "is an independent, gitignored member repo" : "are independent, gitignored member repos"}.`;
     }
     case "docs/process/git-flow.md":
       return members.map(member => `${members.length === 1 ? "the member" : `the ${member.name}`} remote is \`${memberRemote(manifest, `MEMBER_REMOTE:${member.name}`)}\``).join("; ");
