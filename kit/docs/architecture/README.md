@@ -22,7 +22,7 @@ an actual member repo where applicable, or `cross-area` for shared truth — see
 
 ## Pitfall catalogs
 
-**[pitfalls.md](pitfalls.md)** holds the cross-repo and devops traps{{MULTI_REPO}}; each member's own traps live in its `<member>/docs/pitfalls.md`{{/MULTI_REPO}}. Numbers are handles unique across every catalog and never reused; an entry whose trap can no longer be walked into is removed, never archived, and nothing cites a pitfall by number.
+**[pitfalls.md](pitfalls.md)** holds the cross-repo and devops traps{{MULTI_REPO}}; each member's own traps live in its `<member>/docs/pitfalls.md`{{/MULTI_REPO}}. Numbering, removal and the no-citation rule: `rule://records`; selection: `rule://registries`.
 
 ## Section map
 
@@ -37,9 +37,8 @@ See the [project stack](../process/stack.md).
 
 When extending this record, keep the guardrails intact:
 
-- **New rulings** are sentences in the relevant element doc, routed through the minting gate in `rule://records`: a ruling later work must adapt to also becomes a pitfall in the owning repo's catalog; no new D-number is minted. Keep existing `### D<number> —` headings greppable.
+- **New rulings** are sentences in the relevant element doc, routed through the minting gate in `rule://records`; no new D-number. Keep existing `### D<number> —` headings greppable.
 - **A project with numbered decisions** (`D<n>`) keeps their map frozen in `decisions-archive.md` and their `### D<number> —` sections in the element docs; the map gains no rows.
-- **A rejected alternative stays while it still guards a path** — its recorded failure reason is the guardrail, and the path it rules out is pitfall material. New facts that overturn a ruling amend the sentence in place with the overturn's provenance in the commit or plan (`rule://records` reconciliation).
-- **A record whose subject no longer exists is removed, not archived:** the decision section or pitfall entry is deleted and every sentence that pointed at it amended in the same change, by a signed-off audit (`skill://mosaic-gap-audit`) or the plan that removed the subject; git history is the archive.
+- **A rejected alternative stays while it still guards a path** — its recorded failure reason is the guardrail; overturns and removals follow `rule://records` (reconciliation).
 - **New pitfalls** are appended to the catalog of the repo that owns the subject, greppable as `- **P-<n>`, numbered per `rule://records`.
 - Archived plans under `docs/plans/archived/` and, where a project kept them, `archived/` (retired sections) and `decisions-archive.md` (the legacy map) are frozen history.
