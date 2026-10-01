@@ -24,7 +24,7 @@ const ANY_ENTRY = /^- \*\*/;
 const LEDGER_ROW = /^\| *\[?(\d{4})\]?/;
 const STATUS_CELL = new RegExp(`\\| *(${STATUS_ENUM.join("|")}) *\\|`);
 
-type Kind = "plan" | "ledger" | "gaps" | "gapBody" | "gapsArchive" | "pitfalls" | "decisions" | "decisionsArchive";
+type Kind = "plan" | "ledger" | "gaps" | "gapBody" | "gapsArchive" | "pitfalls" | "decisionsArchive";
 
 /** Classify governed paths by suffix. */
 function classify(file: string): Kind | undefined {
@@ -39,7 +39,7 @@ function classify(file: string): Kind | undefined {
 	if (norm.includes("/docs/gaps/") || norm.startsWith("docs/gaps/")) return "gapBody";
 	// The link catalog and each member catalog (`<member>/docs/pitfalls.md`) share one id space; no archive exists.
 	if (at("docs/architecture/pitfalls.md") || at("docs/pitfalls.md")) return "pitfalls";
-	if (at("docs/architecture/README.md")) return "decisions";
+	// The frozen legacy decision map (D-numbers, titles, files); the sections stay in the element docs.
 	if (at("docs/architecture/decisions-archive.md")) return "decisionsArchive";
 	if (at("docs/plans/README.md")) return "ledger";
 
@@ -334,11 +334,10 @@ function validatePitfalls(abs: string, content: string): string[] {
 }
 
 const DECISION_ROW = /^\| *(D\d+) *\|/;
-const DECISION_PAIR = ["README.md", "decisions-archive.md"] as const;
 
-/** The active map and the archive map each list a D# at most once, and never both. */
-function validateDecisions(abs: string, content: string, archive: boolean): string[] {
-	return [...dupErrors(idsMatching(content, DECISION_ROW), "decision"), ...crossFileErrors(abs, content, archive, DECISION_ROW, "decision", DECISION_PAIR)];
+/** The legacy map lists a D# at most once (its map and retired tables together). */
+function validateDecisions(content: string): string[] {
+	return dupErrors(idsMatching(content, DECISION_ROW), "decision");
 }
 
 function subjectFor(kind: Kind, base: string): string {
@@ -355,10 +354,8 @@ function subjectFor(kind: Kind, base: string): string {
 			return `Gaps archive '${base}'`;
 		case "pitfalls":
 			return `Pitfalls catalog '${base}'`;
-		case "decisions":
-			return `Decision map '${base}'`;
 		case "decisionsArchive":
-			return `Decisions archive '${base}'`;
+			return `Legacy decision map '${base}'`;
 	}
 }
 
@@ -376,10 +373,8 @@ function validate(kind: Kind, abs: string, content: string): string[] {
 			return [...validateGaps(content, true), ...crossFileErrors(abs, content, true)];
 		case "pitfalls":
 			return validatePitfalls(abs, content);
-		case "decisions":
-			return validateDecisions(abs, content, false);
 		case "decisionsArchive":
-			return validateDecisions(abs, content, true);
+			return validateDecisions(content);
 	}
 }
 

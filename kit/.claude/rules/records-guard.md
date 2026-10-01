@@ -7,6 +7,7 @@ paths:
   - "docs/architecture/pitfalls.md"
   - "**/docs/pitfalls.md"
   - "docs/architecture/README.md"
+  - "docs/architecture/decisions-archive.md"
   - ".omp/**"
   - ".claude/**"
   - "docs/process/**"

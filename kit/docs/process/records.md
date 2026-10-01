@@ -11,7 +11,7 @@ This file is read at the point of use: every skill step that mutates a governed 
 | Truth | Architecture element docs (current-state prose; legacy numbered decisions D#), pitfall catalogs (P-x), open questions | Amend in place when the text no longer matches what was decided or realized; an overturned ruling is amended the same way, its provenance in the commit or plan, never a new number. Keep a rejected alternative only while it still guards a path. An entry whose subject no longer exists is removed by a signed-off `skill://mosaic-gap-audit` verdict or the plan that removed the subject, and the same change amends every sentence that still pointed at it; git history is the only archive |
 | Process | Project-owned rules, skills, agents | Keep one authoritative project location; select the authorized procedure via `rule://plan-triage` |
 | Registry | Plan ledgers, gaps, documentation index tables | Fixed row schema; append rows or change status |
-| Archive | `docs/archived/` (read `rule://registries`), `docs/plans/archived/`, `docs/gaps-archive.md`, architecture source records | Frozen once archived; never rewrite or repoint historical records |
+| Archive | `docs/archived/` (read `rule://registries`), `docs/plans/archived/`, `docs/gaps-archive.md`, architecture source records, and where a project numbered decisions their frozen map `docs/architecture/decisions-archive.md` (gains no rows; a row leaves only with its removed section) | Frozen once archived; never rewrite or repoint historical records |
 ## Record routing
 | Knowledge | Record | Destination |
 |---|---|---|

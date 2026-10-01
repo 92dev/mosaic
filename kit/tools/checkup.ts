@@ -113,13 +113,13 @@ function run(script: string, args: string[], kind: CheckClass): SpawnSyncReturns
 	}
 	return result;
 }
-const registries = new Set(["docs/gaps.md", "docs/gaps-archive.md", "docs/architecture/pitfalls.md", "docs/architecture/README.md", "docs/plans/README.md",
+const registries = new Set(["docs/gaps.md", "docs/gaps-archive.md", "docs/architecture/pitfalls.md", "docs/plans/README.md",
 	...members.map(repo => `${repo}/docs/plans/README.md`)]);
 // Member pitfall catalogs exist only once a member owns a trap; lint them when present.
 const pitfallCatalogs = ["docs/architecture/pitfalls.md", ...members.map(repo => `${repo}/docs/pitfalls.md`).filter(file => docs.has(file))];
 for (const file of pitfallCatalogs) registries.add(file);
 for (const file of docs.keys()) {
-	if (/(?:^|\/)docs\/(?:gaps(?:-archive)?\.md|gaps\/.*\.md|architecture\/(?:pitfalls|README|decisions-archive)\.md)$/.test(file)
+	if (/(?:^|\/)docs\/(?:gaps(?:-archive)?\.md|gaps\/.*\.md|architecture\/(?:pitfalls|decisions-archive)\.md)$/.test(file)
 		|| (/(?:^|\/)docs\/plans\/(?:[^/]+\/)*\d{4}-[^/]+\.md$/.test(file) && !planArchive(file) && !/(?:^|\/)docs\/plans\/evidence\//.test(file) && !file.endsWith("-wire.md"))) registries.add(file);
 }
 for (const file of [...registries].sort()) {
@@ -165,11 +165,11 @@ for (const [file, content] of docs) {
 }
 
 const definitions = new Map<string, Set<string>>();
-// A project may use ADRs or local D-labels instead. Enable the D namespace only when indexed.
-const decisionIndex = markdown.get("docs/architecture/README.md") ?? [];
+// A project may use ADRs or local D-labels instead. Enable the D namespace only when a legacy map exists:
+// docs/architecture/decisions-archive.md holds the frozen D-map (older installs kept it in the README).
+const decisionIndex = [...(markdown.get("docs/architecture/decisions-archive.md") ?? []), ...(markdown.get("docs/architecture/README.md") ?? [])];
 if (decisionIndex.some(line => /^\| *(D\d+) *\|/.test(line))) {
-	// Active element docs and the frozen archive of retired decision sections both define ids; a map row whose
-	// title begins with "Reserved" allocates a number that is cited before ratification and must never be reused.
+	// Active element docs and the frozen archive of retired decision sections both define ids.
 	const architecture = [...docs.keys()].filter(file => /^docs\/architecture\/(?:archived\/)?[^/]+\.md$/.test(file));
 	const decisions = new Set<string>();
 	for (const file of architecture) {
@@ -179,13 +179,9 @@ if (decisionIndex.some(line => /^\| *(D\d+) *\|/.test(line))) {
 			for (const anchor of line.matchAll(/\b(?:id|name)\s*=\s*["'](D\d+)["']|\{#(D\d+)\}/gi)) decisions.add((anchor[1] ?? anchor[2]!).toUpperCase());
 		}
 	}
-	// A map row whose title begins with "Reserved" allocates a number cited before ratification; every row of the
-	// archive map is a retired decision whose citations still resolve as history.
+	// Every map row defines its number: a "Reserved by plan" row allocated before ratification, and a retired
+	// decision's row whose citations still resolve as history.
 	for (const line of decisionIndex) {
-		const reserved = /^\| *(D\d+) *\| *(?:\*\*)?Reserved\b/i.exec(line);
-		if (reserved) decisions.add(reserved[1]!);
-	}
-	for (const line of markdown.get("docs/architecture/decisions-archive.md") ?? []) {
 		const row = /^\| *(D\d+) *\|/.exec(line);
 		if (row) decisions.add(row[1]!);
 	}
