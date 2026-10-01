@@ -99,7 +99,7 @@ if (!monorepo && !members.length) {
 const repos = ["", ...members];
 for (const repo of repos) collect(repo ? `${repo}/docs` : "docs");
 const planArchive = (file: string) => /(?:^|\/)docs\/plans\/archived\//.test(file);
-const frozen = (file: string) => planArchive(file) || /(?:^|\/)docs\/(?:gaps-archive\.md$|architecture\/(?:pitfalls-archive\.md$|decisions-archive\.md$|(?:archived|source)\/))/.test(file);
+const frozen = (file: string) => planArchive(file) || /(?:^|\/)docs\/(?:gaps-archive\.md$|architecture\/(?:decisions-archive\.md$|(?:archived|source)\/))/.test(file);
 
 function run(script: string, args: string[], kind: CheckClass): SpawnSyncReturns<string> | undefined {
 	if (!fs.existsSync(path.join(root, script))) {
@@ -115,8 +115,11 @@ function run(script: string, args: string[], kind: CheckClass): SpawnSyncReturns
 }
 const registries = new Set(["docs/gaps.md", "docs/gaps-archive.md", "docs/architecture/pitfalls.md", "docs/architecture/README.md", "docs/plans/README.md",
 	...members.map(repo => `${repo}/docs/plans/README.md`)]);
+// Member pitfall catalogs exist only once a member owns a trap; lint them when present.
+const pitfallCatalogs = ["docs/architecture/pitfalls.md", ...members.map(repo => `${repo}/docs/pitfalls.md`).filter(file => docs.has(file))];
+for (const file of pitfallCatalogs) registries.add(file);
 for (const file of docs.keys()) {
-	if (/(?:^|\/)docs\/(?:gaps(?:-archive)?\.md|gaps\/.*\.md|architecture\/(?:pitfalls|pitfalls-archive|README|decisions-archive)\.md)$/.test(file)
+	if (/(?:^|\/)docs\/(?:gaps(?:-archive)?\.md|gaps\/.*\.md|architecture\/(?:pitfalls|README|decisions-archive)\.md)$/.test(file)
 		|| (/(?:^|\/)docs\/plans\/(?:[^/]+\/)*\d{4}-[^/]+\.md$/.test(file) && !planArchive(file) && !/(?:^|\/)docs\/plans\/evidence\//.test(file) && !file.endsWith("-wire.md"))) registries.add(file);
 }
 for (const file of [...registries].sort()) {
@@ -188,13 +191,14 @@ if (decisionIndex.some(line => /^\| *(D\d+) *\|/.test(line))) {
 	}
 	definitions.set("D", decisions);
 }
-// The archive half of a pair is optional: an older install without pitfalls-archive.md still resolves active ids.
-for (const [prefix, files, optional] of [["G-", ["docs/gaps.md", "docs/gaps-archive.md"], []], ["P-", ["docs/architecture/pitfalls.md", "docs/architecture/pitfalls-archive.md"], ["docs/architecture/pitfalls-archive.md"]], ["0", ["docs/plans/README.md"], []]] as const) {
+// Pitfall ids are defined by every catalog together (the link's and each member's); a removed pitfall has no archive, so a
+// citation of it dangles by design and is repaired by dropping or restating the citation (rule://records: nothing cites a pitfall).
+for (const [prefix, files] of [["G-", ["docs/gaps.md", "docs/gaps-archive.md"]], ["P-", pitfallCatalogs], ["0", ["docs/plans/README.md"]]] as const) {
 	const ids = new Set<string>();
 	let complete = true;
 	for (const file of files) {
 		const content = read(file, ["dangling-reference"]);
-		if (content === undefined) { if (!optional.includes(file)) complete = false; continue; }
+		if (content === undefined) { complete = false; continue; }
 		const pattern = prefix === "0" ? /^\|\s*\[?(0\d{3})\]?(?=\s*\||\()/gm
 			: new RegExp(`^(?:- \\*\\*|#{1,6}\\s+)(?:\\*\\*)?(${prefix}\\d+)\\b`, "gm");
 		for (const match of markdown.get(file)!.join("\n").matchAll(pattern)) ids.add(match[1]!);
@@ -223,7 +227,7 @@ for (const [file, lines] of markdown) {
 			const prefix = id.startsWith("D") ? "D" : id.startsWith("G-") ? "G-" : id.startsWith("P-") ? "P-" : "0";
 			const known = definitions.get(prefix);
 			if (known && !known.has(id)) findings.push({ class: "dangling-reference", path: file, line: index + 1,
-				detail: `${id} has no ${prefix === "D" ? "architecture heading/anchor" : prefix === "G-" ? "active or archived gap entry" : prefix === "P-" ? "pitfall entry" : "master-ledger row"}`, fix: "human" });
+				detail: `${id} has no ${prefix === "D" ? "architecture heading/anchor" : prefix === "G-" ? "active or archived gap entry" : prefix === "P-" ? "entry in any pitfall catalog (drop or restate the citation: nothing cites a pitfall)" : "master-ledger row"}`, fix: prefix === "P-" ? "route" : "human" });
 		}
 	}
 }

@@ -15,7 +15,7 @@ Review independently: do not coordinate with or wait for another reviewer. Verif
 1. Scope: any changed file outside the reviewed tasks' `files:` means REVISE.
 2. Run through the plan's Review checklist item by item.
 3. Verify acceptance with cheap checks you run yourself; shell use is restricted to reading and checks.
-4. Read `docs/process/registries.md`. Check architecture conformance and pitfalls; cite the violated D#/P-x.
+4. Read `docs/process/registries.md`. Read whole the pitfall catalogs of every touched repo and the link; check architecture conformance against the element docs' rules and those traps, quoting the violated rule or trap. For a closure packet, re-derive every proposed record's gate (class, existing record, home catalog or doc, shape) under `docs/process/records.md` — a misrouted, duplicate, or mis-homed entry is a substantive finding.
 5. Check interfaces between parts: explicit contracts, replaceability, and evidence they work.
 6. Read `docs/process/records.md` for governed diffs and apply its meta-diff checklist; use `docs/process/review-loop.md` for close-out verdicts.
 
@@ -28,7 +28,7 @@ Review independently: do not coordinate with or wait for another reviewer. Verif
 ```text
 VERDICT: APPROVE | REVISE
 Findings:
-1. <S|P> <file>:<line> — <problem> — <why it matters; D#/P-x/checklist item>
+1. <S|P> <file>:<line> — <problem> — <why it matters; the rule or trap quoted, or the checklist item>
    Fix: <precise instruction executable without a decision>
 ```
 - Lead with the verdict; order findings by severity.

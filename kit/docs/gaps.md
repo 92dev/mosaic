@@ -7,8 +7,8 @@ product flows `F-x`).
 
 **What a G-entry is NOT**: a feature idea (→ roadmap / product),
 a product question (→ [open-questions](architecture/open-questions.md)), a rejected shortcut
-(→ [pitfalls](architecture/pitfalls.md)), or a **ruling already made** (→ `D#` appended to its
-[element doc](architecture/README.md) — a settled decision filed as a gap waits forever for a plan
+(→ the owning repo's [pitfall catalog](architecture/pitfalls.md)), or a **ruling already made** (→ a sentence in its
+[element doc](architecture/README.md), and a pitfall if later work must adapt to it — a settled decision filed as a gap waits forever for a plan
 to decide what is already decided). G-entries are conditions of the form "when X exists or
 happens, verify/do Y — here's why and where it came from". If it has no trigger, it doesn't belong
 here (route per [records](process/records.md#record-routing)).

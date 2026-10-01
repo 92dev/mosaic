@@ -106,7 +106,7 @@ function candidate(doc: string, kind: ImpactClass, why: string): void {
 }
 // These architecture registries have their own schemas, not element-document affinity metadata.
 const architectureRegistries: Record<string, true> = {
-	"README.md": true, "pitfalls.md": true, "pitfalls-archive.md": true, "decisions-archive.md": true, "open-questions.md": true, "roadmap.md": true,
+	"README.md": true, "pitfalls.md": true, "decisions-archive.md": true, "open-questions.md": true, "roadmap.md": true,
 };
 for (const [doc, content] of docs) {
 	const lines = content.split("\n");

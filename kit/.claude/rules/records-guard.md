@@ -5,6 +5,7 @@ paths:
   - "docs/gaps-archive.md"
   - "**/docs/plans/README.md"
   - "docs/architecture/pitfalls.md"
+  - "**/docs/pitfalls.md"
   - "docs/architecture/README.md"
   - ".omp/**"
   - ".claude/**"

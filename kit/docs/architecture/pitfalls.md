@@ -1,11 +1,11 @@
 # Pitfalls Catalog
 
-> One-line scope: general starter traps and project-specific pitfalls.
+> One-line scope: general starter traps and the project's cross-repo and devops pitfalls{{MULTI_REPO}}; a member's own traps live in its `<member>/docs/pitfalls.md`{{/MULTI_REPO}}.
 >
 > Area affinity: cross-area
 > Part of [Architecture docs](README.md)
 
-> These starter traps are general checks, not decisions or measured incidents of this project; apply a trap only where current project evidence supports it. New project pitfalls get the next global P-number (see the [extension rules](README.md#extension-rules)); read [records rule 7](../process/records.md#rules) when adding one.
+> These starter traps are general checks, not decisions or measured incidents of this project; apply a trap only where current project evidence supports it. A new pitfall takes the next unused P-number across every catalog and lives in the catalog of the repo that owns its subject (see the [extension rules](README.md#extension-rules)); read the minting gate and [rule 7](../process/records.md#rules) in the records rule when adding one. An entry whose trap can no longer be walked into is removed, never archived; nothing cites a pitfall by number.
 
 ---
 

@@ -27,8 +27,9 @@ areas: []            # link-root-relative path globs and contract:<name>; fill f
 
 ## Context
 
-Why now. Cite the [architecture docs](../architecture/README.md) sections/decisions this builds on
-and any prior plans it depends on.
+Why now. Cite the [architecture docs](../architecture/README.md) sections this builds on and any
+prior plans it depends on. A record this plan intends to produce (a pitfall, an obligation, an
+element-doc sentence) is stated here by content with its catalog or doc, never a number.
 
 ## Scope
 
@@ -36,8 +37,8 @@ and any prior plans it depends on.
 
 ### Out of scope
 
-Explicit non-goals. Check the [architecture docs](../architecture/README.md) and
-[pitfalls.md](../architecture/pitfalls.md) for things to fence out.
+Explicit non-goals. Check the [architecture docs](../architecture/README.md) and the pitfall
+catalogs of the targeted repos (`rule://registries`) for things to fence out.
 
 ## Task breakdown
 
@@ -56,7 +57,8 @@ Path-frame example: {{MULTI_REPO}}member-homed `reads: ../docs/...` versus prose
 
 ## Review checklist
 
-Concrete checks the reviewer runs against the diff, including the relevant pitfalls (P-x) for this change.
+Concrete checks the reviewer runs against the diff; a check restates the relevant trap as the check
+itself (what to grep or run), never as a P-number.
 
 ## Verification
 
@@ -70,7 +72,7 @@ Evidence limits and alternatives, per `rule://verification`.
 ## Planning log
 
 Filled during planning (`/mosaic-plan` Phase 2): one entry per adversarial round — challenges
-raised (severity + D#/P#/G-x grounding), the orchestrator's ruling on each (accept/reject +
+raised (severity + grounding: the rule or trap quoted, G-x, or file:line), the orchestrator's ruling on each (accept/reject +
 reasoning), panel input if consulted, human input, the round's checkpoint disposition (blocking,
 or informational when nothing human-owned was open), and what changed in the draft. The debate
 closes with the leftovers digest — standing rejections, spent contests, and deferrals, each with

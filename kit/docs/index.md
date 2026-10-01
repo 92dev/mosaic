@@ -3,8 +3,8 @@
 | Document | Purpose | Read when |
 |---|---|---|
 | [architecture/README.md](architecture/README.md) | Architecture index, decisions, extension rules | Orienting or making a technical proposal |
-| [architecture/pitfalls.md](architecture/pitfalls.md) | Known traps | Selected by the procedure in `rule://registries` |
-| [architecture/pitfalls-archive.md](architecture/pitfalls-archive.md), [architecture/decisions-archive.md](architecture/decisions-archive.md) | Retired pitfalls and decisions (frozen; numbers never reused) | Following a `P-x`/`D#` citation that is no longer active |
+| [architecture/pitfalls.md](architecture/pitfalls.md) | Cross-repo and devops traps{{MULTI_REPO}}; each member's own traps are in its `<member>/docs/pitfalls.md`{{/MULTI_REPO}} | Selected by the procedure in `rule://registries`; never cited by number |
+| [architecture/decisions-archive.md](architecture/decisions-archive.md) | Legacy map of retired numbered decisions (frozen; numbers never reused) | Following a `D#` citation that no longer resolves in the active files |
 | [architecture/open-questions.md](architecture/open-questions.md) | Undecided product questions | Resolving product scope |
 | [product/README.md](product/README.md) | Product flows, maturity, promotion | Product work or information ingestion |
 | [gaps.md](gaps.md) | Active conditional obligations | Scoped selection via `rule://registries` |

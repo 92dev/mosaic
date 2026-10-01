@@ -24,7 +24,7 @@ const ANY_ENTRY = /^- \*\*/;
 const LEDGER_ROW = /^\| *\[?(\d{4})\]?/;
 const STATUS_CELL = new RegExp(`\\| *(${STATUS_ENUM.join("|")}) *\\|`);
 
-type Kind = "plan" | "ledger" | "gaps" | "gapBody" | "gapsArchive" | "pitfalls" | "pitfallsArchive" | "decisions" | "decisionsArchive";
+type Kind = "plan" | "ledger" | "gaps" | "gapBody" | "gapsArchive" | "pitfalls" | "decisions" | "decisionsArchive";
 
 /** Classify governed paths by suffix. */
 function classify(file: string): Kind | undefined {
@@ -37,8 +37,8 @@ function classify(file: string): Kind | undefined {
 	if (at("docs/gaps.md")) return "gaps";
 	if (at("docs/gaps-archive.md")) return "gapsArchive";
 	if (norm.includes("/docs/gaps/") || norm.startsWith("docs/gaps/")) return "gapBody";
-	if (at("docs/architecture/pitfalls.md")) return "pitfalls";
-	if (at("docs/architecture/pitfalls-archive.md")) return "pitfallsArchive";
+	// The link catalog and each member catalog (`<member>/docs/pitfalls.md`) share one id space; no archive exists.
+	if (at("docs/architecture/pitfalls.md") || at("docs/pitfalls.md")) return "pitfalls";
 	if (at("docs/architecture/README.md")) return "decisions";
 	if (at("docs/architecture/decisions-archive.md")) return "decisionsArchive";
 	if (at("docs/plans/README.md")) return "ledger";
@@ -270,7 +270,7 @@ function validateGaps(content: string, archive: boolean): string[] {
 	return errors;
 }
 
-/** An id must live in exactly one of an active registry and its archive (gaps.md / gaps-archive.md, pitfalls.md / pitfalls-archive.md). */
+/** An id must live in exactly one of an active registry and its archive (gaps.md / gaps-archive.md). */
 function crossFileErrors(abs: string, content: string, archive: boolean, marker: RegExp = GAP_ENTRY, label = "gap", pair: readonly [string, string] = ["gaps.md", "gaps-archive.md"]): string[] {
 	const counterpart = path.join(path.dirname(abs), archive ? pair[0] : pair[1]);
 	let other: string;
@@ -291,15 +291,43 @@ function crossFileErrors(abs: string, content: string, archive: boolean, marker:
 }
 
 const PITFALL_ENTRY = /^- \*\*(P-\d+) ·/;
-const PITFALL_PAIR = ["pitfalls.md", "pitfalls-archive.md"] as const;
 
-/** Archived pitfalls keep their text and add an `**Archived:**` reason (superseded, disproved, or subject removed). */
-function validatePitfalls(abs: string, content: string, archive: boolean): string[] {
-	const errors = [...dupErrors(idsMatching(content, PITFALL_ENTRY), "pitfall"), ...crossFileErrors(abs, content, archive, PITFALL_ENTRY, "pitfall", PITFALL_PAIR)];
-	if (!archive) return errors;
-	for (const { id, body } of gapEntries(content, false, PITFALL_ENTRY)) {
-		if (!/\*\*Archived:\*\*/.test(body)) {
-			errors.push(`${id} records no **Archived:** reason — an archived pitfall says what superseded or disproved it (rule://records)`);
+/** The project root is the nearest ancestor holding `.omp/mosaic.json`; undefined outside an installed project. */
+function projectRoot(abs: string): string | undefined {
+	let dir = path.dirname(abs);
+	for (;;) {
+		if (fs.existsSync(path.join(dir, ".omp", "mosaic.json"))) return dir;
+		const parent = path.dirname(dir);
+		if (parent === dir) return undefined;
+		dir = parent;
+	}
+}
+
+/** Every pitfall catalog of the project: the link's `docs/architecture/pitfalls.md` and each member's `docs/pitfalls.md`. */
+function pitfallCatalogs(root: string): string[] {
+	const out = [path.join(root, "docs", "architecture", "pitfalls.md")];
+	let children: fs.Dirent[] = [];
+	try { children = fs.readdirSync(root, { withFileTypes: true }); } catch { return out; }
+	for (const child of children) {
+		if (child.name.startsWith(".") || !(child.isDirectory() || child.isSymbolicLink())) continue;
+		const catalog = path.join(root, child.name, "docs", "pitfalls.md");
+		if (fs.existsSync(catalog)) out.push(catalog);
+	}
+	return out;
+}
+
+/** P-numbers are handles unique across every catalog of the project (rule://records); a removed entry has no archive. */
+function validatePitfalls(abs: string, content: string): string[] {
+	const errors = dupErrors(idsMatching(content, PITFALL_ENTRY), "pitfall");
+	const root = projectRoot(abs);
+	if (root === undefined) return errors; // fail-open: not inside an installed project
+	const mine = new Set(idsMatching(content, PITFALL_ENTRY));
+	for (const other of pitfallCatalogs(root)) {
+		if (path.resolve(other) === path.resolve(abs)) continue;
+		let text: string;
+		try { text = fs.readFileSync(other, "utf8"); } catch { continue; }
+		for (const id of new Set(idsMatching(text, PITFALL_ENTRY))) {
+			if (mine.has(id)) errors.push(`pitfall '${id}' is also catalogued in ${path.relative(root, other)} — numbers are unique across every catalog; an entry lives in the one repo that owns its subject`);
 		}
 	}
 	return errors;
@@ -327,8 +355,6 @@ function subjectFor(kind: Kind, base: string): string {
 			return `Gaps archive '${base}'`;
 		case "pitfalls":
 			return `Pitfalls catalog '${base}'`;
-		case "pitfallsArchive":
-			return `Pitfalls archive '${base}'`;
 		case "decisions":
 			return `Decision map '${base}'`;
 		case "decisionsArchive":
@@ -349,9 +375,7 @@ function validate(kind: Kind, abs: string, content: string): string[] {
 		case "gapsArchive":
 			return [...validateGaps(content, true), ...crossFileErrors(abs, content, true)];
 		case "pitfalls":
-			return validatePitfalls(abs, content, false);
-		case "pitfallsArchive":
-			return validatePitfalls(abs, content, true);
+			return validatePitfalls(abs, content);
 		case "decisions":
 			return validateDecisions(abs, content, false);
 		case "decisionsArchive":

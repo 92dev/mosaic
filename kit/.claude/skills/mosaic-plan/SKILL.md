@@ -16,11 +16,12 @@ Planning runs at maximum effort. Use the configured planning role; if that role 
 3. Read `docs/process/records.md`; read `docs/process/plan-home.md`; read `docs/process/git-flow.md`.
    Reserve the number under `docs/process/plan-home.md` R2. This is the row Phase 3 will update.
 4. Read `docs/process/plan-home.md`; read `docs/process/tracker.md`. Copy the link repo's `docs/plans/TEMPLATE.md` to `<home>/docs/plans/NNNN-<slug>.md`; create its `docs/plans/` directory on first use. Fill today's date, title, number, `status: draft`, target `repo:` list, branch, and `areas:`; handle tracking metadata and binding the plan to intent only as the installed mode requires. Preserve collision evidence and any unsent events under that rule. Use `docs/process/plan-home.md` R5/R8 for task paths and prose links.
-5. Read `docs/process/registries.md`. Research unfamiliar areas with `context-scout` via Claude Code subagent dispatch, then read the architecture decisions its brief identifies. Send the proposed scope to `registry-scout` via Claude Code subagent dispatch for pitfalls, active gaps, and related plans.
+5. Read `docs/process/registries.md`. Research unfamiliar areas with `context-scout` via Claude Code subagent dispatch, then read the element docs its brief identifies. Send the proposed scope to `registry-scout` via Claude Code subagent dispatch for the pitfall catalogs of every targeted repo and the link, active gaps, and related plans.
    - If the idea trips a flagged pitfall, stop and tell the human.
+   - Read `docs/process/records.md`. A record the plan intends to produce (a pitfall, an obligation, an element-doc sentence) is stated in Context by content — trap and prevention, trigger and duty, the sentence — with its catalog or doc and no number; the number is allocated at close-out.
    - Express the rule's gap disposition as `closes G-x`, or a G-x-cited deferral in Context.
 6. Read `docs/process/dispatch.md`; read `docs/process/plan-home.md`; read `docs/process/records.md`. Write executor-sized tasks using the dispatch contract and the correct repo/path frame; set `class: docs` for documentation tasks and `class: code` otherwise, with acceptance per class. Documentation tasks still use executors; close-out work is never a task. Before dispatch, verify every source path, heading, and numeric range a task names against the source itself; a task must not ask an executor to infer members that are not there. Include the records rule in `reads:` for governed-file tasks. Delegate research-heavy subparts if useful; author the plan yourself.
-7. Read `docs/process/review-loop.md`. Write concrete diff checks, citing the relevant P-x, in the Review checklist. The instructions an executor will run are what the plan proves: test the exact final commands and code, including optional-value guards and the full declared value domain; a sketch that differs from the final instructions is illustrative, never evidence.
+7. Read `docs/process/review-loop.md`. Write concrete diff checks in the Review checklist; a check restates the relevant trap as the check itself (what the reviewer greps or runs), never as a P-number. The instructions an executor will run are what the plan proves: test the exact final commands and code, including optional-value guards and the full declared value domain; a sketch that differs from the final instructions is illustrative, never evidence.
 8. Read `docs/process/verification.md`. Fill Verification and Unverified from the research under that rule.
 
 ## Phase 2 — Adversarial rounds
@@ -34,7 +35,7 @@ Planning runs at maximum effort. Use the configured planning role; if that role 
 5. Read `docs/process/map.md`. Report every round to the human: challenges, rulings, changes. A human interjection may steer, overrule, or end debate; an overrule reopens that ruling only.
    Wait before another round when any of these is open:
    - A human-owned call surfaced or moved: product semantics/UX, material scope growth, direction change since the human last saw the draft, spend, credentials, deploy, or a P-x/G-x requiring a human ruling.
-   - You would reject a challenge grounded in recorded D#/P-x truth.
+   - You would reject a challenge grounded in a recorded element-doc rule, catalogued trap, or active obligation.
    - A standing BLOCKER cannot be resolved by an amendment you are authorized to make.
    Otherwise log `Checkpoint: informational — nothing human-owned open` and continue. Unattended: record a blocking decision OPEN and surface it at the next human contact; only explicit prior delegation of that decision class permits proceeding.
 6. Read `docs/process/map.md`; read `docs/process/plan-triage.md`. Decide whether to end before dispatching again; there is no fixed round cap:
