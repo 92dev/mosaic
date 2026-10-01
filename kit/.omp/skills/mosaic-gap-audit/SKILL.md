@@ -1,6 +1,6 @@
 ---
 name: mosaic-gap-audit
-description: Re-check active gaps, pitfalls, and decisions against current code, propose evidenced KEEP/UPDATE/ARCHIVE/SPLIT/STALE-TRIGGER/REROUTE verdicts (MOVE/REMOVE for pitfalls and legacy decisions), apply them after human sign-off; never mints entries. Argument: G-/P-/D ids, diff, branch, plan, or all / pitfalls / decisions.
+description: Re-check active gaps, pitfalls, and decisions against current code, propose evidenced KEEP/UPDATE/ARCHIVE/SPLIT/STALE-TRIGGER/REROUTE verdicts (MOVE/REMOVE for pitfalls, REMOVE for legacy decisions), apply them after human sign-off; mints no G-entry or D#, and a P-entry only as a signed-off REROUTE. Argument: G-/P-/D ids, diff, branch, plan, or all / pitfalls / decisions.
 ---
 # /mosaic-gap-audit — Re-check active gaps, pitfalls, and decisions
 
@@ -16,7 +16,7 @@ This skill never mints a G-entry or D#, and mints a P-entry only as the signed-o
 1. Read `rule://records`. **Choose the mode:**
    - Scoped (default): derive the area from explicit G-/P-/D ids, a diff, branch, or plan; without an argument, use the most recently landed plan. Select active entries whose trigger or subject intersects it.
    - Full audit (`all`, `pitfalls`, or `decisions`): state the cost of one read-only subagent per active entry and obtain explicit human consent before running.
-2. Read `rule://registries`. **Select candidates:** use explicit ids when supplied; otherwise dispatch `registry-scout` via `task` with the touched area. For a consented full audit, read all of `docs/gaps.md`, every pitfall catalog (the link's `docs/architecture/pitfalls.md`{{MULTI_REPO}} and each `<member>/docs/pitfalls.md`{{/MULTI_REPO}}), or the legacy decision map in `docs/architecture/README.md`; every active entry is a candidate.
+2. Read `rule://registries`. **Select candidates:** use explicit ids when supplied; otherwise dispatch `registry-scout` via `task` with the touched area. For a consented full audit, read all of `docs/gaps.md`, every pitfall catalog (the link's `docs/architecture/pitfalls.md`{{MULTI_REPO}} and each `<member>/docs/pitfalls.md`{{/MULTI_REPO}}), or the legacy decision map `docs/architecture/decisions-archive.md` when the project keeps one (follow each row to its element-doc section); every active entry is a candidate.
 3. **Evaluate current repo evidence:** in scoped mode, inspect the relevant repos yourself. For a full audit, dispatch one `context-scout` via `task` per entry in parallel batches, giving its full text. Ask for file:line evidence, whether its trigger fired, whether it was partly or fully discharged, and the responsible plan/commit; for a pitfall, whether the trap can still be walked into; for a decision, whether its subject still exists and whether a later decision supersedes it. Make the ruling yourself.
 4. Read `rule://records`; read `rule://verification`. **Propose a verdict for every candidate**, citing file:line, plan number, or commit hash. If evidence is unavailable, use KEEP with a cannot-verify note.
    - `KEEP`: still valid as written.

@@ -8,7 +8,7 @@ Find the strongest grounded objection to the draft; the orchestrator rules and t
 
 ## Investigation
 1. Read the draft, its architecture decisions, and touched files yourself. Verify repo claims with read-only commands; use `scout` for broad sweeps.
-2. Read `docs/process/registries.md`. Read whole the pitfall catalogs of every repo the draft targets and the link's; use `registry-scout` via Claude Code subagent dispatch to locate relevant gaps, then inspect the flagged entries yourself.
+2. Read `docs/process/registries.md` and apply its challenger reading of the catalogs; use `registry-scout` via Claude Code subagent dispatch to locate relevant gaps, then inspect the flagged entries yourself.
 3. Read `docs/process/dispatch.md`; read `docs/process/verification.md`. Attack in this order:
    - Feasibility: can the written tasks produce the stated outcome?
    - Pitfalls and gaps: a catalogued trap walked into, an element-doc rule contradicted, or a triggered active G-x left unaddressed? A record the draft intends to produce that fails the minting gate in `docs/process/records.md`?

@@ -28,8 +28,8 @@ areas: []            # link-root-relative path globs and contract:<name>; fill f
 ## Context
 
 Why now. Cite the [architecture docs](../architecture/README.md) sections this builds on and any
-prior plans it depends on. A record this plan intends to produce (a pitfall, an obligation, an
-element-doc sentence) is stated here by content with its catalog or doc, never a number.
+prior plans it depends on. State a record this plan intends to produce (a pitfall, an obligation, an
+element-doc sentence) by content with its catalog or doc, never a number.
 
 ## Scope
 

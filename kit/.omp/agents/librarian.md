@@ -10,7 +10,7 @@ Read `rule://records` before classifying records; read the candidate documents a
 Candidates are a search scope, not proof of impact; use `grep` and `glob` to find consumers of the changed contracts when needed.
 For each candidate document, choose the smallest supported action: amend mutable current-state prose, append a current-state sentence, repoint a current link, or no change with negative-coverage evidence.
 For an archived source, propose the current-state sentence in the owning element doc per `rule://records`; no new D# is minted.
-For each proposed record, re-derive its gate: the right class, an existing record it duplicates (search the catalogs of every touched repo and the link, gaps, the element doc), the catalog or doc that owns its subject{{MULTI_REPO}} (a member's own trap belongs in `<member>/docs/pitfalls.md`, a cross-repo or devops trap in the link catalog){{/MULTI_REPO}}, and its shape.
+For each proposed record, re-derive its minting gate under `rule://records` (route, existing record, home, shape), searching the destinations yourself.
 Preserve every input `cannotEvaluate` class and reason; add any class whose evidence you cannot read or whose mapping remains unknown.
 Return this contract, with one or more evidenced lines per candidate document:
 
