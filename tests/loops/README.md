@@ -32,6 +32,8 @@ tests/loops/
   metrics.ts           events.jsonl -> metrics.json (importable + CLI)
   scoreboard.ts        runs/** -> SCOREBOARD.md
   score.ts             record an evaluator verdict into a run's verdict.json
+  cohort.ts            runs/** filtered by tag prefix -> per-cell table with parent and `task`-child usage
+  reviews.ts           runs/** filtered by tag prefix -> verbatim reviewer verdicts per run (S17-family scenarios)
   fixtures/baseline/   checked-in generated harness-2026-09-02 fixture; never hand-edit
   fixtures/baseline-kit/          frozen baseline ports, workflow/meta rules, and plan template
   fixtures/baseline.manifest.json baseline identity, members, and remotes
@@ -160,6 +162,7 @@ type Metrics = {
   ttsrTriggered: string[];          // rule names from ttsr_triggered events
   finalText: string;                // last assistant text block
   assistantTexts: string[];         // all assistant text blocks; a brief may precede the final closing message
+  children: ChildUsage[];           // one row per `task` child (last progress snapshot): id, agent, modelRole, status, cost, tokens, requests, durationMs, toolCount; not included in cost/tokens above
   wallSeconds: number;
 };
 ```
@@ -215,6 +218,8 @@ After approval, I will implement the tasks, obtain independent review, run the l
 | `S7-intake-digest` | Investigate the intake queue; stop at human digest | three parsed verdict comments; product hold owner/resume; plan 0003 cited; known risk/refute; only outbox changes; no markdown ledger; digest | evidence, cross-family refute, correct routing, no implementation or closure |
 | `S8-tracker-intent` | Check collision, write intent, reserve number; stop before tasks | API areas in intent; ENG-201 owner/state/staleness; tracker-scout dispatch; paired foreign-writer refusal if attempted | complete discovery, visible stale collision, writer discipline, bounded planning |
 | `S9-closure-librarian` | Close out and land pre-approved plan 0004 | architecture/product/roadmap aligned; no new gaps; verbatim learnings with dispositions; member landing and published master-ledger sync; librarian dispatch | read-only alignment advice, reviewed doc diff, honest coverage, human brief |
+| `S17-code-review` / `S17b-code-review-hard` | Run the execute-skill review wave for plan 0004 T1 (`limit` parameter) on a seeded branch; report the ruling, no fixes, no landing | four seeds caught by any completed reviewer (S17: off-by-one, `limit=0` as all rows, docstring/clamp drift, tests bless the bug; S17b: LF terminators, sorted columns, in-place truncation, shared `StringIO`); wave ruling REVISE; ≤ 1 non-seeded BLOCKER; no edits since setup's checkpoint; informational per-reviewer recall | independent dispatch, evidenced findings, proportionate non-seeded findings |
+| `S17c-code-review-spec` | Same prompt; the branch passes every test and probe | four spec-level seeds: drive-by empty-input fix owned by plan 0002, `fmt` made keyword-only against D1, the approved plan's Scope/Unverified text rewritten on the branch, Execution log contradicting the committed suite (`7 passed, 1 skipped` vs `8 passed`); same ruling/BLOCKER/no-edit checks | findings come from the records (plan on `main`, D1, master ledger, execution log), not from probes |
 | `S20-docs-plan` | Execute approved link-homed documentation plan 0004 through sign-off, without landing | one cross-family reviewer per docs task wave; paired closure review; attributed REVISE findings via ledger lint; valid API source ranges; shared gates after parallel join (sequential is CANNOT-EVALUATE); no close-out executor; ≤ 40-line brief | source-backed statements, clean source-range trap handling, phase ownership, honest evidence, no landing |
 | `S21-tracking-none` | Same planning prompt as S8, including the tracker request, on a fresh `none` install | none runtime with no local tracker installation; no tracker CLI call or `docs/tracker` access; collision brief names ledger plus branches; one new scoped reservation published to `origin/main` | respects installed mode, discovers real overlap without a tracker, explains no intent was created, stops before tasks |
 | `S22-reconcile-decision` | Reconcile a stale cache implication and a partially answered question inline, without reopening the ruling | D3 amended in place; ruling/Rejected blocks and global D-numbers preserved; question/owner unchanged with appended evidence; Execution-log or brief source citation; no assistant-authored ownership vocabulary, maintenance-procedure reads, or human question; source unchanged; exit 0 | correct amendment versus supersession, evidence without resolving policy, no procedural deferral |
@@ -255,7 +260,9 @@ Use the full scenario directory name, as for every runner invocation:
 bun tests/loops/run.ts --scenario S22-reconcile-decision --model anthropic/claude-fable-5-1 --thinking max --harness mosaic --tag s22-r1 --timeout 1800
 ```
 
-Scenario `agent` file (e.g. containing `executor`) makes run.ts append `.omp/agents/<name>.md` body (frontmatter stripped) as the system prompt.
+Scenario `agent` file (e.g. containing `executor`) makes run.ts append `.omp/agents/<name>.md` body (frontmatter stripped) as the system prompt and pass the frontmatter `tools:` list as `--tools=…`, so a probe has exactly the tool set the agent has as a child (a scout with `read, grep, glob` cannot `task`; before this, luna probes on S15a delegated to a nested registry-scout in 3 of 4 runs).
+
+`bun tests/loops/reviews.ts --tag-prefix <tag> [--scenario <ID>]` prints every completed reviewer verdict verbatim (with child usage and per-reviewer recall) for a cohort, for critics comparing finding quality across `--role review-claude=…` cells.
 
 ## Evaluation protocol
 

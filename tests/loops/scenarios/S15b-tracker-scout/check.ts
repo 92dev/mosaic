@@ -9,8 +9,8 @@ import { mosaicChecks, verdict, type Context } from "../checks.ts";
 const unknownKeys = ["ENG-210", "ENG-211", "ENG-212"];
 // ENG-202 has "areas": ["member-a/member_a/cli.py"] (items.json:43): a sibling, not an overlap.
 // ENG-190 has "state": "done" (items.json:114): terminal items are filtered by tracker.ts:253.
-const excluded = /\b(?:not\s+(?:relevant|intersecting|a\s+(?:hit|match))|non[-\s]intersecting|unrelated|out(?:side| of)\s+(?:the\s+)?scope|excluded|does(?:n't| not)\s+(?:intersect|overlap)|no\s+(?:intersection|overlap|match))\b/i;
-const unknownScope = /\b(?:unknown[-\s]+scope|scope\s*(?:[:=—-]|is)?\s*unknown|undeclared(?:[-\s]+scope)?|no\s+(?:(?:managed|declared)\s+)?(?:areas?|scope))\b/i;
+const excluded = /\b(?:not\s+(?:relevant|intersecting|matched|an?\s+(?:hit|match|intersection|overlap))|non[-\s]intersecting|unrelated|out(?:side| of)\s+(?:the\s+)?scope|excluded|omit(?:ted|s)?|does(?:n't| not)\s+(?:intersect|overlap)|no\s+(?:intersection|overlap|match))\b/i;
+const unknownScope = /\b(?:unknown[-\s]+scope|scope\s*(?:[:=—-]|is)?\s*unknown|undeclared(?:[-\s]+scope)?|no\s+(?:(?:managed|declared)\s+)?(?:areas?|scope)|areas?\s*(?:[:=—-]|is|are)?\s*(?:none(?:\s+declared)?|unknown))\b/i;
 
 function report(ctx: Context): string {
   const value = ctx.metrics?.finalText;
@@ -28,8 +28,9 @@ function rows(value: string) {
     if (keys.length) {
       current = keys.map(key => ({ key, content: line, section }));
       result.push(...current);
-    } else if (/^\s*#{1,6}\s/.test(line) || /:\s*$/.test(line)
-      || /^(?:unknown[-\s]+scope|declared(?:[-\s]+(?:scope|hits|intersections))?|not intersecting|excluded|historical)\s*$/i.test(line.trim())) {
+    } else if (/^\s*#{1,6}\s/.test(line) || /:\s*$/.test(line) || /^\s*\*\*.+\*\*(?:\s*\(.*\))?\s*$/.test(raw)
+      // A section opener may run on into prose: "Unknown scope. These items are unmanaged…".
+      || /^(?:active\s+but\s+)?(?:unknown[-\s]+scope|declared(?:[-\s]+(?:scope|hits|intersections?))?|not\s+(?:intersecting|matched)|excluded|historical)\b/i.test(line.trim())) {
       section = line;
       current = [];
     } else if (!line.trim()) current = [];
@@ -42,8 +43,10 @@ export default async function (ctx: Context) {
   return mosaicChecks(ctx, {
     "declared-hit": () => {
       const hits = rows(report(ctx)).filter(row => row.key === "ENG-201");
+      // A heading naming both kinds ("declared intersections and unknown-scope matches:") does not reclassify its rows.
       const found = hits.some(row => /\bdana\b/i.test(row.content) && /\bexecuting\b/i.test(row.content)
-        && !excluded.test(row.content) && !excluded.test(row.section) && !unknownScope.test(`${row.section}\n${row.content}`)
+        && !excluded.test(row.content) && !excluded.test(row.section) && !unknownScope.test(row.content)
+        && !(unknownScope.test(row.section) && !/\bdeclared\b/i.test(row.section))
         && [...row.content.matchAll(/\b(?:stale(?:ness)?|age)\s*(?:[:=]|is)?\s*(\d+(?:\.\d+)?)\s*(?:days?\b|d\b|(?=[,;|)}\]—]|$))|(?<![-\w.])(\d+(?:\.\d+)?)\s*(?:days?|d)\s+(?:stale|old|ago)\b|\(\s*(\d+(?:\.\d+)?)\s*d(?:ays?)?\s*\)/gi)]
           .some(match => Number(match[1] ?? match[2] ?? match[3]) >= 9));
       return verdict(found, hits.map(row => row.content).join("\n") || "ENG-201 with dana/executing/stale ≥9d is absent.");
@@ -78,7 +81,8 @@ export default async function (ctx: Context) {
       // .omp/agents/tracker-scout.md:18:
       // "Role: Scouts never judge; report evidence for the caller to decide."
       const advice = report(ctx).split(/\r?\n/).filter(line => {
-        const content = line.replace(/\bmanaged\s+blocks?\b/gi, "");
+        // "not a recommendation on whether work may proceed" disclaims judgment rather than giving it.
+        const content = line.replace(/\bmanaged\s+blocks?\b/gi, "").replace(/\bnot\s+an?\s+(?:recommendation|advice|judg(?:e)?ment|ruling)\b[^.;]*/gi, "");
         return /\b(?:recommend(?:ed|s|ation)?|advis(?:e|ed|es)|blocks|blocking|blockers?)\b|\b(?:should|must|ought\s+to|need(?:s)?\s+to)\s+(?:\w+\s+){0,2}(?:coordinate|contact|wait|pause|hold|defer|proceed|resolve|stop)\b|\b(?:safe|clear|free|ready|allowed)\s+to\s+proceed\b|\b(?:can|may)\s+proceed\b/i.test(content)
           || /(?:^|[.!?]\s+)\s*(?:[-*]\s+)?(?:please\s+)?(?:coordinate|contact|wait|pause|hold|defer|stop|proceed)\b/i.test(content);
       });

@@ -115,6 +115,28 @@ Tokens include input, output, and cache tokens; prompt tokens are the first requ
 | S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-low | 2026-09-25T22:18:24.799Z | 33472 | 13878 | 0.0583 | 2 | 3 | 5/0/0 | claude-orchestrator:better, gpt-critic:worse | m1-2 |
 | S15a-registry-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-26T11:21:21.140Z | 62608 | 7948 | 0.0026 | 6 | 11 | 5/0/0 | claude-orchestrator:better | m5-1 |
 | S15a-registry-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-26T11:22:21.905Z | 73686 | 7944 | 0.0025 | 7 | 6 | 5/0/0 | claude-orchestrator:better | m5-2 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-max | 2026-09-29T13:38:09.666Z | 433681 | 42602 | 0.6913 | 7 | 26 | 5/0/0 |  | s55-1 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-low | 2026-09-29T13:38:09.691Z | 89944 | 42604 | 0.2041 | 2 | 5 | 5/0/0 |  | s55-1 |
+| S15a-registry-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:38:09.722Z | 108199 | 25596 | 0.0040 | 4 | 3 | 2/3/0 |  | s55-1 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-medium | 2026-09-29T13:38:09.754Z | 140250 | 42604 | 0.2352 | 3 | 8 | 4/1/0 |  | s55-1 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-low | 2026-09-29T13:38:23.051Z | 138395 | 42606 | 0.1332 | 3 | 6 | 5/0/0 |  | s55-2 |
+| S15a-registry-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:38:26.951Z | 362728 | 25588 | 0.0073 | 13 | 12 | 4/1/0 |  | s55-2 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-medium | 2026-09-29T13:38:29.838Z | 189688 | 42604 | 0.1582 | 4 | 11 | 5/0/0 |  | s55-2 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-max | 2026-09-29T13:43:34.161Z | 646887 | 42604 | 0.7798 | 9 | 33 | 5/0/0 |  | s55-2 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-medium | 2026-09-29T13:45:20.939Z | 139633 | 42610 | 0.2109 | 3 | 8 | 4/1/0 |  | s55-3 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-low | 2026-09-29T13:45:20.964Z | 139052 | 42608 | 0.1355 | 3 | 6 | 5/0/0 |  | s55-3 |
+| S15a-registry-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:45:20.985Z | 159040 | 25594 | 0.0046 | 6 | 5 | 4/1/0 |  | s55-3 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-low | 2026-09-29T13:45:36.310Z | 139182 | 42608 | 0.1356 | 3 | 6 | 5/0/0 |  | s55-4 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-medium | 2026-09-29T13:45:39.636Z | 141030 | 42608 | 0.1451 | 3 | 8 | 4/1/0 |  | s55-4 |
+| S15a-registry-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:45:58.898Z | 222459 | 25596 | 0.0082 | 8 | 7 | 5/0/0 |  | s55-4 |
+| S15a-registry-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:50:37.893Z | 59857 | 11060 | 0.0027 | 4 | 12 | 5/0/0 |  | s55t-1 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-low | 2026-09-29T13:50:37.919Z | 41036 | 18211 | 0.1026 | 2 | 5 | 5/0/0 |  | s55t-1 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-medium | 2026-09-29T13:50:37.962Z | 91107 | 18211 | 0.1368 | 4 | 11 | 5/0/0 |  | s55t-1 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-low | 2026-09-29T13:50:50.422Z | 66929 | 18213 | 0.1146 | 3 | 9 | 5/0/0 |  | s55t-2 |
+| S15a-registry-scout | mosaic | anthropic/claude-sonnet-5-5-medium | 2026-09-29T13:50:59.848Z | 115201 | 18211 | 0.1283 | 5 | 11 | 5/0/0 |  | s55t-2 |
+| S15a-registry-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:51:10.420Z | 61664 | 11062 | 0.0030 | 4 | 14 | 4/1/0 |  | s55t-2 |
+| S15a-registry-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:51:42.725Z | 59014 | 11060 | 0.0025 | 4 | 9 | 5/0/0 |  | s55t-3 |
+| S15a-registry-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:52:02.567Z | 53626 | 11062 | 0.0026 | 4 | 10 | 5/0/0 |  | s55t-4 |
 | S15b-tracker-scout | mosaic | anthropic/claude-haiku-4-5-low | 2026-09-25T22:14:24.234Z | 164748 | 10351 | 0.0540 | 11 | 13 | 6/0/0 | claude-orchestrator:better, gpt-critic:better | m1-1 |
 | S15b-tracker-scout | mosaic | openai-codex/gpt-6-luna-low | 2026-09-25T22:15:08.914Z | 71321 | 7887 | 0.0018 | 7 | 6 | 4/2/0 | claude-orchestrator:worse, gpt-critic:worse | m1-1 |
 | S15b-tracker-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-25T22:15:33.241Z | 147229 | 7887 | 0.0039 | 13 | 12 | 4/2/0 | claude-orchestrator:worse, gpt-critic:worse | m1-1 |
@@ -131,6 +153,16 @@ Tokens include input, output, and cache tokens; prompt tokens are the first requ
 | S15b-tracker-scout | mosaic | anthropic/claude-haiku-4-5-low | 2026-09-25T22:24:22.710Z | 68885 | 10349 | 0.0363 | 5 | 4 | 5/1/0 | gpt-critic:worse | m2-2 |
 | S15b-tracker-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-26T11:21:50.027Z | 77228 | 7902 | 0.0027 | 7 | 10 | 6/0/0 | claude-orchestrator:better | m5-1 |
 | S15b-tracker-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-26T11:22:54.947Z | 50644 | 7900 | 0.0019 | 5 | 4 | 6/0/0 | claude-orchestrator:better | m5-2 |
+| S15b-tracker-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:38:09.787Z | 140363 | 25486 | 0.0047 | 5 | 7 | 6/0/0 |  | s55-1 |
+| S15b-tracker-scout | mosaic | anthropic/claude-sonnet-5-5-medium | 2026-09-29T13:38:09.814Z | 185044 | 42466 | 0.2367 | 4 | 3 | 6/0/0 |  | s55-1 |
+| S15b-tracker-scout | mosaic | anthropic/claude-sonnet-5-5-low | 2026-09-29T13:38:09.847Z | 185111 | 42466 | 0.2374 | 4 | 3 | 6/0/0 |  | s55-1 |
+| S15b-tracker-scout | mosaic | anthropic/claude-sonnet-5-5-max | 2026-09-29T13:38:09.875Z | 353411 | 42462 | 0.6237 | 6 | 14 | 6/0/0 |  | s55-1 |
+| S15b-tracker-scout | mosaic | anthropic/claude-sonnet-5-5-low | 2026-09-29T13:38:27.001Z | 185216 | 42464 | 0.1459 | 4 | 3 | 6/0/0 |  | s55-2 |
+| S15b-tracker-scout | mosaic | anthropic/claude-sonnet-5-5-medium | 2026-09-29T13:38:27.214Z | 185011 | 42466 | 0.1442 | 4 | 3 | 6/0/0 |  | s55-2 |
+| S15b-tracker-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:38:33.446Z | 141008 | 25486 | 0.0048 | 5 | 4 | 6/0/0 |  | s55-2 |
+| S15b-tracker-scout | mosaic | anthropic/claude-sonnet-5-5-max | 2026-09-29T13:43:34.140Z | 523601 | 42464 | 0.4746 | 9 | 17 | 6/0/0 |  | s55-2 |
+| S15b-tracker-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:50:37.941Z | 68101 | 10840 | 0.0027 | 5 | 4 | 6/0/0 |  | s55t-1 |
+| S15b-tracker-scout | mosaic | openai-codex/gpt-6-luna-medium | 2026-09-29T13:51:00.019Z | 67270 | 10838 | 0.0026 | 5 | 7 | 6/0/0 |  | s55t-2 |
 | S16a-acceptance-trap | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T14:13:12.050Z | 7133508 | 13450 | 3.7311 | 65 | 102 | 7/1/0 | claude-orchestrator:worse, gpt-critic:same | l1-1 |
 | S16a-acceptance-trap | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T14:31:15.235Z | 8481457 | 13448 | 4.6880 | 72 | 117 | 8/0/0 | claude-orchestrator:better, gpt-critic:worse | l1-1 |
 | S16a-acceptance-trap | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T15:12:43.199Z | 8320323 | 13450 | 4.3429 | 74 | 129 | 8/0/0 | claude-orchestrator:better, gpt-critic:same | l1-2 |
@@ -149,6 +181,12 @@ Tokens include input, output, and cache tokens; prompt tokens are the first requ
 | S17-code-review | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T17:50:21.288Z | 267169 | 13278 | 0.4842 | 10 | 14 | 8/0/0 | claude-orchestrator:worse | l2-1 |
 | S17-code-review | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T18:00:02.752Z | 448036 | 13278 | 0.6621 | 13 | 19 | 8/0/0 | claude-orchestrator:better | l2-2 |
 | S17-code-review | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T18:05:45.553Z | 420962 | 13280 | 0.7568 | 12 | 22 | 8/0/0 | claude-orchestrator:better | l2-2 |
+| S17-code-review | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T13:48:15.381Z | 1143068 | 41177 | 1.0992 | 17 | 31 | 9/0/0 |  | s55-1 |
+| S17-code-review | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T13:48:15.381Z | 979423 | 41179 | 0.9247 | 16 | 26 | 9/0/0 |  | s55-1 |
+| S17-code-review | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T13:48:15.381Z | 1324078 | 41179 | 1.1752 | 20 | 31 | 9/0/0 |  | s55-1 |
+| S17-code-review | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T13:52:44.168Z | 998750 | 41843 | 0.8405 | 16 | 23 | 9/0/0 |  | s55-2 |
+| S17-code-review | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T13:53:21.845Z | 1063090 | 41845 | 0.9844 | 16 | 29 | 9/0/0 |  | s55-2 |
+| S17-code-review | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T14:02:05.039Z | 1088081 | 41843 | 0.8884 | 17 | 28 | 9/0/0 |  | s55-2 |
 | S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T18:53:17.689Z | 506723 | 13288 | 0.6504 | 15 | 25 | 6/0/2 | claude-orchestrator:better | l3-1 |
 | S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T18:53:17.714Z | 824291 | 13284 | 0.9649 | 20 | 33 | 8/0/0 | claude-orchestrator:better | l3-1 |
 | S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T18:59:23.966Z | 535918 | 13286 | 0.6410 | 16 | 23 | 8/0/0 | claude-orchestrator:better | l3-1 |
@@ -157,6 +195,21 @@ Tokens include input, output, and cache tokens; prompt tokens are the first requ
 | S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T19:10:02.281Z | 452399 | 13286 | 0.7990 | 12 | 21 | 8/0/0 | claude-orchestrator:better | l3-2 |
 | S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T19:16:28.355Z | 509079 | 13286 | 0.6916 | 15 | 22 | 8/0/0 | claude-orchestrator:better | l3-2 |
 | S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-26T19:22:39.240Z | 732125 | 13286 | 0.9126 | 19 | 30 | 8/0/0 | claude-orchestrator:better | l3-2 |
+| S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T13:50:16.519Z | 978938 | 41849 | 1.0409 | 15 | 28 | 9/0/0 |  | s55-1 |
+| S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T13:50:16.519Z | 1297806 | 41849 | 1.1116 | 19 | 34 | 8/1/0 |  | s55-1 |
+| S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T13:50:16.519Z | 1850220 | 41849 | 1.2968 | 26 | 39 | 9/0/0 |  | s55-1 |
+| S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T13:56:57.470Z | 1291224 | 41851 | 1.0059 | 19 | 32 | 9/0/0 |  | s55-2 |
+| S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T13:58:10.019Z | 1176481 | 41847 | 0.9287 | 18 | 28 | 9/0/0 |  | s55-2 |
+| S17b-code-review-hard | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T14:06:00.900Z | 1528664 | 41851 | 2.5865 | 22 | 35 | 9/0/0 |  | s55-2 |
+| S17c-code-review-spec | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T14:33:04.194Z | 1344400 | 41851 | 1.0663 | 19 | 32 | 9/0/0 |  | s55-1 |
+| S17c-code-review-spec | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T14:33:04.194Z | 1554677 | 41851 | 1.3608 | 21 | 35 | 8/1/0 |  | s55-1 |
+| S17c-code-review-spec | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T14:33:04.194Z | 1815773 | 41849 | 1.4826 | 25 | 37 | 9/0/0 |  | s55-1 |
+| S17c-code-review-spec | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T14:33:04.194Z | 1591533 | 41851 | 1.4112 | 21 | 38 | 9/0/0 |  | s55-1 |
+| S17c-code-review-spec | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T14:42:55.227Z | 105849 | 41849 | 1.4254 | 1 | 0 | 3/0/6 | taint:same | s55-2 |
+| S17c-code-review-spec | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T14:44:30.526Z | 833521 | 41851 | 2.2115 | 14 | 25 | 9/0/0 |  | s55-2 |
+| S17c-code-review-spec | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T14:50:23.900Z | 1040878 | 41851 | 1.1344 | 16 | 27 | 9/0/0 |  | s55-3 |
+| S17c-code-review-spec | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T14:53:04.321Z | 1593080 | 41187 | 1.2438 | 22 | 36 | 9/0/0 |  | s55-2 |
+| S17c-code-review-spec | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-29T14:57:34.683Z | 1621061 | 41183 | 1.3237 | 23 | 35 | 9/0/0 |  | s55-2 |
 | S19-kit-maintain | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T13:10:37.792Z | 2228394 | 7529 | 0.7561 | 50 | 80 | 6/0/0 |  | clean-1 |
 | S19-kit-maintain | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-27T13:41:36.125Z | 2824462 | 13304 | 1.9610 | 36 | 62 | 5/1/0 |  | clean-1 |
 | S2-approval-brief | baseline | anthropic/claude-opus-5-xhigh | 2026-09-24T14:56:15.509Z | 449668 | 19616 | 0.8567 | 12 | 20 | 2/0/0 | claude-orchestrator:same, gpt-critic:same | baseline-v0 |
@@ -176,6 +229,10 @@ Tokens include input, output, and cache tokens; prompt tokens are the first requ
 | S20-docs-plan | mosaic | openai-codex/gpt-6-sol-xhigh | 2026-09-27T18:19:06.208Z | 7769920 | 7496 | 2.1085 | 117 | 164 | 7/0/0 |  | docs-2 |
 | S20-docs-plan | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-27T18:53:32.266Z | 11034304 | 13243 | 5.8851 | 83 | 146 | 7/0/0 |  | docs-1 |
 | S20-docs-plan | mosaic | anthropic/claude-opus-5-5-xhigh | 2026-09-27T19:18:50.375Z | 11366588 | 13241 | 5.4217 | 91 | 129 | 7/0/0 |  | docs-2 |
+| S22-reconcile-decision | mosaic | anthropic/claude-fable-5-1-max | 2026-09-28T09:10:07.135Z | 252494 | 13337 | 1.4250 | 8 | 17 | 5/2/0 |  | s22-r1 |
+| S22-reconcile-decision | mosaic | anthropic/claude-fable-5-1-max | 2026-09-28T09:10:07.183Z | 379758 | 13335 | 1.6831 | 11 | 24 | 5/2/0 |  | s22-r2 |
+| S22-reconcile-decision | mosaic | anthropic/claude-fable-5-1-max | 2026-09-28T09:17:05.238Z | 368518 | 13340 | 1.4147 | 11 | 24 | 7/0/0 | codex:better | s22-r2 |
+| S22-reconcile-decision | mosaic | anthropic/claude-fable-5-1-max | 2026-09-28T09:17:05.275Z | 364418 | 13338 | 1.5378 | 10 | 22 | 7/0/0 | codex:better | s22-r1 |
 | S3-governed-edit | baseline | anthropic/claude-opus-5-xhigh | 2026-09-24T14:56:15.528Z | 594650 | 19694 | 1.0207 | 13 | 17 | 5/1/0 | claude-orchestrator:same, gpt-critic:same | baseline-v0 |
 | S3-governed-edit | baseline | openai-codex/gpt-6-astra-xhigh | 2026-09-24T15:04:54.563Z | 257505 | 11740 | 0.6394 | 10 | 20 | 5/1/0 | claude-orchestrator:same, gpt-critic:same | baseline-v0-promptv2 |
 | S3-governed-edit | mosaic | anthropic/claude-opus-5-xhigh | 2026-09-24T15:10:57.365Z | 692283 | 19463 | 0.9933 | 21 | 19 | 5/1/0 | claude-orchestrator:worse, gpt-critic:worse | mosaic-v0-promptv2 |

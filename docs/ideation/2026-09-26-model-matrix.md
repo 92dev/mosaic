@@ -38,6 +38,8 @@ Tolerance table (originally `model-notes.md`, now `kit/docs/kit/maintenance.md`)
 
 Claude parent + sol investigator; sonnet-5 as the Claude reviewer; S14 with an adversary that pushes scope; sol staleness wording on S8 after a text fix; the new role table as the fixture default.
 
+2026-09-29: sonnet-5-5 measured as scout (S15a/S15b) and as the Claude reviewer (S17/S17b and the new spec-level S17c), with effort ladders for both models — see `2026-09-29-sonnet-5-5.md`. Outcome: luna stays for scouts (sonnet-5-5 low becomes the Claude fallback in place of haiku), opus-5-5 medium stays as `review-claude`, and `max` is overthinking on every job measured.
+
 ## Addendum 2026-09-26 (decisions + reviewer pairs)
 
 Decisions applied to the fixture config: adversary `critic` = astra max (plan safety); executor `templated` = sol medium. Reviewer-pair measurement on S1 (opus-5-5 xhigh orchestrator, 2 runs per pair, `'/Users/osm/.omp/agent/sessions/-github-mosaic/2026-09-24T12-54-53-623Z_01a0d37b-afb7-7221-b4da-cdc4cbb87189/ReviewerPairCritic.md'`):

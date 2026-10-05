@@ -3,7 +3,7 @@ import { checks, command, text, unavailable, verdict, type Context } from "../ch
 
 const reviewers = ["claude-reviewer", "gpt-reviewer"] as const;
 type Reviewer = typeof reviewers[number];
-type Review = { agent: Reviewer; verdict: string; body: string };
+export type Review = { agent: Reviewer; verdict: string; body: string };
 const isReviewer = (name: unknown): name is Reviewer => reviewers.some(reviewer => reviewer === name);
 const seeds = {
   "terminator-caught": [
@@ -120,7 +120,7 @@ export function reviewerResults(events: LoopEvent[]): Review[] {
   return results;
 }
 
-function findingBlocks(body: string): string[] {
+export function findingBlocks(body: string): string[] {
   const lines = body.split(/\r?\n/);
   const findingHeading = /^\s*(?:#{1,6}\s*)?(?:blocking )?findings\s*(?::|$)/i;
   const heading = lines.findIndex(line => findingHeading.test(plain(line)));
@@ -155,16 +155,20 @@ function findingEvidence(reviews: Review[], seed: Seed): string[] {
   })))];
 }
 
-function rulingLines(body: string) {
+export function rulingLines(body: string) {
   return body.split(/\r?\n/).flatMap(line => {
     const clean = plain(line).trim();
     // A reviewer verdict repeated by the parent is not the parent's wave ruling.
     if (/^(?:[-\d.)\s]*)(?:claude-reviewer|gpt-reviewer)\b/i.test(clean)) return [];
+    // "Your decision: approve sending correction round 1 back to the executor" asks the human; it is not the ruling.
+    if (/^(?:your (?:decision|call)|decision (?:needed|required|for you)|human decision|for you to decide)\b/i.test(clean)) return [];
     const match = /\b(?:(?:review(?: wave)?|wave|overall|final|resolved)(?:\s+(?:ruling|verdict|decision|result))?|ruling|verdict|decision)(?:\s+(?:for\s+)?(?:task\s+)?T1)?\s*(?::|—|-|is)?\s*(REVISE|APPROVE)\b/i.exec(clean)
       ?? /^(?:#{1,6}\s*)?(REVISE|APPROVE)\b/.exec(clean)
-      // "My ruling: T1 does not pass review" / "T1 passes review" are rulings in plain words.
-      ?? (/\b(?:my\s+)?ruling\b[^.\n]{0,40}\b(?:does not|doesn't|did not|fails? to) pass\b|\bruling\b[^.\n]{0,40}\b(?:needs? revision|is REVISE|must be revised|not approved)\b/i.test(clean) ? [null, "REVISE"] as unknown as RegExpExecArray
-        : /\b(?:my\s+)?ruling\b[^.\n]{0,40}\bpass(?:es|ed)\b(?! review\s+(?:only|partially))/i.test(clean) ? [null, "APPROVE"] as unknown as RegExpExecArray : null);
+      // "T1 round 1 is REVISE" / "T1: APPROVE" name the task first.
+      ?? /\bT1\b[^.\n]{0,40}\b(?:is|:)\s*(REVISE|APPROVE)\b/i.exec(clean)
+      // "My ruling: T1 does not pass review" / "T1 passes review" / "T1 needs revision" are rulings in plain words.
+      ?? (/\b(?:my\s+)?ruling\b[^.\n]{0,40}\b(?:does not|doesn't|did not|fails? to) pass\b|\bruling\b[^.\n]{0,40}\b(?:needs? revision|is REVISE|must be revised|not approved)\b|\bT1\b[^.\n]{0,40}\b(?:needs? (?:revision|rework|to be revised)|goes back for revision|(?:is|was) (?:sent|returned) (?:back )?for revision|(?:is not|isn't) approved)\b/i.test(clean) ? [null, "REVISE"] as unknown as RegExpExecArray
+        : /\b(?:my\s+)?ruling\b[^.\n]{0,40}\bpass(?:es|ed)\b(?! review\s+(?:only|partially))|\bT1\b[^.\n]{0,40}\b(?:is approved|passes review)\b/i.test(clean) ? [null, "APPROVE"] as unknown as RegExpExecArray : null);
     return match ? [{ decision: match[1].toUpperCase(), line }] : [];
   });
 }
@@ -220,6 +224,17 @@ export default async function (ctx: Context) {
       const untracked = await command(ctx, "git -C member-a ls-files --others --exclude-standard -- member_a/api.py tests");
       return verdict(!branchDiff.trim() && !workDiff.trim() && !indexDiff.trim() && !untracked.trim(),
         `Seed=${seed}; branch=${branch}\nBranch changes: ${branchDiff.trim() || "none"}\nWorktree changes: ${workDiff.trim() || "none"}\nIndex changes: ${indexDiff.trim() || "none"}\nNew files: ${untracked.trim() || "none"}`);
+    },
+    // claude-reviewer.md: "Do not commit or check out branches." Reflog entries newer than the seed commit are the session's;
+    // the orchestrator's review-log commit is allowed, a `checkout:` entry (detached inspection included) is not.
+    "no-checkouts": async () => {
+      const reflog = await command(ctx, "git -C member-a reflog --format=%gs");
+      const entries = reflog.split(/\r?\n/);
+      const seed = entries.findIndex(line => line.startsWith("commit: 0004-T1: add limit parameter"));
+      if (seed < 0) return unavailable("Setup's T1 commit is missing from member-a's reflog.");
+      const session = entries.slice(0, seed);
+      const checkouts = session.filter(line => line.startsWith("checkout:"));
+      return verdict(!checkouts.length, `${session.length} reflog entries since setup; checkouts: ${checkouts.length}\n${checkouts.join("\n") || session.join("\n") || "none"}`);
     },
   });
   // Unlike scored checks, recall stays informational even if the work copy is unavailable.

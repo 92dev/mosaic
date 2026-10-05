@@ -1,5 +1,10 @@
 import { dirname, join } from "node:path";
 
+export type ChildUsage = {
+  id: string; agent: string; modelRole: string; status: string;
+  cost: number; tokens: number; requests: number; durationMs: number; toolCount: number;
+};
+
 export type Metrics = {
   requests: number;
   turns: number;
@@ -13,6 +18,7 @@ export type Metrics = {
   ttsrTriggered: string[];
   finalText: string;
   assistantTexts: string[];        // every assistant text block in order; briefs may precede a short closing message
+  children: ChildUsage[];          // subagents spawned by `task`, last progress snapshot each; not included in the parent's cost/tokens
   wallSeconds: number;
 };
 
@@ -42,12 +48,15 @@ export function parseEvents(lines: string[]): Metrics {
     ttsrTriggered: [],
     finalText: "",
     assistantTexts: [],
+    children: [],
     wallSeconds: 0,
   };
   let firstTime = Infinity;
   let lastTime = -Infinity;
   const number = (value: unknown) => typeof value === "number" && Number.isFinite(value) ? value : 0;
   const toolCalls = new Map<string, number>();
+  const taskCalls = new Set<unknown>();
+  const children = new Map<string, ChildUsage>();
 
   for (const [index, line] of lines.entries()) {
     if (!line.trim()) continue;
@@ -92,12 +101,25 @@ export function parseEvents(lines: string[]): Metrics {
       const name = event.toolName;
       const args = isRecord(event.args) ? event.args : {};
       toolCalls.set(name, (toolCalls.get(name) ?? 0) + 1);
+      if (/(?:^|\.)task$/.test(name)) taskCalls.add(event.toolCallId);
       if (name === "read" && typeof args.path === "string") metrics.reads.push(args.path);
       if ((name === "edit" || name === "write") && typeof args.path === "string") metrics.edits.push(args.path);
       if (name === "edit" && typeof args.input === "string") {
         for (const match of args.input.matchAll(/^\[([^\r\n]+)#[\da-f]{4}\]\s*$/gim)) metrics.edits.push(match[1]);
       }
       if (name === "bash" && typeof args.command === "string") metrics.bash.push(args.command);
+    }
+    // `task` streams one progress row per child; the last snapshot carries the child's final usage.
+    if ((event.type === "tool_execution_update" || event.type === "tool_execution_end") && taskCalls.has(event.toolCallId)) {
+      const payload = event.type === "tool_execution_end" ? event.result : event.partialResult;
+      const details = isRecord(payload) && isRecord(payload.details) ? payload.details : {};
+      for (const row of Array.isArray(details.progress) ? details.progress : []) {
+        if (!isRecord(row) || typeof row.id !== "string") continue;
+        children.set(row.id, {
+          id: row.id, agent: String(row.agent ?? ""), modelRole: String(row.modelRole ?? ""), status: String(row.status ?? ""),
+          cost: number(row.cost), tokens: number(row.tokens), requests: number(row.requests), durationMs: number(row.durationMs), toolCount: number(row.toolCount),
+        });
+      }
     }
     if (event.type === "ttsr_triggered") {
       for (const rule of Array.isArray(event.rules) ? event.rules : []) {
@@ -106,6 +128,7 @@ export function parseEvents(lines: string[]): Metrics {
     }
   }
   metrics.toolCalls = Object.fromEntries(toolCalls);
+  metrics.children = [...children.values()];
   if (Number.isFinite(firstTime) && Number.isFinite(lastTime)) metrics.wallSeconds = (lastTime - firstTime) / 1000;
   return metrics;
 }

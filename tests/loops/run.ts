@@ -110,11 +110,16 @@ export function isCheckResult(value: unknown): value is CheckResult {
     && (value.outcome === "PASS" || value.outcome === "FAIL" || value.outcome === "CANNOT-EVALUATE");
 }
 
-async function writeAgentBody(workDir: string, runDir: string, agent: string) {
+// Writes the agent body (frontmatter stripped) as the system-prompt append and returns the frontmatter `tools:` list,
+// so a probe runs with the same tool set the agent has when dispatched as a child (a scout with read/grep/glob cannot `task`).
+async function writeAgentBody(workDir: string, runDir: string, agent: string): Promise<string[]> {
   const source = await Bun.file(join(workDir, ".omp", "agents", `${agent}.md`)).text();
-  const body = source.replace(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/, "");
+  const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(source);
+  const body = frontmatter ? source.slice(frontmatter[0].length) : source;
   await mkdir(runDir, { recursive: true });
   await Bun.write(join(runDir, "system-append.md"), body);
+  const tools = frontmatter && /^tools:\s*(.+?)\s*$/m.exec(frontmatter[1])?.[1];
+  return tools ? tools.replace(/^\[|\]$/g, "").split(",").map(tool => tool.trim().replace(/^["']|["']$/g, "")).filter(Boolean) : [];
 }
 
 async function setupFixture(workDir: string, scenarioDir: string, env: NodeJS.ProcessEnv) {
@@ -199,11 +204,16 @@ async function main() {
     if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(agent)) throw new Error(`Invalid agent name: ${agent}`);
     command.push("--append-system-prompt", join(runDir, "system-append.md"));
   }
-  command.push(prompt);
+  // The agent's frontmatter tools are read from the prepared work copy, so the prompt is appended after setup.
+  const finish = async () => {
+    const tools = agent ? await writeAgentBody(workDir, runDir, agent) : [];
+    if (tools.length) command.push(`--tools=${tools.join(",")}`);
+    command.push(prompt);
+  };
   if (values["dry-run"]) {
     const setup = await setupFixture(workDir, scenarioDir, environment);
     if (setup.code) throw new Error(setup.error);
-    if (agent) await writeAgentBody(workDir, runDir, agent);
+    await finish();
     console.log(command.map(arg => /^[A-Za-z0-9_./:@=-]+$/.test(arg) ? arg : `'${arg.replace(/'/g, `'\\''`)}'`).join(" "));
     return 0;
   }
@@ -224,7 +234,7 @@ async function main() {
       meta.exitCode = setup.code;
       throw new Error(setup.error);
     }
-    if (agent) await writeAgentBody(workDir, runDir, agent);
+    await finish();
     for (const repo of await repositories(workDir)) {
       const revision = await execute(["git", "rev-parse", "HEAD"], repo);
       if (revision.code) throw new Error(`Cannot read fixture HEAD: ${repo}\n${revision.stderr}`);
