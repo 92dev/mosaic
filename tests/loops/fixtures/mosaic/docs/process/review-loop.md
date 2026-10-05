@@ -3,13 +3,13 @@ description: "Review task diffs independently, route precise findings back to th
 ---
 Read when: a task or parallel wave is ready for review, or a reviewer returns findings.
 # Review inputs
-- Give each reviewer the plan path (or in-memory task for the light path), target repo paths, branch name, and tasks under review; include the Review checklist and [pitfalls catalog](../architecture/pitfalls.md) pointer.
+- Give each reviewer the plan path (or in-memory task for the light path), target repo paths, branch name, and tasks under review; include the Review checklist and the pitfall catalogs of every touched repo and the link ([pitfalls.md](../architecture/pitfalls.md), `<member>/docs/pitfalls.md`).
 - Commit the work under review first: `git diff main...<branch>` excludes uncommitted edits, so an uncommitted task shows the reviewer an empty diff. Then review `git -C <repo> diff main...<branch>` separately in each repo, including untracked additions (`git status --porcelain`); what lands must be the reviewed snapshot.
 - Read `rule://registries` for challenger reading and [targeted-tests](targeted-tests.md) (loaded automatically inside executor and reviewer agents; the main session reads the file) for review-time checks.
 # Verdict and correction
 - Dispatch the independent reviewers required by the active runtime with identical inputs; each must return `APPROVE`.
 - Exception: `class: docs` task waves use one cross-family reviewer per `rule://dispatch`; closure packets still require the full pair.
-- Each verdict is `APPROVE` or `REVISE`, with numbered actionable findings: S/P, file:line, what, why, cited decision/pitfall, and precise fix instruction. S = substantive (would land a wrong record, false claim, broken landing, or defect); P = procedural. Optional improvements stay `[note]`s.
+- Each verdict is `APPROVE` or `REVISE`, with numbered actionable findings: S/P, file:line, what, why, the violated rule or trap quoted (a P-number alone is not grounding), and precise fix instruction. S = substantive (would land a wrong record — a misrouted, duplicate, or mis-homed entry included —, false claim, broken landing, or defect); P = procedural. Optional improvements stay `[note]`s.
 - In the Execution log, write one verdict line per task/reviewer/round, then one line per finding using these shapes (`closure` names the closure task):
   `- <task> R<round> <reviewer>: APPROVE|REVISE (<n> findings)`
   `- <task> R<round> <reviewer>: <S|P> — <finding in ≤ 15 words> → <fixed|rejected: reason|deferred: where>`

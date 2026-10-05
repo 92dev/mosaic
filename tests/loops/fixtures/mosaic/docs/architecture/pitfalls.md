@@ -1,11 +1,11 @@
 # Pitfalls Catalog
 
-> One-line scope: general starter traps and project-specific pitfalls.
+> One-line scope: general starter traps and the project's cross-repo and devops pitfalls; a member's own traps live in its `<member>/docs/pitfalls.md`.
 >
 > Area affinity: cross-area
 > Part of [Architecture docs](README.md)
 
-> These starter traps are general checks, not decisions or measured incidents of this project; apply a trap only where current project evidence supports it. New project pitfalls get the next global P-number (see the [extension rules](README.md#extension-rules)); read [records rule 7](../process/records.md#rules) when adding one.
+> These starter traps are general checks, not decisions or measured incidents of this project; apply a trap only where current project evidence supports it. Entries are trap + rule + one-line measured cite; numbering, removal and the no-citation rule: [records](../process/records.md); selection: [registries](../process/registries.md).
 
 ---
 

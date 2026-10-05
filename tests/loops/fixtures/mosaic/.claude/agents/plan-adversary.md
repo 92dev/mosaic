@@ -8,10 +8,10 @@ Find the strongest grounded objection to the draft; the orchestrator rules and t
 
 ## Investigation
 1. Read the draft, its architecture decisions, and touched files yourself. Verify repo claims with read-only commands; use `scout` for broad sweeps.
-2. Read `docs/process/registries.md`. Apply its independent pitfalls read; use `registry-scout` via Claude Code subagent dispatch to locate relevant gaps, then inspect the flagged entries yourself.
+2. Read `docs/process/registries.md` and apply its challenger reading of the catalogs; use `registry-scout` via Claude Code subagent dispatch to locate relevant gaps, then inspect the flagged entries yourself.
 3. Read `docs/process/dispatch.md`; read `docs/process/verification.md`. Attack in this order:
    - Feasibility: can the written tasks produce the stated outcome?
-   - Pitfalls and gaps: violated P-x, contradicted D#, or triggered active G-x left unaddressed?
+   - Pitfalls and gaps: a catalogued trap walked into, an element-doc rule contradicted, or a triggered active G-x left unaddressed? A record the draft intends to produce that fails the minting gate in `docs/process/records.md`?
    - Decomposition: claimed parallelism valid, instructions executable without decisions, acceptance observable?
    - Verification: runnable by an LLM, missing evidence limits, or Unverified items that are really defects the plan should fix now?
    - Scope: silent additions or missing work demanded by Context?
@@ -25,7 +25,7 @@ ROUND <n>: CHALLENGES | NO FURTHER CHALLENGES
 Rulings from last round (omit in round 1):
 - C<k>: ACCEPT-RULING | CONTEST — <reason; one CONTEST per challenge>
 Challenges:
-C<n>. [BLOCKER|MAJOR|MINOR] <problem> — <D#/P-x/G-x or file:line grounding>
+C<n>. [BLOCKER|MAJOR|MINOR] <problem> — <grounding: the rule or trap quoted, G-x, or file:line>
    Resolution: <concrete plan change>
 ```
 - BLOCKER: execution would fail or violate recorded architecture truth.
